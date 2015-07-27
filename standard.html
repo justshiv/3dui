@@ -14,32 +14,369 @@
 </head>
 <body>
     <!--page content-->
-    <div id="page-content">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="well">
-                    location for threejs render
+    <!--<div id="page-content">-->
+        <!--<div class="container">-->
+            <!--<div class="row">-->
+                <!--<div class="col-md-12">-->
+                    <!--<div class="well">-->
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 
-    <!--sticky footer-->
-    <footer id="footer">
-        <div class="container">
-            <row>
-                <p class="text-muted"> Siobhan O'Donovan 2015</p>
-            </row>
-        </div>
-    </footer>
+                        <div id="ThreeJS"></div>
+
+
 </body>
 
     <!--scripts-->
     <script src="libs/jquery-1.11.3.min.js"></script>
     <script src="libs/bootstrap/bootstrap.min.js"></script>
+    <script src="libs/three/three.min.js"></script>
+    <script src="libs/three/OrbitControls.js"></script>
+
+    <script>
+        // global attributes needed for scene
+        var container = document.getElementById( 'ThreeJS' );
+
+        var camera, controls, scene, renderer;
+        var objects = [], plane;
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2(),
+        offset = new THREE.Vector3(),
+        INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
+
+        var mouseX = 0, mouseY = 0;
+
+        var views = [
+                {
+                    name: "perspective",
+					left: 0,
+					bottom: 0.5,
+					width: 0.5,
+					height: 0.5,
+					background: new THREE.Color("#cecece"),
+					eye: [ 1000, 1000, 1000 ],
+					up: [ 0, 1, 0 ],
+					fov: 45,
+                    camera : new THREE.PerspectiveCamera( this.fov, window.innerWidth / window.innerHeight, 1, 10000 ),
+					updateCamera: function ( camera, scene, mouseX, mouseY ) {
+//                        console.log("perspective");
+//					  camera.position.x += mouseX * 0.05;
+//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
+					  camera.lookAt( scene.position );
+					}
+				}
+                ,
+                {
+                    name: "top",
+					left: 0,
+					bottom: 0,
+					width: 0.5,
+					height: 0.5,
+					background: new THREE.Color("#cecece"),
+					eye: [ 0, 1000, 0 ],
+					up: [ 0, 1, 0 ],
+					fov: 45,
+                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+					updateCamera: function ( camera, scene, mouseX, mouseY ) {
+//					  camera.position.x += mouseX * 0.05;
+//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
+//					  camera.lookAt( scene.position );
+					}
+				}
+                ,
+				{
+                    name: "front",
+					left: 0.5,
+					bottom: 0,
+					width: 0.5,
+					height: 0.5,
+					background: new THREE.Color("#cecece"),
+					eye: [ 0, 0, 1000 ],
+					up: [ 0, 1, 0  ],
+					fov: 45,
+                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+					updateCamera: function ( camera, scene, mouseX, mouseY ) {
+//					  camera.position.x -= mouseX * 0.05;
+//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
+//					  camera.lookAt( scene.position );
+					}
+				}
+                ,
+				{
+                    name: "side",
+					left: 0.5,
+					bottom: 0.5,
+					width: 0.5,
+					height: 0.5,
+					background: new THREE.Color("#cecece"),
+					eye: [ 1000, 0, 0 ],
+					up: [ 0, 1, 0 ],
+					fov: 45,
+                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+					updateCamera: function ( camera, scene, mouseX, mouseY ) {
+//					  camera.position.y -= mouseX * 0.05;
+//					  camera.position.y = Math.max( Math.min( camera.position.y, 2000 ), -2000 );
+//					  camera.lookAt( scene.position );
+					}
+				}
+			];
+
+        function setupViews(){
+
+//                view[0].
+
+                for (var ii =  0; ii < views.length; ++ii ) {
+					var view = views[ii];
+					view.camera.position.x = view.eye[ 0 ];
+					view.camera.position.y = view.eye[ 1 ];
+					view.camera.position.z = view.eye[ 2 ];
+					view.camera.up.x = view.up[ 0 ];
+					view.camera.up.y = view.up[ 1 ];
+					view.camera.up.z = view.up[ 2 ];
+
+
+                    controls = new THREE.OrbitControls( view.camera );
+//                    controls.rotateSpeed = 1.0;
+//                    controls.zoomSpeed = 1.2;
+//                    controls.panSpeed = 0.8;
+//                    controls.noZoom = false;
+//                    controls.noPan = false;
+                    controls.userRotate = false;
+//                    controls.staticMoving = true;
+//                    controls.dynamicDampingFactor = 0.3;
+                    controls.maxDistance = 8000;
+                    controls.minDistance = 500;
+                    controls.enabled = false;
+
+                    view.controls = controls;
+				}
+            }
+
+        init();
+        animate();
+
+        function init() {
+
+            scene = new THREE.Scene();
+            scene.add( new THREE.AmbientLight( 0x505050 ) );
+
+            setupViews();
+
+            var light = new THREE.SpotLight( 0xffffff, 1.5 );
+            light.position.set( 0, 500, 2000 );
+            light.castShadow = true;
+            light.shadowCameraNear = 200;
+            light.shadowCameraFar = 10000;
+            light.shadowCameraFov = 50;
+            light.shadowBias = -0.00022;
+            light.shadowDarkness = 0.5;
+            light.shadowMapWidth = 2048;
+            light.shadowMapHeight = 2048;
+            scene.add( light );
+
+
+            var axes = new THREE.AxisHelper(300);
+            scene.add( axes );
+
+
+            var gridXZ = new THREE.GridHelper(300, 50);
+            gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
+            gridXZ.position.set( 300,0,300 );
+            scene.add(gridXZ);
+
+            var gridXY = new THREE.GridHelper(300, 50);
+            gridXY.position.set( 300,300,0 );
+            gridXY.rotation.x = Math.PI/2;
+            gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
+            scene.add(gridXY);
+            var gridYZ = new THREE.GridHelper(300, 50);
+            gridYZ.position.set( 0,300,300 );
+            gridYZ.rotation.z = Math.PI/2;
+            gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
+            scene.add(gridYZ);
+
+
+            var geometry = new THREE.BoxGeometry( 40, 40, 40 );
+            for ( var i = 0; i < 10; i ++ ) {
+                var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+                object.position.x = Math.random() * 1000 - 500;
+                object.position.y = Math.random() * 600 - 300;
+                object.position.z = Math.random() * 800 - 400;
+                object.rotation.x = Math.random() * 2 * Math.PI;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                object.rotation.z = Math.random() * 2 * Math.PI;
+                object.scale.x = Math.random() * 2 + 1;
+                object.scale.y = Math.random() * 2 + 1;
+                object.scale.z = Math.random() * 2 + 1;
+                object.castShadow = true;
+                object.receiveShadow = true;
+                scene.add( object );
+                objects.push( object );
+            }
+
+            plane = new THREE.Mesh(
+                new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
+                new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
+            );
+            plane.visible = false;
+            scene.add( plane );
+
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0xf0f0f0 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = THREE.PCFShadowMap;
+				container.appendChild( renderer.domElement );
+
+				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+				//
+				window.addEventListener( 'resize', onWindowResize, false );
+			}
+        function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+        function render() {
+
+//                var window.innerWidth  = width, window.innerHeight = window.innerHeight;
+
+                for ( var ii = 0; ii < views.length; ++ii ) {
+					view = views[ii];
+					camera = view.camera;
+                    view.controls.update();
+					view.updateCamera( camera, scene, mouseX, mouseY );
+					var left   = Math.floor( window.innerWidth  * view.left );
+					var bottom = Math.floor( window.innerHeight * view.bottom );
+					var width  = Math.floor( window.innerWidth  * view.width );
+					var height = Math.floor( window.innerHeight * view.height );
+
+					renderer.setViewport( left, bottom, width, height );
+					renderer.setScissor( left, bottom, width-1, height-1 );
+					renderer.enableScissorTest ( true );
+					renderer.setClearColor( view.background );
+					camera.aspect = width / height;
+					camera.updateProjectionMatrix();
+					renderer.render( scene, camera );
+				}
+			}
+
+        function onWindowResize() {
+            for ( var ii = 0; ii < views.length; ++ii ) {
+					view = views[ii];
+					camera = view.camera;
+                    camera.aspect = window.innerWidth / window.innerHeight;
+				    camera.updateProjectionMatrix();
+				    renderer.setSize( window.innerWidth, window.innerHeight );
+				}
+			}
+        function onDocumentMouseMove( event ) {
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+
+                views[0].controls.enabled = false;
+                views[1].controls.enabled = false;
+                views[2].controls.enabled = false;
+                views[3].controls.enabled = false;
+
+                if(mouse.x < 0 && mouse.y > 0){
+                    CURRENTVIEW = 0;
+                    mouse.x += 0.5;
+                    mouse.y -= 0.5;
+                }
+                //top
+                else if(mouse.x < 0 && mouse.y < 0){
+                    CURRENTVIEW = 1;
+                    mouse.x += 0.5;
+                    mouse.y += 0.5;
+                }
+                //front
+                else if(mouse.x > 0 && mouse.y < 0){
+                    CURRENTVIEW = 2;
+
+                    mouse.x -= 0.5;
+                    mouse.y += 0.5;
+                }
+                //side
+                else if(mouse.x > 0 && mouse.y > 0){
+                    CURRENTVIEW = 3;
+                    mouse.x -= 0.5;
+                    mouse.y -= 0.5;
+                }
+                mouse.x*=2;
+                mouse.y*=2;
+
+
+                console.log(mouse.x + "," + mouse.y);
+
+                views[CURRENTVIEW].controls.enabled = true;
+                CURRENTCAM = views[CURRENTVIEW].camera;
+
+
+				raycaster.setFromCamera( mouse, CURRENTCAM );
+				if ( SELECTED ) {
+					var intersects = raycaster.intersectObject( plane );
+					SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+					return;
+				}
+				var intersects = raycaster.intersectObjects( objects );
+				if ( intersects.length > 0 ) {
+					if ( INTERSECTED != intersects[ 0 ].object ) {
+						if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+						INTERSECTED = intersects[ 0 ].object;
+						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+						plane.position.copy( INTERSECTED.position );
+						plane.lookAt( CURRENTCAM.position );
+					}
+					container.style.cursor = 'pointer';
+				} else {
+					if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+					INTERSECTED = null;
+					container.style.cursor = 'auto';
+				}
+			}
+        function onDocumentMouseDown( event ) {
+				event.preventDefault();
+//				var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 ).unproject( CURRENTCAM );
+//                console.log("x: " + mouse.x + " y: " + mouse.y);
+//
+//				var raycaster = new THREE.Raycaster( CURRENTCAM.position, vector.sub( CURRENTCAM.position ).normalize() );
+//				var intersects = raycaster.intersectObjects( objects );
+
+            raycaster.setFromCamera( mouse, CURRENTCAM );
+            var intersects = raycaster.intersectObjects( objects );
+
+				if ( intersects.length > 0 ) {
+					views[CURRENTVIEW].controls.enabled = false;
+					SELECTED = intersects[ 0 ].object;
+					var intersects = raycaster.intersectObject( plane );
+					offset.copy( intersects[ 0 ].point ).sub( plane.position );
+					container.style.cursor = 'move';
+				}
+			}
+        function onDocumentMouseUp( event ) {
+				event.preventDefault();
+				views[CURRENTVIEW].controls.enabled = true;
+				if ( INTERSECTED ) {
+					plane.position.copy( INTERSECTED.position );
+					SELECTED = null;
+				}
+				container.style.cursor = 'auto';
+			}
+
+    </script>
 
 
 </html>
