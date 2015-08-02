@@ -36,6 +36,7 @@
     <script src="libs/bootstrap/bootstrap.min.js"></script>
     <script src="libs/three/three.min.js"></script>
     <script src="libs/three/OrbitControls.js"></script>
+    <script src="libs/three/threex.basiclighting.js"></script>
 
     <script>
         // global attributes needed for scene
@@ -145,7 +146,7 @@
 //                    controls.panSpeed = 0.8;
 //                    controls.noZoom = false;
 //                    controls.noPan = false;
-                    controls.userRotate = false;
+                    controls.userRotate = true;
 //                    controls.staticMoving = true;
 //                    controls.dynamicDampingFactor = 0.3;
                     controls.maxDistance = 8000;
@@ -166,38 +167,43 @@
 
             setupViews();
 
-            var light = new THREE.SpotLight( 0xffffff, 1.5 );
-            light.position.set( 0, 500, 2000 );
-            light.castShadow = true;
-            light.shadowCameraNear = 200;
-            light.shadowCameraFar = 10000;
-            light.shadowCameraFov = 50;
-            light.shadowBias = -0.00022;
-            light.shadowDarkness = 0.5;
-            light.shadowMapWidth = 2048;
-            light.shadowMapHeight = 2048;
-            scene.add( light );
+            // creating scene light
+        var lighting = new THREEx.ThreePointsLighting();
+        scene.add(lighting);
+
+//            var light = new THREE.SpotLight( 0xffffff, 1.5 );
+//            light.position.set( 0, 500, 2000 );
+//            light.castShadow = true;
+//            light.shadowCameraNear = 200;
+//            light.shadowCameraFar = 10000;
+//            light.shadowCameraFov = 50;
+//            light.shadowBias = -0.00022;
+//            light.shadowDarkness = 0.5;
+//            light.shadowMapWidth = 2048;
+//            light.shadowMapHeight = 2048;
+//            scene.add( light );
 
 
             var axes = new THREE.AxisHelper(300);
             scene.add( axes );
 
 
-            var gridXZ = new THREE.GridHelper(300, 50);
+            var gridXZ = new THREE.GridHelper(400, 100);
             gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
-            gridXZ.position.set( 300,0,300 );
+            gridXZ.position.set( 0,0,0 );
             scene.add(gridXZ);
 
-            var gridXY = new THREE.GridHelper(300, 50);
-            gridXY.position.set( 300,300,0 );
+            var gridXY = new THREE.GridHelper(400, 100);
+            gridXY.position.set( 0,0,0 );
             gridXY.rotation.x = Math.PI/2;
             gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
-            scene.add(gridXY);
-            var gridYZ = new THREE.GridHelper(300, 50);
-            gridYZ.position.set( 0,300,300 );
+            //scene.add(gridXY);
+
+            var gridYZ = new THREE.GridHelper(400, 100);
+            gridYZ.position.set( 0,0,0 );
             gridYZ.rotation.z = Math.PI/2;
             gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
-            scene.add(gridYZ);
+//            scene.add(gridYZ);
 
 
             var geometry = new THREE.BoxGeometry( 40, 40, 40 );
@@ -219,10 +225,10 @@
             }
 
             plane = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
+                new THREE.PlaneBufferGeometry( 500, 500, 0, 0 ),
                 new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
             );
-            plane.visible = false;
+            plane.visible = true;
             scene.add( plane );
 
 

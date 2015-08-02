@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Camera Texture (Three.js)</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<!--<link rel=stylesheet href="css/base.css"/>-->
+</head>
+<body>
+
+<script src="libs/experiment/Three.js"></script>
+
+<script src="libs/three/threex.basiclighting.js"></script>
+<script src="libs/three/OrbitControls.js"></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+/*
+	Three.js "tutorials by example"
+	Author: Lee Stemkoski
+	Date: July 2013 (three.js v59dev)
+*/
+// MAIN
+// standard global variables
+var container, scene, renderer, controls, stats;
+var clock = new THREE.Clock();
+// custom global variables
+var MovingCube, plane;
+var frontCamera, mainCamera;
+// intermediate scene for reflecting the reflection
+var screenScene, screenCamera, firstRenderTarget, newRenderTarget, finalRenderTarget;
+init();
+animate();
+// FUNCTIONS 		
+function init() 
+{
+	// SCENE
+	scene = new THREE.Scene();
+	// CAMERAS
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+
+	// camera 1
+	mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+	scene.add(mainCamera);
+	mainCamera.position.set(0,200,500);
+	mainCamera.lookAt(scene.position);
+
+	// camera 2
+	frontCamera = new THREE.OrthographicCamera(
+		window.innerWidth  / -2, window.innerWidth  /  2,
+		window.innerHeight /  2, window.innerHeight / -2,
+		-10000, 399 );
+
+    frontCamera.up.set(0, 1, 0);
+    frontCamera.position.set(0,0,0);
+	frontCamera.lookAt(scene.position);
+	scene.add(frontCamera);
+
+    topCamera = new THREE.OrthographicCamera(
+		window.innerWidth  / -2, window.innerWidth  /  2,
+		window.innerHeight /  2, window.innerHeight / -2,
+		-10000, 399 );
+
+    topCamera.up.set(0, 1, 0);
+    topCamera.position.set(0,400,0);
+	topCamera.lookAt(scene.position);
+	scene.add(topCamera);
+
+	// RENDERER
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    renderer.setClearColor( "lightgray" );
+
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	// EVENTS
+//	THREEx.WindowResize(renderer, mainCamera);
+//	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+
+	// LIGHT
+	    // creating scene light
+        var lighting = new THREEx.ThreePointsLighting();
+        scene.add(lighting);
+	// FLOOR
+
+    var axes = new THREE.AxisHelper(300);
+            scene.add( axes );
+
+
+    var gridXZ = new THREE.GridHelper(400, 100);
+    gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
+    gridXZ.position.set( 0,0,0 );
+    scene.add(gridXZ);
+	////////////
+	// CUSTOM //
+	////////////
+	
+	// create an array with six textures for a cool cube
+    var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50 );
+    var cubeMaterial = new THREE.MeshPhongMaterial( { color:0xff0000 } );
+    MovingCube = new THREE.Mesh( cubeGeometry, cubeMaterial );
+	MovingCube.position.set(0, 25.1, 0);
+	scene.add( MovingCube );	
+	
+	// a little bit of scenery...
+	var ambientlight = new THREE.AmbientLight(0x111111);
+	scene.add( ambientlight );
+	var wireMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } );
+
+	// torus knot
+	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0xff3333 } );
+	var shape = THREE.SceneUtils.createMultiMaterialObject( 
+		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 2, 5 ), [ colorMaterial, wireMaterial ] );
+	shape.position.set(-100, 50, -200);
+	scene.add( shape );
+
+	// torus knot
+	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0x33ff33 } );
+	var shape = THREE.SceneUtils.createMultiMaterialObject( 
+		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 3, 2 ), [ colorMaterial, wireMaterial ] );
+	shape.position.set(200, 50, -200);
+	scene.add( shape );
+
+	// torus knot
+	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0xffff33 } );
+	var shape = THREE.SceneUtils.createMultiMaterialObject( 
+		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 4, 3 ), [ colorMaterial, wireMaterial ] );
+	shape.position.set(100, 50, 200);
+	scene.add( shape );
+
+	// torus knot
+	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0x3333ff } );
+	var shape = THREE.SceneUtils.createMultiMaterialObject( 
+		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 3, 4 ), [ colorMaterial, wireMaterial ] );
+	shape.position.set(-200, 50, 200);
+	scene.add( shape );
+	
+	// intermediate scene.
+	//   this solves the problem of the mirrored texture by mirroring it again.
+	//   consists of a camera looking at a plane with the mirrored texture on it. 
+	screenScene = new THREE.Scene();
+	
+	screenCamera = new THREE.OrthographicCamera( 
+		window.innerWidth  / -2, window.innerWidth  /  2, 
+		window.innerHeight /  2, window.innerHeight / -2, 
+		-10000, 10000 );
+	screenCamera.position.z = 1;
+	screenScene.add( screenCamera );
+				
+	var screenGeometry = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
+	
+	firstRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+	var screenMaterial = new THREE.MeshBasicMaterial( { map: firstRenderTarget } );
+
+    var quad = new THREE.Mesh( screenGeometry, screenMaterial );
+	screenScene.add( quad );
+
+    newRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+    screenMaterial = new THREE.MeshBasicMaterial( { map: newRenderTarget } );
+	
+    quad = new THREE.Mesh( screenGeometry, screenMaterial );
+	screenScene.add( quad );
+
+	// final version of camera texture, used in scene. 
+	var planeGeometry = new THREE.CubeGeometry( 800, 800, 1, 1 );
+	finalRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+	var planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
+    plane = new THREE.Mesh( planeGeometry, planeMaterial );
+	plane.position.set(0,0,-400);
+	scene.add(plane);
+
+//    planeGeometry = new THREE.CubeGeometry( 800, 800, 1, 1 );
+//	finalRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+//    planeMaterial = new THREE.MeshBasicMaterial( { map: finalRenderTarget } );
+//    plane = new THREE.Mesh( planeGeometry, planeMaterial );
+//	plane.position.set(0,-400,0);
+//        plane.rotation.x = Math.PI/2;
+//
+//	scene.add(plane);
+
+	// pseudo-border for plane, to make it easier to see
+	var planeGeometry = new THREE.CubeGeometry( 820, 820, 1, 1 );
+	var planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.5  } );
+	var planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+	planeborder.position.set(0,0,-402);
+	scene.add(planeborder);
+
+    // pseudo-border for plane, to make it easier to see
+    planeGeometry = new THREE.CubeGeometry( 820, 820, 1, 1 );
+    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.5  } );
+    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+	planeborder.position.set(0,-402,0);
+    planeborder.rotation.x = Math.PI/2;
+	scene.add(planeborder);
+
+    // pseudo-border for plane, to make it easier to see
+    planeGeometry = new THREE.CubeGeometry( 820, 820, 1, 1 );
+    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.5  } );
+    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+	planeborder.position.set(-402,0,0);
+    planeborder.rotation.y = Math.PI/2;
+	scene.add(planeborder);
+
+    controls = new THREE.OrbitControls( mainCamera );
+    controls.userRotate = true;
+    controls.enabled = true;
+	
+}
+function animate() 
+{
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+function update()
+{
+	var delta = clock.getDelta(); // seconds.
+	var moveDistance = 200 * delta; // 200 pixels per second
+	var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+}
+function render() 
+{
+    controls.update();
+	// frontCamera is located at the position of MovingCube
+	//   (and therefore is contained within it)
+	// Thus, we temporarily hide MovingCube
+	//    so that it does not obscure the view from the camera.
+	MovingCube.visible = true;
+
+	// put the result of frontCamera into the first texture.
+	renderer.render( scene, frontCamera, firstRenderTarget, true );
+//	renderer.render( screenScene, screenCamera, finalRenderTarget, true );
+//    renderer.render( scene, topCamera, newRenderTarget, true );
+
+    renderer.render( screenScene, screenCamera, finalRenderTarget, true );
+
+
+//	MovingCube.visible = true;
+	// slight problem: texture is mirrored.
+	//    solve problem by rendering (and hence mirroring) the texture again
+
+	// render another scene containing just a quad with the texture
+	//    and put the result into the final texture
+
+	// render the main scene
+	renderer.render( scene, mainCamera );
+}
+</script>
+
+</body>
+</html>
