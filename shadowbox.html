@@ -62,7 +62,7 @@
 			var FAR = 500;
 			var camera, scene, renderer;
 			var cameraControls;
-			var verticalMirror, groundMirror;
+			var backMirror, bottomMirror, frontMirror, leftMirror, rightMirror, topMirror;
 			var sphereGroup, smallSphere;
 
 			function init() {
@@ -73,7 +73,6 @@
 
 				// scene
 				scene = new THREE.Scene();
-
 				// camera
 				camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 				camera.position.set( 0, 75, 160 );
@@ -89,21 +88,57 @@
 				var planeGeo = new THREE.PlaneBufferGeometry( 100.1, 100.1 );
 
 				// MIRROR planes
-				groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color: 0x777777 } );
+                //bottom
+//				bottomMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color: 0x777777 } );
+//				var mirrorMesh = new THREE.Mesh( planeGeo, bottomMirror.material );
+//				mirrorMesh.add( bottomMirror );
+//				mirrorMesh.rotateX( - Math.PI / 2 );
+//				scene.add( mirrorMesh );
 
-				var mirrorMesh = new THREE.Mesh( planeGeo, groundMirror.material );
-				mirrorMesh.add( groundMirror );
-				mirrorMesh.rotateX( - Math.PI / 2 );
-				scene.add( mirrorMesh );
-				verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+                //back
+//				backMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+//                var backMirrorMesh = new THREE.Mesh( planeGeo, backMirror.material );
+//				backMirrorMesh.add( backMirror );
+//                backMirrorMesh.position.set(0, 50, -50);
+//				scene.add( backMirrorMesh );
 
-				var verticalMirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 60, 60 ), verticalMirror.material );
-				verticalMirrorMesh.add( verticalMirror );
-				verticalMirrorMesh.position.y = 35;
-				verticalMirrorMesh.position.z = -45;
-				scene.add( verticalMirrorMesh );
+                //front
+//                frontMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+//                var frontMirrorMesh = new THREE.Mesh( planeGeo, frontMirror.material );
+//				frontMirrorMesh.add( frontMirror );
+//                frontMirrorMesh.position.set(0, 50, 50);
+//                frontMirrorMesh.rotateY( Math.PI );
+//				scene.add( frontMirrorMesh );
+
+                //left
+//                leftMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+//                var leftMirrorMesh = new THREE.Mesh( planeGeo, leftMirror.material );
+//				leftMirrorMesh.add( leftMirror );
+//                leftMirrorMesh.position.set(-50, 50, 0);
+//				leftMirrorMesh.rotateY( Math.PI / 2 );
+//				scene.add( leftMirrorMesh );
+
+                //top
+//                topMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+//                var topMirrorMesh = new THREE.Mesh( planeGeo, topMirror.material );
+//				topMirrorMesh.add( topMirror );
+//                topMirrorMesh.position.set(-50, 50, 0);
+//                topMirrorMesh.position.y = 100;
+//				topMirrorMesh.rotateX( Math.PI / 2 );
+//				scene.add( topMirrorMesh );
+
+                //right
+//                rightMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH, textureHeight: HEIGHT, color:0x889999 } );
+//                var rightMirrorMesh = new THREE.Mesh( planeGeo, rightMirror.material );
+//				rightMirrorMesh.add( rightMirror );
+//                rightMirrorMesh.position.set(50, 50, 0);
+//				rightMirrorMesh.rotateY( - Math.PI / 2 );
+//				scene.add( rightMirrorMesh );
+
+
 				sphereGroup = new THREE.Object3D();
 				scene.add( sphereGroup );
+
 				var geometry = new THREE.CylinderGeometry( 0.1, 15 * Math.cos( Math.PI / 180 * 30 ), 0.1, 24, 1 );
 				var material = new THREE.MeshPhongMaterial( { color: 0xffffff, emissive: 0x444444 } );
 				var sphereCap = new THREE.Mesh( geometry, material );
@@ -126,30 +161,30 @@
 
 				// walls
 				var planeTop = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-				planeTop.position.y = 100;
+				planeTop.position.y = 100.1;
 				planeTop.rotateX( Math.PI / 2 );
 				scene.add( planeTop );
 
 				var planeBack = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-				planeBack.position.z = -50;
-				planeBack.position.y = 50;
+				planeBack.position.z = -50.1;
+				planeBack.position.y = 50.1;
 				scene.add( planeBack );
 
 				var planeFront = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x7f7fff } ) );
-				planeFront.position.z = 50;
-				planeFront.position.y = 50;
+				planeFront.position.z = 50.1;
+				planeFront.position.y = 50.1;
 				planeFront.rotateY( Math.PI );
 				scene.add( planeFront );
 
 				var planeRight = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x00ff00 } ) );
-				planeRight.position.x = 50;
-				planeRight.position.y = 50;
+				planeRight.position.x = 50.1;
+				planeRight.position.y = 50.1;
 				planeRight.rotateY( - Math.PI / 2 );
 				scene.add( planeRight );
 
 				var planeLeft = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff0000 } ) );
-				planeLeft.position.x = -50;
-				planeLeft.position.y = 50;
+				planeLeft.position.x = -50.1;
+				planeLeft.position.y = 50.1;
 				planeLeft.rotateY( Math.PI / 2 );
 				scene.add( planeLeft );
 
@@ -169,8 +204,21 @@
 			}
 			function render() {
 				// render (update) the mirrors
-				groundMirror.renderWithMirror( verticalMirror );
-				verticalMirror.renderWithMirror( groundMirror );
+//                bottomMirror.render();
+//                backMirror.render();
+//                leftMirror.render();
+//                rightMirror.render();
+//                topMirror.render();
+//                frontMirror.render();
+
+//				bottomMirror.renderWithMirror( frontMirror );
+//				backMirror.renderWithMirror( bottomMirror );
+//
+//				rightMirror.renderWithMirror( bottomMirror );
+//				topMirror.renderWithMirror( rightMirror );
+
+//                leftMirror.renderWithMirror( topMirror );
+//				frontMirror.renderWithMirror( leftMirror );
 
 				renderer.render(scene, camera);
 			}
