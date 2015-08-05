@@ -23,7 +23,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.userRotateSpeed = 1.0;
 
 	this.userPan = true;
-	this.userPanSpeed = 2.0;
+	this.userPanSpeed = 20.0;
 
 	this.autoRotate = false;
 	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
@@ -116,6 +116,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.zoomIn = function ( zoomScale ) {
 
+
 		if ( zoomScale === undefined ) {
 
 			zoomScale = getZoomScale();
@@ -127,6 +128,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	};
 
 	this.zoomOut = function ( zoomScale ) {
+
 
 		if ( zoomScale === undefined ) {
 
@@ -184,9 +186,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 		offset.x = radius * Math.sin( phi ) * Math.sin( theta );
 		offset.y = radius * Math.cos( phi );
 		offset.z = radius * Math.sin( phi ) * Math.cos( theta );
-
+        //
+        //
 		position.copy( this.center ).add( offset );
-
 		this.object.lookAt( this.center );
 
 		thetaDelta = 0;
@@ -317,6 +319,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseWheel( event ) {
 
+
 		if ( scope.enabled === false ) return;
 		if ( scope.userZoom === false ) return;
 
@@ -341,6 +344,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.zoomIn();
 
 		}
+
+        //zooming for ortho views
+        if(object.type == "OrthographicCamera"){
+            object.zoom *= scale;
+        }
 
 	}
 

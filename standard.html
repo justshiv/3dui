@@ -63,12 +63,6 @@
 					up: [ 0, 1, 0 ],
 					fov: 45,
                     camera : new THREE.PerspectiveCamera( this.fov, window.innerWidth / window.innerHeight, 1, 10000 ),
-					updateCamera: function ( camera, scene, mouseX, mouseY ) {
-//                        console.log("perspective");
-//					  camera.position.x += mouseX * 0.05;
-//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
-					  camera.lookAt( scene.position );
-					}
 				}
                 ,
                 {
@@ -82,11 +76,6 @@
 					up: [ 0, 1, 0 ],
 					fov: 45,
                     camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
-					updateCamera: function ( camera, scene, mouseX, mouseY ) {
-//					  camera.position.x += mouseX * 0.05;
-//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
-//					  camera.lookAt( scene.position );
-					}
 				}
                 ,
 				{
@@ -100,11 +89,6 @@
 					up: [ 0, 1, 0  ],
 					fov: 45,
                     camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
-					updateCamera: function ( camera, scene, mouseX, mouseY ) {
-//					  camera.position.x -= mouseX * 0.05;
-//					  camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
-//					  camera.lookAt( scene.position );
-					}
 				}
                 ,
 				{
@@ -118,11 +102,6 @@
 					up: [ 0, 1, 0 ],
 					fov: 45,
                     camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
-					updateCamera: function ( camera, scene, mouseX, mouseY ) {
-//					  camera.position.y -= mouseX * 0.05;
-//					  camera.position.y = Math.max( Math.min( camera.position.y, 2000 ), -2000 );
-//					  camera.lookAt( scene.position );
-					}
 				}
 			];
 
@@ -139,19 +118,13 @@
 					view.camera.up.y = view.up[ 1 ];
 					view.camera.up.z = view.up[ 2 ];
 
-
                     controls = new THREE.OrbitControls( view.camera );
-//                    controls.rotateSpeed = 1.0;
-//                    controls.zoomSpeed = 1.2;
-//                    controls.panSpeed = 0.8;
-//                    controls.noZoom = false;
-//                    controls.noPan = false;
-                    controls.userRotate = true;
-//                    controls.staticMoving = true;
-//                    controls.dynamicDampingFactor = 0.3;
+                    controls.userPan = false;
+                    controls.userRotate = false;
+                    controls.userZoom = true;
                     controls.maxDistance = 8000;
                     controls.minDistance = 500;
-                    controls.enabled = false;
+//                    controls.enabled = false;
 
                     view.controls = controls;
 				}
@@ -171,19 +144,6 @@
         var lighting = new THREEx.ThreePointsLighting();
         scene.add(lighting);
 
-//            var light = new THREE.SpotLight( 0xffffff, 1.5 );
-//            light.position.set( 0, 500, 2000 );
-//            light.castShadow = true;
-//            light.shadowCameraNear = 200;
-//            light.shadowCameraFar = 10000;
-//            light.shadowCameraFov = 50;
-//            light.shadowBias = -0.00022;
-//            light.shadowDarkness = 0.5;
-//            light.shadowMapWidth = 2048;
-//            light.shadowMapHeight = 2048;
-//            scene.add( light );
-
-
             var axes = new THREE.AxisHelper(300);
             scene.add( axes );
 
@@ -197,13 +157,13 @@
             gridXY.position.set( 0,0,0 );
             gridXY.rotation.x = Math.PI/2;
             gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
-            //scene.add(gridXY);
+            scene.add(gridXY);
 
             var gridYZ = new THREE.GridHelper(400, 100);
             gridYZ.position.set( 0,0,0 );
             gridYZ.rotation.z = Math.PI/2;
             gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
-//            scene.add(gridYZ);
+            scene.add(gridYZ);
 
 
             var geometry = new THREE.BoxGeometry( 40, 40, 40 );
@@ -225,10 +185,10 @@
             }
 
             plane = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 500, 500, 0, 0 ),
+                new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
                 new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
             );
-            plane.visible = true;
+            plane.visible = false;
             scene.add( plane );
 
 
@@ -252,28 +212,28 @@
 				render();
 			}
         function render() {
+//            console.log("X: " + views[3].camera.position.x + " Y: " +  views[3].camera.position.y + " Z: " +  views[3].camera.position.z);
 
-//                var window.innerWidth  = width, window.innerHeight = window.innerHeight;
 
-                for ( var ii = 0; ii < views.length; ++ii ) {
-					view = views[ii];
-					camera = view.camera;
-                    view.controls.update();
-					view.updateCamera( camera, scene, mouseX, mouseY );
-					var left   = Math.floor( window.innerWidth  * view.left );
-					var bottom = Math.floor( window.innerHeight * view.bottom );
-					var width  = Math.floor( window.innerWidth  * view.width );
-					var height = Math.floor( window.innerHeight * view.height );
+            for ( var ii = 0; ii < views.length; ++ii ) {
+                view = views[ii];
+                camera = view.camera;
+                view.controls.update();
 
-					renderer.setViewport( left, bottom, width, height );
-					renderer.setScissor( left, bottom, width-1, height-1 );
-					renderer.enableScissorTest ( true );
-					renderer.setClearColor( view.background );
-					camera.aspect = width / height;
-					camera.updateProjectionMatrix();
-					renderer.render( scene, camera );
-				}
-			}
+                var left   = Math.floor( window.innerWidth  * view.left );
+                var bottom = Math.floor( window.innerHeight * view.bottom );
+                var width  = Math.floor( window.innerWidth  * view.width );
+                var height = Math.floor( window.innerHeight * view.height );
+
+                renderer.setViewport( left, bottom, width, height );
+                renderer.setScissor( left, bottom, width-1, height-1 );
+                renderer.enableScissorTest ( true );
+                renderer.setClearColor( view.background );
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.render( scene, camera );
+            }
+        }
 
         function onWindowResize() {
             for ( var ii = 0; ii < views.length; ++ii ) {
@@ -284,6 +244,7 @@
 				    renderer.setSize( window.innerWidth, window.innerHeight );
 				}
 			}
+
         function onDocumentMouseMove( event ) {
 				event.preventDefault();
 
@@ -324,10 +285,11 @@
                 mouse.y*=2;
 
 
-                console.log(mouse.x + "," + mouse.y);
+//                console.log(mouse.x + "," + mouse.y);
 
                 views[CURRENTVIEW].controls.enabled = true;
                 CURRENTCAM = views[CURRENTVIEW].camera;
+            console.log(CURRENTVIEW);
 
 
 				raycaster.setFromCamera( mouse, CURRENTCAM );
@@ -343,8 +305,28 @@
 						INTERSECTED = intersects[ 0 ].object;
 						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 
-						plane.position.copy( INTERSECTED.position );
-						plane.lookAt( CURRENTCAM.position );
+						plane.position.copy( INTERSECTED.position);
+
+                        if(CURRENTVIEW == 1){
+                            plane.rotation.x = Math.PI/2;
+                            plane.rotation.y = Math.PI;
+                            plane.rotation.z = Math.PI;
+                        }
+                        else if(CURRENTVIEW == 2){
+                            plane.rotation.x = Math.PI;
+                            plane.rotation.y = Math.PI;
+                            plane.rotation.z = Math.PI;
+                        }
+                        else if(CURRENTVIEW == 3){
+                            plane.rotation.x = Math.PI;
+                            plane.rotation.y = Math.PI/2;
+                            plane.rotation.z = Math.PI;
+                        }
+                        else{
+                            plane.lookAt( CURRENTCAM.position );
+                        }
+                        console.log(CURRENTCAM.position);
+
 					}
 					container.style.cursor = 'pointer';
 				} else {
@@ -354,13 +336,7 @@
 				}
 			}
         function onDocumentMouseDown( event ) {
-				event.preventDefault();
-//				var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 ).unproject( CURRENTCAM );
-//                console.log("x: " + mouse.x + " y: " + mouse.y);
-//
-//				var raycaster = new THREE.Raycaster( CURRENTCAM.position, vector.sub( CURRENTCAM.position ).normalize() );
-//				var intersects = raycaster.intersectObjects( objects );
-
+            event.preventDefault();
             raycaster.setFromCamera( mouse, CURRENTCAM );
             var intersects = raycaster.intersectObjects( objects );
 
