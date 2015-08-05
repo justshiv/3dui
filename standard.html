@@ -41,10 +41,13 @@
     <script>
         // global attributes needed for scene
         var container = document.getElementById( 'ThreeJS' );
+//        container.style.cursor = '-webkit-grab';
+
 
         var camera, controls, scene, renderer;
         var objects = [], plane;
         var raycaster = new THREE.Raycaster();
+        var gridXY, gridXZ, gridYZ;
         var mouse = new THREE.Vector2(),
         offset = new THREE.Vector3(),
         INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
@@ -118,9 +121,9 @@
 					view.camera.up.y = view.up[ 1 ];
 					view.camera.up.z = view.up[ 2 ];
 
-                    controls = new THREE.OrbitControls( view.camera );
-                    controls.userPan = false;
-                    controls.userRotate = false;
+                    controls = new THREE.OrbitControls( view.camera, container );
+                    controls.userPan = true;
+//                    controls.userRotate = false;
                     controls.userZoom = true;
                     controls.maxDistance = 8000;
                     controls.minDistance = 500;
@@ -148,18 +151,18 @@
             scene.add( axes );
 
 
-            var gridXZ = new THREE.GridHelper(400, 100);
+            gridXZ = new THREE.GridHelper(400, 100);
             gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
             gridXZ.position.set( 0,0,0 );
             scene.add(gridXZ);
 
-            var gridXY = new THREE.GridHelper(400, 100);
+            gridXY = new THREE.GridHelper(400, 100);
             gridXY.position.set( 0,0,0 );
             gridXY.rotation.x = Math.PI/2;
             gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
             scene.add(gridXY);
 
-            var gridYZ = new THREE.GridHelper(400, 100);
+            gridYZ = new THREE.GridHelper(400, 100);
             gridYZ.position.set( 0,0,0 );
             gridYZ.rotation.z = Math.PI/2;
             gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
@@ -212,10 +215,22 @@
 				render();
 			}
         function render() {
-//            console.log("X: " + views[3].camera.position.x + " Y: " +  views[3].camera.position.y + " Z: " +  views[3].camera.position.z);
-
 
             for ( var ii = 0; ii < views.length; ++ii ) {
+                gridXY.visible = false;
+                gridYZ.visible = false;
+                gridXZ.visible = false;
+
+                if(ii == 0 || ii == 1){
+                    gridXZ.visible = true;
+                }
+                else if(ii == 2){
+                    gridXY.visible = true;
+                }
+                else if(ii == 3){
+                    gridYZ.visible = true;
+                }
+
                 view = views[ii];
                 camera = view.camera;
                 view.controls.update();
@@ -332,7 +347,7 @@
 				} else {
 					if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
 					INTERSECTED = null;
-					container.style.cursor = 'auto';
+					container.style.cursor = '-webkit-grab';
 				}
 			}
         function onDocumentMouseDown( event ) {
@@ -355,7 +370,7 @@
 					plane.position.copy( INTERSECTED.position );
 					SELECTED = null;
 				}
-				container.style.cursor = 'auto';
+				container.style.cursor = '-webkit-grab';
 			}
 
     </script>
