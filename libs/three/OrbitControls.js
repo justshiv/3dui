@@ -177,11 +177,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
             domElement.style.cursor = '-webkit-grabbing';
 		}
-        //else{
-        //     domElement.style.cursor = '-webkit-grab';
-        //
-        // }
-
 	}
 
 	function onMouseUp( event ) {

@@ -12,7 +12,7 @@
     <link href="css/style.css" rel="stylesheet">
 
 </head>
-<body>
+<body id="bodyclass">
     <!--page content-->
     <!--<div id="page-content">-->
         <!--<div class="container">-->
@@ -26,7 +26,21 @@
         <!--</div>-->
     <!--</div>-->
 
-                        <div id="ThreeJS"></div>
+    <div id="ThreeJS"></div>
+    <div class="">
+        <div class="perspective label">
+            Perspective View
+        </div>
+        <div class="top label">
+            Top (XZ) View
+        </div>
+        <div class="front label">
+            Front (XY) View
+        </div>
+        <div class="side label">
+            Side (YZ) View
+        </div>
+    </div>
 
 
 </body>
@@ -40,6 +54,7 @@
 
     <script>
         // global attributes needed for scene
+        requestFullScreen(document.body);
         var container = document.getElementById( 'ThreeJS' );
 //        container.style.cursor = '-webkit-grab';
 
@@ -109,9 +124,6 @@
 			];
 
         function setupViews(){
-
-//                view[0].
-
                 for (var ii =  0; ii < views.length; ++ii ) {
 					var view = views[ii];
 					view.camera.position.x = view.eye[ 0 ];
@@ -123,12 +135,9 @@
 
                     controls = new THREE.OrbitControls( view.camera, container );
                     controls.userPan = true;
-//                    controls.userRotate = false;
                     controls.userZoom = true;
                     controls.maxDistance = 8000;
                     controls.minDistance = 500;
-//                    controls.enabled = false;
-
                     view.controls = controls;
 				}
             }
@@ -255,10 +264,16 @@
 					view = views[ii];
 					camera = view.camera;
                     camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.left = window.innerWidth*-1;
+                    camera.right = window.innerWidth;
+                    camera.top = window.innerHeight;
+                    camera.bottom = window.innerHeight*-1;
 				    camera.updateProjectionMatrix();
 				    renderer.setSize( window.innerWidth, window.innerHeight );
 				}
 			}
+
+
 
         function onDocumentMouseMove( event ) {
 				event.preventDefault();
@@ -372,6 +387,20 @@
 				}
 				container.style.cursor = '-webkit-grab';
 			}
+
+        function requestFullScreen(element) {
+        // Supports most browsers and their versions.
+        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
+
+        if (requestMethod) { // Native full screen.
+            requestMethod.call(element);
+        } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+            var wscript = new ActiveXObject("WScript.Shell");
+            if (wscript !== null) {
+                wscript.SendKeys("{F11}");
+            }
+        }
+}
 
     </script>
 

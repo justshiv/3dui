@@ -8,8 +8,42 @@ body {
     /*margin-bottom: 80px;*/
 }
 
+.label{
+    background-color: rgba(59, 59, 59, 0.7);
+    padding: 5px;
+    color: white;
+    font-weight: 200;
+    font-size:15px;
+    margin:10px;
+    position: absolute;
+}
+
+.perspective{
+    left: 0px;
+    top: 2px;
+}
+
+.top{
+    left: 0px;
+    top: 380px;
+}
+
+.front{
+    left: 720px;
+    top: 2px;
+}
+
+.side{
+    left:720px;
+    top: 380px;
+}
+
+
+
+
 .well{
     text-align: center;
+    z-index: 100;
 }
 
 footer {
