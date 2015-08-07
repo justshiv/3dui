@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 	<title>Camera Texture (Three.js)</title>
+    <!--initial favicon-->
+    <link id="favicon" rel="icon" type="image/png" href="images/cube.png" />
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<!--<link rel=stylesheet href="css/base.css"/>-->
@@ -10,285 +12,501 @@
 
 <!--<script src="libs/experiment/Three.js"></script>-->
 <script src="libs/three/three.min.js"></script>
-
 <script src="libs/three/threex.basiclighting.js"></script>
 <script src="libs/three/OrbitControls.js"></script>
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-// standard global variables
-var container, scene, renderer, controls, stats;
-var clock = new THREE.Clock();
+    // standard global variables
+    var container, scene, renderer, controls, stats;
+    var clock = new THREE.Clock();
 
-// custom global variables
-var MovingCube, plane;
-var backCamera, leftCamera, bottomCamera, mainCamera;
+    // custom global variables
+    var MovingCube, plane;
+    var backCamera, leftCamera, bottomCamera, topCamera, rightCamera, frontCamera, mainCamera;
+    var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightCameraTarget, leftRenderTarget;
+    var gridXZ, gridYZ, gridXY;
+    var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW, CENTRE;
+    var objects = [], planes = [], movementPlane;
+    var raycaster = new THREE.Raycaster();
 
-// intermediate scene for reflecting the reflection
-var screenScene, screenCamera, firstRenderTarget, bottomRenderTarget, backRenderTarget, leftRenderTarget;
-var gridXZ, gridYZ, gridXY;
+    init();
+    animate();
+    // FUNCTIONS
+    function init()
+    {
+        // SCENE
+        scene = new THREE.Scene();
+        // CAMERAS
+        var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+        var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
+        var ORTH_PLANE_HEIGHT = 800, ORTH_PLANE_WIDTH = 800;
 
-init();
-animate();
-// FUNCTIONS 		
-function init() 
-{
-	// SCENE
-	scene = new THREE.Scene();
-	// CAMERAS
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
+        // camera 1
+        mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+        scene.add(mainCamera);
+        mainCamera.position.set(1000,1000,1000);
+        mainCamera.lookAt(scene.position);
 
-	// camera 1
-	mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	scene.add(mainCamera);
-	mainCamera.position.set(0,200,500);
-	mainCamera.lookAt(scene.position);
+        // camera 2
+        backCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-	// camera 2
-	backCamera = new THREE.OrthographicCamera(
-		window.innerWidth  / -2, window.innerWidth  /  2,
-		window.innerHeight /  2, window.innerHeight / -2,
-		10, 800 );
+        backCamera.up.set(0, 1, 0);
+        backCamera.position.set(0,0, -400);
+        backCamera.lookAt(scene.position);
+        scene.add(backCamera);
 
-    backCamera.up.set(0, 1, 0);
-    backCamera.position.set(0,0, -400);
-	backCamera.lookAt(scene.position);
-	scene.add(backCamera);
+        // camera 2
+        frontCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-	// camera 3
-	leftCamera = new THREE.OrthographicCamera(
-		window.innerWidth  / -2, window.innerWidth  /  2,
-		window.innerHeight /  2, window.innerHeight / -2,
-		10, 800 );
+        frontCamera.up.set(0, 1, 0);
+        frontCamera.position.set(0,0, 400);
+        frontCamera.lookAt(scene.position);
+        scene.add(frontCamera);
 
-    leftCamera.up.set(0, 1, 0);
-    leftCamera.position.set(-400,0,0);
-	leftCamera.lookAt(scene.position);
-	scene.add(leftCamera);
+        // camera 3
+        leftCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-	// camera 4
-	bottomCamera = new THREE.OrthographicCamera(
-		window.innerWidth  / -2, window.innerWidth  /  2,
-		window.innerHeight /  2, window.innerHeight / -2,
-		10, 800 );
+        leftCamera.up.set(0, 1, 0);
+        leftCamera.position.set(-400,0,0);
+        leftCamera.lookAt(scene.position);
+        scene.add(leftCamera);
 
-    bottomCamera.up.set(0, 1, 0);
-    bottomCamera.position.set(0,-400,0);
-	bottomCamera.lookAt(scene.position);
-	scene.add(bottomCamera);
+        // camera 3
+        rightCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setClearColor("#cecece" );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-//    renderer.sortObjects = false;
-//    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFShadowMap;
+        rightCamera.up.set(0, 1, 0);
+        rightCamera.position.set(400,0,0);
+        rightCamera.lookAt(scene.position);
+        scene.add(rightCamera);
 
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	// EVENTS
+        // camera 4
+        bottomCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-    // creating scene light
-    var lighting = new THREEx.ThreePointsLighting();
-    scene.add(lighting);
+        bottomCamera.up.set(0, 1, 0);
+        bottomCamera.position.set(0,-400,0);
+        bottomCamera.lookAt(scene.position);
+        scene.add(bottomCamera);
 
-	// FLOOR
-    var axes = new THREE.AxisHelper(300);
-    scene.add( axes );
+        // camera 5
+        topCamera = new THREE.OrthographicCamera(
+                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
+                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
+                10, 800  );
 
-    gridXZ = new THREE.GridHelper(400, 100);
-    gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
-    gridXZ.position.set( 0,0,0 );
-    scene.add(gridXZ);
+        topCamera.up.set(0, 1, 0);
+        topCamera.position.set(0,400,0);
+        topCamera.lookAt(scene.position);
+        scene.add(topCamera);
 
-    gridXY = new THREE.GridHelper(400, 100);
-    gridXY.position.set( 0,0,0 );
-    gridXY.rotation.x = Math.PI/2;
-    gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
-    scene.add(gridXY);
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setClearColor("#cecece" );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.sortObjects = false;
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapType = THREE.PCFShadowMap;
 
+        container = document.getElementById( 'ThreeJS' );
+        container.appendChild( renderer.domElement );
+        renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
-    gridYZ = new THREE.GridHelper(400, 100);
-    gridYZ.position.set( 0,0,0 );
-    gridYZ.rotation.z = Math.PI/2;
-    gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
-    scene.add(gridYZ);
-	////////////
-	// CUSTOM //
-	////////////
-	
-	// create an array with six textures for a cool cube
-    var cubeGeometry = new THREE.BoxGeometry( 50, 50, 50 );
-    var cubeMaterial = new THREE.MeshPhongMaterial( { color:0xff0000 } );
-    MovingCube = new THREE.Mesh( cubeGeometry, cubeMaterial );
-	MovingCube.position.set(0, 0, 0);
-	scene.add( MovingCube );	
+        // creating scene light
+        var lighting = new THREEx.ThreePointsLighting();
+        scene.add(lighting);
+        scene.add( new THREE.AmbientLight( 0x505050 ) );
 
-	var wireMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: false, transparent: false } );
+        // FLOOR
+        var axes = new THREE.AxisHelper(300);
+        scene.add( axes );
 
-    // torus knot
-	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0xff3333 } );
-	var shape = THREE.SceneUtils.createMultiMaterialObject(
-		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 2, 5 ), [ colorMaterial, wireMaterial ] );
-	shape.position.set(-150, 150, -200);
-	scene.add( shape );
+        gridXZ = new THREE.GridHelper(400, 100);
+        gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
+        gridXZ.position.set( 0,0,0 );
+        scene.add(gridXZ);
 
-	// torus knot
-	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0xff3333 } );
-	var shape = THREE.SceneUtils.createMultiMaterialObject( 
-		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 2, 5 ), [ colorMaterial, wireMaterial ] );
-	shape.position.set(-150, 150, -200);
-	scene.add( shape );
-
-	// torus knot
-	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0x33ff33 } );
-	var shape = THREE.SceneUtils.createMultiMaterialObject( 
-		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 3, 2 ), [ colorMaterial, wireMaterial ] );
-	shape.position.set(200, 50, -200);
-	scene.add( shape );
-
-	// torus knot
-	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0xffff33 } );
-	var shape = THREE.SceneUtils.createMultiMaterialObject( 
-		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 4, 3 ), [ colorMaterial, wireMaterial ] );
-	shape.position.set(150, 150, 200);
-	scene.add( shape );
-
-	// torus knot
-	var colorMaterial = new THREE.MeshPhongMaterial( { color: 0x3333ff } );
-	var shape = THREE.SceneUtils.createMultiMaterialObject( 
-		new THREE.TorusKnotGeometry( 30, 6, 160, 10, 3, 4 ), [ colorMaterial, wireMaterial ] );
-	shape.position.set(-200, 50, 200);
-	scene.add( shape );
-
-	// final version of camera texture, used in scene. 
-	var planeGeometry = new THREE.BoxGeometry( 800, 800, 1, 1 );
-	backRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: backRenderTarget } );
-
-    backRenderTarget.wrapS = THREE.RepeatWrapping;
-    backRenderTarget.repeat.x = - 1;
-    plane = new THREE.Mesh( planeGeometry, planeMaterial );
-    plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-    plane.position.set(0,0,-401);
-	scene.add(plane);
-
-    // final version of camera texture, used in scene.
-	var planeGeometry = new THREE.BoxGeometry( 800, 800, 1, 1 );
-	bottomRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: bottomRenderTarget } );
-
-    bottomRenderTarget.wrapS = THREE.RepeatWrapping;
-    bottomRenderTarget.repeat.x = - 1;
-    plane = new THREE.Mesh( planeGeometry, planeMaterial );
-    plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-    plane.position.set(0,-401,0);
-    plane.rotation.x = Math.PI/2;
-    plane.rotation.z = -Math.PI/2;
-	scene.add(plane);
-
-    // final version of camera texture, used in scene.
-	var planeGeometry = new THREE.BoxGeometry( 800, 800, 1, 1 );
-	leftRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: leftRenderTarget } );
-
-    leftRenderTarget.wrapS = THREE.RepeatWrapping;
-    leftRenderTarget.repeat.x = - 1;
-    plane = new THREE.Mesh( planeGeometry, planeMaterial );
-    plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-    plane.position.set(-401,0,0);
-    plane.rotation.y = Math.PI/2;
-	scene.add(plane);
-
-    //back backing
-	var planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-	var planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-	var planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(0,0,-402);
-	scene.add(planeborder);
-
-    //bottom backing
-    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(0,-402,0);
-    planeborder.rotation.x = Math.PI/2;
-	scene.add(planeborder);
-
-    //left backing
-    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(-402,0,0);
-    planeborder.rotation.y = Math.PI/2;
-	scene.add(planeborder);
-
-    //front backing
-    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(0,0,402);
-//	scene.add(planeborder);
-
-    //right backing
-    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(402,0,0);
-    planeborder.rotation.y = Math.PI/2;
-//	scene.add(planeborder);
-
-    //top backing
-    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-	planeborder.position.set(0,402,0);
-    planeborder.rotation.x = Math.PI/2;
-//	scene.add(planeborder);
-
-    controls = new THREE.OrbitControls( mainCamera );
-    controls.userRotate = true;
-    controls.enabled = true;
-	
-}
-function animate() 
-{
-    requestAnimationFrame( animate );
-	render();
-	update();
-}
-function update()
-{
-	var delta = clock.getDelta(); // seconds.
-}
-function render() 
-{
-    controls.update();
+        gridXY = new THREE.GridHelper(400, 100);
+        gridXY.position.set( 0,0,0 );
+        gridXY.rotation.x = Math.PI/2;
+        gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
+        scene.add(gridXY);
 
 
-    gridXZ.visible = true;
-    gridXY.visible = true;
-    gridYZ.visible = true;
+        gridYZ = new THREE.GridHelper(400, 100);
+        gridYZ.position.set( 0,0,0 );
+        gridYZ.rotation.z = Math.PI/2;
+        gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
+        scene.add(gridYZ);
 
-	// put the result of frontCamera into the first texture.
-	renderer.render( scene, backCamera, backRenderTarget, true );
-	renderer.render( scene, bottomCamera, bottomRenderTarget, true );
-    renderer.render( scene, leftCamera, leftRenderTarget, true );
-//    renderer.render( screenScene, screenCamera, bottomRenderTarget, true );
-//    renderer.render( screenScene, screenCamera, finalRenderTarget, true );
+        var geometry = new THREE.BoxGeometry( 40, 40, 40 );
+        for ( var i = 0; i < 5; i ++ ) {
+            var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+            object.position.x = Math.random() * 600 - 300;
+            object.position.y = Math.random() * 600 - 300;
+            object.position.z = Math.random() * 600 - 300;
+            object.rotation.x = Math.random() * 2 * Math.PI;
+            object.rotation.y = Math.random() * 2 * Math.PI;
+            object.rotation.z = Math.random() * 2 * Math.PI;
+            object.scale.x = Math.random() * 2 + 1;
+            object.scale.y = Math.random() * 2 + 1;
+            object.scale.z = Math.random() * 2 + 1;
+            object.castShadow = true;
+            object.receiveShadow = true;
+            scene.add( object );
+            objects.push( object );
+        }
 
-	// render the main scene
+        movementPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry( 500, 500, 0, 0 ),
+            new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
+        );
+        movementPlane.visible = true;
+        scene.add( movementPlane );
+
+        //initialising what we're casting onto
+        var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
+        var planeMaterial;
+
+        // final version of camera texture, used in scene.
+        backRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: backRenderTarget } );
+
+        backRenderTarget.wrapS = THREE.RepeatWrapping;
+        backRenderTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(0,0,-401);
+        planes.push(plane);
+        scene.add(plane);
+
+        // final version of camera texture, used in scene.
+        frontRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: frontRenderTarget } );
+
+        frontRenderTarget.wrapS = THREE.RepeatWrapping;
+        frontRenderTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(0,0,401);
+        plane.rotation.y = Math.PI;
+        planes.push(plane);
+        scene.add(plane);
+
+        // final version of camera texture, used in scene.
+        bottomRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: bottomRenderTarget } );
+
+        bottomRenderTarget.wrapS = THREE.RepeatWrapping;
+        bottomRenderTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(0,-401,0);
+        plane.rotation.x = -Math.PI/2;
+        plane.rotation.z = -Math.PI/2;
+        planes.push(plane);
+        scene.add(plane);
+
+        // final version of camera texture, used in scene.
+        topRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: topRenderTarget } );
+
+        topRenderTarget.wrapS = THREE.RepeatWrapping;
+        topRenderTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(0,401,0);
+        plane.rotation.x = Math.PI/2;
+        plane.rotation.z = Math.PI/2;
+        planes.push(plane);
+        scene.add(plane);
+
+        // final version of camera texture, used in scene.
+        leftRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: leftRenderTarget } );
+
+        leftRenderTarget.wrapS = THREE.RepeatWrapping;
+        leftRenderTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(-401,0,0);
+        plane.rotation.y = Math.PI/2;
+        planes.push(plane);
+        scene.add(plane);
+
+        // final version of camera texture, used in scene.
+        rightCameraTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        planeMaterial = new THREE.MeshBasicMaterial( { map: rightCameraTarget } );
+
+        rightCameraTarget.wrapS = THREE.RepeatWrapping;
+        rightCameraTarget.repeat.x = - 1;
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.set(401,0,0);
+        plane.rotation.y = -Math.PI/2;
+        planes.push(plane);
+        scene.add(plane);
+
+        controls = new THREE.OrbitControls( mainCamera );
+        controls.userRotate = true;
+        controls.userZoom = true;
+        controls.enabled = true;
+
+    }
+    function animate()
+    {
+        requestAnimationFrame( animate );
+        render();
+        update();
+    }
+    function update()
+    {
+        var delta = clock.getDelta(); // seconds.
+    }
+    function render()
+    {
+        controls.update();
+
+        gridXZ.visible = true;
+        gridXY.visible = true;
+        gridYZ.visible = true;
+
+        // put the result of frontCamera into the first texture.
+        renderer.render( scene, backCamera, backRenderTarget, true );
+        renderer.render( scene, frontCamera, frontRenderTarget, true );
+        renderer.render( scene, bottomCamera, bottomRenderTarget, true );
+        renderer.render( scene, topCamera, topRenderTarget, true );
+        renderer.render( scene, leftCamera, leftRenderTarget, true );
+        renderer.render( scene, rightCamera, rightCameraTarget, true );
+
+        // render the main scene
+        gridXZ.visible = false;
+        gridXY.visible = false;
+        gridYZ.visible = false;
+        renderer.render( scene, mainCamera );
+    }
+
+    function onDocumentMouseMove( event ) {
+        event.preventDefault();
+
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        CURRENTCAM = mainCamera;
+        raycaster.setFromCamera( mouse, mainCamera );
+
+        var intersects = raycaster.intersectObjects(objects);
+        if ( intersects.length > 0 ) {
+
+            if ( SELECTED ) {
+                console.log('eh');
+                raycaster.setFromCamera( mouse, CURRENTCAM );
+                intersects = raycaster.intersectObject( movementPlane );
+                SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                container.style.cursor = 'move';
+                return;
+            }
+
+            INTERSECTED = intersects[ 0 ].object;
+            movementPlane.position.copy( INTERSECTED.position);
+            movementPlane.lookAt( CURRENTCAM.position );
+            container.style.cursor = 'pointer';
+        }
+        else {
+            container.style.cursor = '-webkit-grab';
+//            INTERSECTED = null;
+
+            intersects = raycaster.intersectObjects(planes);
+            if(intersects.length > 0){
+                currentMouse = intersects[0].point;
+                planeLookAt = new THREE.Vector3();
 
 
-    gridXZ.visible = false;
-    gridXY.visible = false;
-    gridYZ.visible = false;
-	renderer.render( scene, mainCamera );
-}
+                if(currentMouse.x < -400){
+                    CURRENTCAM = leftCamera;
+
+                    mouse.x = intersects[0].point.z/400;
+                    mouse.y = intersects[0].point.y/400;
+
+                    planeLookAt.x = Math.PI;
+                    planeLookAt.y = -Math.PI/2;
+                    planeLookAt.z = Math.PI;
+                }
+                else if(currentMouse.x > 400){
+                    CURRENTCAM = rightCamera;
+
+                    mouse.x = -intersects[0].point.z/400;
+                    mouse.y = intersects[0].point.y/400;
+
+                    planeLookAt.x = Math.PI;
+                    planeLookAt.y = Math.PI/2;
+                    planeLookAt.z = Math.PI;
+                }
+                else if(currentMouse.z < -400){
+                    CURRENTCAM = backCamera;
+
+                    mouse.x = -intersects[0].point.x/400;
+                    mouse.y = intersects[0].point.y/400;
+
+                    planeLookAt.x = Math.PI*2;
+                    planeLookAt.y = Math.PI;
+                    planeLookAt.z = Math.PI;
+
+                }
+                else if(currentMouse.z > 400){
+                    CURRENTCAM = frontCamera;
+
+                    mouse.x = intersects[0].point.x/400;
+                    mouse.y = intersects[0].point.y/400;
+
+                    planeLookAt.x = Math.PI;
+                    planeLookAt.y = Math.PI;
+                    planeLookAt.z = Math.PI;
+
+                }
+                else if(currentMouse.y < -400){
+                    CURRENTCAM = bottomCamera;
+
+                    mouse.x = -intersects[0].point.z/400;
+                    mouse.y = intersects[0].point.x/400;
+
+                    planeLookAt.x = -Math.PI/2;
+                    planeLookAt.y = Math.PI;
+                    planeLookAt.z = Math.PI;
+//                            plane.rotation.y = Math.PI;
+
+                }
+                else if(currentMouse.y > 400){
+                    CURRENTCAM = topCamera;
+
+                    mouse.x = -intersects[0].point.z/400;
+                    mouse.y = -intersects[0].point.x/400;
+
+                    planeLookAt.x = Math.PI/2;
+                    planeLookAt.y = Math.PI;
+                    planeLookAt.z = Math.PI;
+                }
+                else{
+                }
+                console.log(mouse);
+
+
+                if ( SELECTED ) {
+                    console.log('eh');
+                    raycaster.setFromCamera( mouse, CURRENTCAM );
+                    intersects = raycaster.intersectObject( movementPlane );
+                    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                    container.style.cursor = 'move';
+                    return;
+                }
+
+                raycaster.setFromCamera( mouse, CURRENTCAM );
+                intersects = raycaster.intersectObjects(objects);
+
+                if(intersects.length > 0){
+                    INTERSECTED = intersects[ 0 ].object;
+                    movementPlane.position.copy( INTERSECTED.position);
+//                    console.log(planeLookAt.z);
+                    movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
+
+                    movementPlane.rotation.x = planeLookAt.x;
+                    movementPlane.rotation.y = planeLookAt.y;
+                    movementPlane.rotation.z = planeLookAt.z;
+                    container.style.cursor = 'pointer';
+                }
+            }
+        }
+
+    }
+    function onDocumentMouseDown( event ) {
+        event.preventDefault();
+        raycaster.setFromCamera( mouse, CURRENTCAM );
+        var intersects = raycaster.intersectObjects( objects );
+
+            if ( intersects.length > 0 ) {
+//                console.log(intersects[0].point);
+
+                controls.enabled = false;
+                SELECTED = intersects[ 0 ].object;
+                var intersects = raycaster.intersectObject( movementPlane );
+                offset.copy( intersects[ 0 ].point ).sub( movementPlane.position );
+                container.style.cursor = 'move';
+
+            }
+        }
+    function onDocumentMouseUp( event ) {
+        event.preventDefault();
+        controls.enabled = true;
+        if ( INTERSECTED ) {
+            movementPlane.position.copy( INTERSECTED.position );
+            SELECTED = null;
+        }
+        container.style.cursor = '-webkit-grab';
+    }
 </script>
 
 </body>
 </html>
+
+//    //back backing
+//	var planeGeometry = new THREE.BoxGeometry( 820, 820);
+//	var planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//	var planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(0,0,-402);
+//	scene.add(planeborder);
+//
+//    //bottom backing
+//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
+//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(0,-402,0);
+//    planeborder.rotation.x = Math.PI/2;
+////	scene.add(planeborder);
+//
+//    //left backing
+//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
+//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(-402,0,0);
+//    planeborder.rotation.y = Math.PI/2;
+////	scene.add(planeborder);
+//
+//    //front backing
+//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
+//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(0,0,402);
+////	scene.add(planeborder);
+//
+//    //right backing
+//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
+//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(402,0,0);
+//    planeborder.rotation.y = Math.PI/2;
+////	scene.add(planeborder);
+//
+//    //top backing
+//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
+//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
+//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
+//	planeborder.position.set(0,402,0);
+//    planeborder.rotation.x = Math.PI/2;
+//	scene.add(planeborder);

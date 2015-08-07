@@ -28,18 +28,18 @@
 
     <div id="ThreeJS"></div>
     <div class="">
-        <div class="perspective label">
-            Perspective View
-        </div>
-        <div class="top label">
-            Top (XZ) View
-        </div>
-        <div class="front label">
-            Front (XY) View
-        </div>
-        <div class="side label">
-            Side (YZ) View
-        </div>
+        <!--<div class="perspective label">-->
+            <!--Perspective View-->
+        <!--</div>-->
+        <!--<div class="top label">-->
+            <!--Top (XZ) View-->
+        <!--</div>-->
+        <!--<div class="front label">-->
+            <!--Front (YZ) View-->
+        <!--</div>-->
+        <!--<div class="side label">-->
+            <!--Side (XY) View-->
+        <!--</div>-->
     </div>
 
 
@@ -49,12 +49,11 @@
     <script src="libs/jquery-1.11.3.min.js"></script>
     <script src="libs/bootstrap/bootstrap.min.js"></script>
     <script src="libs/three/three.min.js"></script>
-    <script src="libs/three/OrbitControls.js"></script>
+    <script src="libs/three/standardControls.js"></script>
     <script src="libs/three/threex.basiclighting.js"></script>
 
     <script>
         // global attributes needed for scene
-        requestFullScreen(document.body);
         var container = document.getElementById( 'ThreeJS' );
 //        container.style.cursor = '-webkit-grab';
 
@@ -336,6 +335,8 @@
 						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 
 						plane.position.copy( INTERSECTED.position);
+                        plane.lookAt( CURRENTCAM.position );
+
 
                         if(CURRENTVIEW == 1){
                             plane.rotation.x = Math.PI/2;
@@ -352,10 +353,13 @@
                             plane.rotation.y = Math.PI/2;
                             plane.rotation.z = Math.PI;
                         }
-                        else{
-                            plane.lookAt( CURRENTCAM.position );
+                        else if (CURRENTVIEW == 0){
+//                            plane.rotation.x = -Math.PI/4;
+//                            plane.rotation.y = Math.PI/4;
+//                            plane.rotation.z = Math.PI/6;
+
                         }
-                        console.log(CURRENTCAM.position);
+//                        console.log(plane.rotation.z);
 
 					}
 					container.style.cursor = 'pointer';
@@ -388,19 +392,6 @@
 				container.style.cursor = '-webkit-grab';
 			}
 
-        function requestFullScreen(element) {
-        // Supports most browsers and their versions.
-        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
-
-        if (requestMethod) { // Native full screen.
-            requestMethod.call(element);
-        } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-            var wscript = new ActiveXObject("WScript.Shell");
-            if (wscript !== null) {
-                wscript.SendKeys("{F11}");
-            }
-        }
-}
 
     </script>
 
