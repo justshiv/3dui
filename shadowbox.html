@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<title>Camera Texture (Three.js)</title>
+    <meta charset="UTF-8">
+	<title>Shadowbox Interface</title>
+
     <!--initial favicon-->
     <link id="favicon" rel="icon" type="image/png" href="images/cube.png" />
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<!--<link rel=stylesheet href="css/base.css"/>-->
+
+    <!--styles-->
+    <link href="libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="libs/font-awesome.min.css" rel="stylesheet">
+
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
 
@@ -18,6 +23,9 @@
 
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div id="shadowbox" class="label">
+    Shadowbox View
+</div>
 <script>
 
     // standard global variables
@@ -32,6 +40,8 @@
     var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW, CENTRE;
     var objects = [], planes = [], movementPlane;
     var raycaster = new THREE.Raycaster();
+    var lighting;
+    var ambient;
 
     init();
     animate();
@@ -132,9 +142,12 @@
         renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
         // creating scene light
-        var lighting = new THREEx.ThreePointsLighting();
+        lighting = new THREEx.ThreePointsLighting();
         scene.add(lighting);
-        scene.add( new THREE.AmbientLight( 0x505050 ) );
+
+
+        ambient = new THREE.AmbientLight( 0x505050 ) ;
+        scene.add(ambient);
 
         // FLOOR
         var axes = new THREE.AxisHelper(300);
@@ -204,7 +217,7 @@
 //        }
 
         movementPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry( 10000, 10000, 0, 0 ),
+            new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
             new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
         );
         movementPlane.visible = false;
@@ -296,6 +309,8 @@
         controls = new THREE.OrbitControls( mainCamera );
         controls.userRotate = true;
         controls.userZoom = true;
+        controls.minDistance = 10;
+        controls.maxDistance = 8000;
         controls.enabled = true;
 
     }
@@ -316,6 +331,7 @@
         gridXZ.visible = true;
         gridXY.visible = true;
         gridYZ.visible = true;
+
 
         // put the result of frontCamera into the first texture.
         renderer.render( scene, backCamera, backRenderTarget, true );
@@ -476,7 +492,6 @@
                     planeLookAt.y = Math.PI;
                     planeLookAt.z = Math.PI;
                 }
-                console.log(mouse);
 
                 raycaster.setFromCamera( mouse, CURRENTCAM );
                 intersects = raycaster.intersectObjects(objects);
