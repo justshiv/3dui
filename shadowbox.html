@@ -178,7 +178,7 @@
             new THREE.PlaneGeometry( 10000, 10000, 0, 0 ),
             new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
         );
-        movementPlane.visible = true;
+        movementPlane.visible = false;
         scene.add( movementPlane );
 
         //initialising what we're casting onto
@@ -366,15 +366,18 @@
         var intersects = raycaster.intersectObjects(objects);
         if ( intersects.length > 0 ) {
 
+            if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
             INTERSECTED = intersects[ 0 ].object;
+            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+            INTERSECTED.material.emissive.setHex( 0xff0000 );
             movementPlane.position.copy( INTERSECTED.position);
             movementPlane.lookAt( CURRENTCAM.position );
             container.style.cursor = 'pointer';
+            return;
         }
         else {
-        container.style.cursor = '-webkit-grab';
-//        INTERSECTED = null;
-//
+
             intersects = raycaster.intersectObjects(planes);
             if(intersects.length > 0){
                 currentMouse = intersects[0].point;
@@ -450,7 +453,13 @@
                 intersects = raycaster.intersectObjects(objects);
 
                 if(intersects.length > 0){
+
+                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
                     INTERSECTED = intersects[ 0 ].object;
+                    INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                    INTERSECTED.material.emissive.setHex( 0xff0000 );
+
                     movementPlane.position.copy( INTERSECTED.position);
                     movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
 
@@ -458,9 +467,14 @@
                     movementPlane.rotation.y = planeLookAt.y;
                     movementPlane.rotation.z = planeLookAt.z;
                     container.style.cursor = 'pointer';
+                    return;
                 }
             }
         }
+
+        container.style.cursor = '-webkit-grab';
+        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+        INTERSECTED = null;
 
     }
     function onDocumentMouseDown( event ) {
@@ -471,6 +485,8 @@
             if ( intersects.length > 0 ) {
                 controls.enabled = false;
                 SELECTED = intersects[ 0 ].object;
+
+
                 var intersects = raycaster.intersectObject( movementPlane );
                 offset.copy( intersects[ 0 ].point ).sub( movementPlane.position );
                 container.style.cursor = 'move';

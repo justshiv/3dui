@@ -314,13 +314,9 @@
                 mouse.x*=2;
                 mouse.y*=2;
 
-
-//                console.log(mouse.x + "," + mouse.y);
-
                 views[CURRENTVIEW].controls.enabled = true;
                 CURRENTCAM = views[CURRENTVIEW].camera;
-            console.log(CURRENTVIEW);
-
+//                console.log(CURRENTCAM.zoom);
 
 				raycaster.setFromCamera( mouse, CURRENTCAM );
 				if ( SELECTED ) {
@@ -336,9 +332,11 @@
 				var intersects = raycaster.intersectObjects( objects );
 				if ( intersects.length > 0 ) {
 					if ( INTERSECTED != intersects[ 0 ].object ) {
-						if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-						INTERSECTED = intersects[ 0 ].object;
-						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+						if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
+                        INTERSECTED = intersects[ 0 ].object;
+                        INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                        INTERSECTED.material.emissive.setHex( 0xff0000 );
 
 						plane.position.copy( INTERSECTED.position);
                         plane.lookAt( CURRENTCAM.position );
@@ -370,7 +368,8 @@
 					}
 					container.style.cursor = 'pointer';
 				} else {
-					if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
 					INTERSECTED = null;
 					container.style.cursor = '-webkit-grab';
 				}

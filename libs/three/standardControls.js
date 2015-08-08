@@ -167,7 +167,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 		if ( scope.enabled === false ) return;
 
 		event.preventDefault();
-        console.log(state);
 
 		 if ( state === STATE.PAN ) {
 
@@ -191,7 +190,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function onMouseWheel( event ) {
-
+		event.preventDefault();
 
 		if ( scope.enabled === false ) return;
 		if ( scope.userZoom === false ) return;
@@ -220,7 +219,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 
         //zooming for ortho views
         if(object.type == "OrthographicCamera"){
-            object.zoom *= scale;
+            test = object.zoom * scale;
+            if(test < 3 && test > 0.15){
+                object.zoom = test;
+            }
         }
 
 	}
