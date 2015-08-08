@@ -175,7 +175,7 @@
         }
 
         movementPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry( 500, 500, 0, 0 ),
+            new THREE.PlaneGeometry( 10000, 10000, 0, 0 ),
             new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
         );
         movementPlane.visible = true;
@@ -306,8 +306,59 @@
     function onDocumentMouseMove( event ) {
         event.preventDefault();
 
+
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+
+
+        if ( SELECTED ) {
+
+            if(CURRENTCAM != mainCamera){
+
+                raycaster.setFromCamera( mouse, mainCamera );
+                intersects = raycaster.intersectObjects(planes);
+
+                if(intersects.length > 0){
+                    if (CURRENTCAM == leftCamera) {
+                    mouse.x = intersects[0].point.z / 400;
+                    mouse.y = intersects[0].point.y / 400;
+                    }
+                    else if (CURRENTCAM == rightCamera) {
+                        mouse.x = -intersects[0].point.z/400;
+                        mouse.y = intersects[0].point.y/400;
+                    }
+                    else if (CURRENTCAM == topCamera) {
+                        mouse.x = -intersects[0].point.z/400;
+                        mouse.y = -intersects[0].point.x/400;
+                    }
+                    else if (CURRENTCAM == bottomCamera) {
+                        mouse.x = -intersects[0].point.z/400;
+                        mouse.y = intersects[0].point.x/400;
+                    }
+                    else if (CURRENTCAM == frontCamera) {
+                        mouse.x = intersects[0].point.x/400;
+                        mouse.y = intersects[0].point.y/400;
+                    }
+                    else if (CURRENTCAM == backCamera) {
+                        mouse.x = -intersects[0].point.x/400;
+                        mouse.y = intersects[0].point.y/400;
+                    }
+                }
+                else{
+                    return;
+                }
+            }
+
+            raycaster.setFromCamera( mouse, CURRENTCAM );
+            intersects = raycaster.intersectObject( movementPlane );
+            if(intersects.length > 0){
+                SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                container.style.cursor = 'move';
+            }
+            return;
+        }
+
 
         CURRENTCAM = mainCamera;
         raycaster.setFromCamera( mouse, mainCamera );
@@ -315,29 +366,19 @@
         var intersects = raycaster.intersectObjects(objects);
         if ( intersects.length > 0 ) {
 
-            if ( SELECTED ) {
-                console.log('eh');
-                raycaster.setFromCamera( mouse, CURRENTCAM );
-                intersects = raycaster.intersectObject( movementPlane );
-                SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-                container.style.cursor = 'move';
-                return;
-            }
-
             INTERSECTED = intersects[ 0 ].object;
             movementPlane.position.copy( INTERSECTED.position);
             movementPlane.lookAt( CURRENTCAM.position );
             container.style.cursor = 'pointer';
         }
         else {
-            container.style.cursor = '-webkit-grab';
-//            INTERSECTED = null;
-
+        container.style.cursor = '-webkit-grab';
+//        INTERSECTED = null;
+//
             intersects = raycaster.intersectObjects(planes);
             if(intersects.length > 0){
                 currentMouse = intersects[0].point;
                 planeLookAt = new THREE.Vector3();
-
 
                 if(currentMouse.x < -400){
                     CURRENTCAM = leftCamera;
@@ -403,19 +444,7 @@
                     planeLookAt.y = Math.PI;
                     planeLookAt.z = Math.PI;
                 }
-                else{
-                }
                 console.log(mouse);
-
-
-                if ( SELECTED ) {
-                    console.log('eh');
-                    raycaster.setFromCamera( mouse, CURRENTCAM );
-                    intersects = raycaster.intersectObject( movementPlane );
-                    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-                    container.style.cursor = 'move';
-                    return;
-                }
 
                 raycaster.setFromCamera( mouse, CURRENTCAM );
                 intersects = raycaster.intersectObjects(objects);
@@ -423,7 +452,6 @@
                 if(intersects.length > 0){
                     INTERSECTED = intersects[ 0 ].object;
                     movementPlane.position.copy( INTERSECTED.position);
-//                    console.log(planeLookAt.z);
                     movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
 
                     movementPlane.rotation.x = planeLookAt.x;
@@ -436,13 +464,11 @@
 
     }
     function onDocumentMouseDown( event ) {
-        event.preventDefault();
+//        event.preventDefault();
         raycaster.setFromCamera( mouse, CURRENTCAM );
         var intersects = raycaster.intersectObjects( objects );
 
             if ( intersects.length > 0 ) {
-//                console.log(intersects[0].point);
-
                 controls.enabled = false;
                 SELECTED = intersects[ 0 ].object;
                 var intersects = raycaster.intersectObject( movementPlane );
@@ -452,7 +478,7 @@
             }
         }
     function onDocumentMouseUp( event ) {
-        event.preventDefault();
+//        event.preventDefault();
         controls.enabled = true;
         if ( INTERSECTED ) {
             movementPlane.position.copy( INTERSECTED.position );
