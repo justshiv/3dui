@@ -14,6 +14,8 @@
 <script src="libs/three/three.min.js"></script>
 <script src="libs/three/threex.basiclighting.js"></script>
 <script src="libs/three/OrbitControls.js"></script>
+<script src="libs/three/droid_sans_regular.typeface.js"></script>
+
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
@@ -156,23 +158,50 @@
         gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
         scene.add(gridYZ);
 
-        var geometry = new THREE.BoxGeometry( 40, 40, 40 );
-        for ( var i = 0; i < 5; i ++ ) {
-            var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+        // add 3D text
+        var letters = ["A", "B", "C", "D", "E"];
+
+        for(var i = 0; i < letters.length; i++){
+            var materialFront = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+            var textGeom = new THREE.TextGeometry( letters[i],
+            {
+                size: 150, height: 20, curveSegments: 20,
+                font: "droid sans", weight: "normal", style: "normal",
+                bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
+                material: 0, extrudeMaterial: 1
+            });
+
+            var object = new THREE.Mesh(textGeom, materialFront );
             object.position.x = Math.random() * 600 - 300;
             object.position.y = Math.random() * 600 - 300;
             object.position.z = Math.random() * 600 - 300;
             object.rotation.x = Math.random() * 2 * Math.PI;
             object.rotation.y = Math.random() * 2 * Math.PI;
             object.rotation.z = Math.random() * 2 * Math.PI;
-            object.scale.x = Math.random() * 2 + 1;
-            object.scale.y = Math.random() * 2 + 1;
-            object.scale.z = Math.random() * 2 + 1;
             object.castShadow = true;
             object.receiveShadow = true;
             scene.add( object );
             objects.push( object );
         }
+
+
+//        var geometry = new THREE.BoxGeometry( 40, 40, 40 );
+//        for ( var i = 0; i < 5; i ++ ) {
+//            var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+//            object.position.x = Math.random() * 600 - 300;
+//            object.position.y = Math.random() * 600 - 300;
+//            object.position.z = Math.random() * 600 - 300;
+//            object.rotation.x = Math.random() * 2 * Math.PI;
+//            object.rotation.y = Math.random() * 2 * Math.PI;
+//            object.rotation.z = Math.random() * 2 * Math.PI;
+//            object.scale.x = Math.random() * 2 + 1;
+//            object.scale.y = Math.random() * 2 + 1;
+//            object.scale.z = Math.random() * 2 + 1;
+//            object.castShadow = true;
+//            object.receiveShadow = true;
+//            scene.add( object );
+//            objects.push( object );
+//        }
 
         movementPlane = new THREE.Mesh(
             new THREE.PlaneGeometry( 10000, 10000, 0, 0 ),
@@ -370,7 +399,7 @@
 
             INTERSECTED = intersects[ 0 ].object;
             INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-            INTERSECTED.material.emissive.setHex( 0xff0000 );
+            INTERSECTED.material.emissive.setHex( 0x888888 );
             movementPlane.position.copy( INTERSECTED.position);
             movementPlane.lookAt( CURRENTCAM.position );
             container.style.cursor = 'pointer';
@@ -458,7 +487,7 @@
 
                     INTERSECTED = intersects[ 0 ].object;
                     INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-                    INTERSECTED.material.emissive.setHex( 0xff0000 );
+                    INTERSECTED.material.emissive.setHex( 0x888888 );
 
                     movementPlane.position.copy( INTERSECTED.position);
                     movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );

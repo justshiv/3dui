@@ -197,29 +197,26 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		var delta = 0;
 
-		if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+		if ( object.type == "OrtographicCamera" ) { // WebKit / Opera / Explorer 9
 
 			delta = event.wheelDelta;
 
-		} else if ( event.detail ) { // Firefox
+		} else { // Firefox
 
-			delta = - event.detail;
+			delta =  event.wheelDelta;
 
 		}
 
+
 		if ( delta > 0 ) {
-
 			scope.zoomOut();
-
 		} else {
-
 			scope.zoomIn();
-
 		}
 
         //zooming for ortho views
         if(object.type == "OrthographicCamera"){
-            test = object.zoom * scale;
+            test = object.zoom / scale;
             if(test < 3 && test > 0.15){
                 object.zoom = test;
             }
