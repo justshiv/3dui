@@ -13,33 +13,21 @@
 
 </head>
 <body id="bodyclass">
-    <!--page content-->
-    <!--<div id="page-content">-->
-        <!--<div class="container">-->
-            <!--<div class="row">-->
-                <!--<div class="col-md-12">-->
-                    <!--<div class="well">-->
-
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
 
     <div id="ThreeJS"></div>
     <div class="">
-        <!--<div class="perspective label">-->
-            <!--Perspective View-->
-        <!--</div>-->
-        <!--<div class="top label">-->
-            <!--Top (XZ) View-->
-        <!--</div>-->
-        <!--<div class="front label">-->
-            <!--Front (YZ) View-->
-        <!--</div>-->
-        <!--<div class="side label">-->
-            <!--Side (XY) View-->
-        <!--</div>-->
+        <div id="perspective" class=" label">
+            Perspective View
+        </div>
+        <div id="top" class="label">
+            Top (XZ) View
+        </div>
+        <div id="front" class=" label">
+            Front (YZ) View
+        </div>
+        <div id="side" class=" label">
+            Side (XY) View
+        </div>
     </div>
 
 
@@ -53,10 +41,9 @@
     <script src="libs/three/threex.basiclighting.js"></script>
 
     <script>
+
         // global attributes needed for scene
         var container = document.getElementById( 'ThreeJS' );
-//        container.style.cursor = '-webkit-grab';
-
 
         var camera, controls, scene, renderer;
         var objects = [], plane;
@@ -122,6 +109,18 @@
 				}
 			];
 
+        function setupLabels(){
+            var persLabel = document.getElementById("perspective");
+            var topLabel = document.getElementById("top");
+            var frontLabel = document.getElementById("front");
+            var sideLabel = document.getElementById("side");
+
+            persLabel.style.cssText = "left: 0px; top: 0px";
+            topLabel.style.cssText = "left: 0px; top: " + window.innerHeight/2 + "px";
+            frontLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: 0px";
+            sideLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: " + window.innerHeight/2 + "px";
+        }
+
         function setupViews(){
                 for (var ii =  0; ii < views.length; ++ii ) {
 					var view = views[ii];
@@ -145,6 +144,8 @@
         animate();
 
         function init() {
+
+            setupLabels();
 
             scene = new THREE.Scene();
             scene.add( new THREE.AmbientLight( 0x505050 ) );
@@ -260,19 +261,19 @@
 
         function onWindowResize() {
             for ( var ii = 0; ii < views.length; ++ii ) {
-					view = views[ii];
-					camera = view.camera;
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.left = window.innerWidth*-1;
-                    camera.right = window.innerWidth;
-                    camera.top = window.innerHeight;
-                    camera.bottom = window.innerHeight*-1;
-				    camera.updateProjectionMatrix();
-				    renderer.setSize( window.innerWidth, window.innerHeight );
-				}
-			}
+                view = views[ii];
+                camera = view.camera;
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.left = window.innerWidth*-1;
+                camera.right = window.innerWidth;
+                camera.top = window.innerHeight;
+                camera.bottom = window.innerHeight*-1;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+                    setupLabels();
 
-
+        }
 
         function onDocumentMouseMove( event ) {
 				event.preventDefault();
@@ -324,7 +325,12 @@
 				raycaster.setFromCamera( mouse, CURRENTCAM );
 				if ( SELECTED ) {
 					var intersects = raycaster.intersectObject( plane );
-					SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                    if(intersects.length > 0){
+					    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                    }
+                    else{
+                        onDocumentMouseUp();
+                    }
 					return;
 				}
 				var intersects = raycaster.intersectObjects( objects );
@@ -383,7 +389,7 @@
 				}
 			}
         function onDocumentMouseUp( event ) {
-				event.preventDefault();
+//				event.preventDefault();
 				views[CURRENTVIEW].controls.enabled = true;
 				if ( INTERSECTED ) {
 					plane.position.copy( INTERSECTED.position );

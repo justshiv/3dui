@@ -18,25 +18,25 @@ body {
     position: absolute;
 }
 
-.perspective{
-    left: 0px;
-    top: 2px;
-}
+/*#perspective{*/
+    /*left: 0px;*/
+    /*top: 2px;*/
+/*}*/
 
-.top{
-    left: 0px;
-    top: 380px;
-}
+/*#top{*/
+    /*left: 0px;*/
+    /*top: 380px;*/
+/*}*/
 
-.front{
-    left: 720px;
-    top: 2px;
-}
+/*#front{*/
+    /*left: 720px;*/
+    /*top: 2px;*/
+/*}*/
 
-.side{
-    left:720px;
-    top: 380px;
-}
+/*#side{*/
+    /*left:720px;*/
+    /*top: 380px;*/
+/*}*/
 
 
 
