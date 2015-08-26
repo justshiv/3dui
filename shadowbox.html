@@ -23,6 +23,9 @@
 
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+        <div id="reset" class="">
+            <a class="btn btn-primary" onclick="reset()">Reset</a>
+        </div>
 <div id="shadowbox" class="label">
     Shadowbox View
 </div>
@@ -43,17 +46,24 @@
     var lighting;
     var ambient;
 
+      var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+        var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
+        var ORTH_PLANE_HEIGHT = 800, ORTH_PLANE_WIDTH = 800;
+
     init();
     animate();
+
+    function reset(){
+        mainCamera.position.set(1000,1000,1000);
+        console.log("works");
+    }
+
     // FUNCTIONS
     function init()
     {
         // SCENE
         scene = new THREE.Scene();
         // CAMERAS
-        var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-        var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
-        var ORTH_PLANE_HEIGHT = 800, ORTH_PLANE_WIDTH = 800;
 
         // camera 1
         mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );

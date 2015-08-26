@@ -17,6 +17,9 @@
 
     <div id="ThreeJS"></div>
     <div class="">
+        <div id="reset" class="">
+            <a class="btn btn-primary" onclick="reset()">Reset</a>
+        </div>
         <div id="perspective" class=" label">
             Perspective View
         </div>
@@ -116,8 +119,10 @@
             var topLabel = document.getElementById("top");
             var frontLabel = document.getElementById("front");
             var sideLabel = document.getElementById("side");
+            var reset = document.getElementById("reset");
 
             persLabel.style.cssText = "left: 0px; top: 0px";
+            reset.style.cssText = "left: 0px; top: 0px";
             topLabel.style.cssText = "left: 0px; top: " + window.innerHeight/2 + "px";
             frontLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: 0px";
             sideLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: " + window.innerHeight/2 + "px";
@@ -132,6 +137,8 @@
 					view.camera.up.x = view.up[ 0 ];
 					view.camera.up.y = view.up[ 1 ];
 					view.camera.up.z = view.up[ 2 ];
+                    view.camera.zoom = 1;
+
 
                     controls = new THREE.OrbitControls( view.camera, container );
                     controls.userPan = true;
@@ -145,6 +152,10 @@
         init();
         animate();
 
+        function reset(){
+            setupViews();
+        }
+
         function init() {
 
             setupLabels();
@@ -157,10 +168,6 @@
             // creating scene light
         var lighting = new THREEx.ThreePointsLighting();
         scene.add(lighting);
-
-            var axes = new THREE.AxisHelper(300);
-            scene.add( axes );
-
 
             gridXZ = new THREE.GridHelper(400, 100);
             gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
@@ -178,6 +185,10 @@
             gridYZ.rotation.z = Math.PI/2;
             gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
             scene.add(gridYZ);
+
+
+            var axes = new THREE.AxisHelper(300);
+            scene.add( axes );
 
             // add 3D text
             var letters = ["A", "B", "C", "D", "E"];
@@ -235,18 +246,12 @@
         function render() {
 
             for ( var ii = 0; ii < views.length; ++ii ) {
-                gridXY.visible = false;
-                gridYZ.visible = false;
-                gridXZ.visible = false;
+                gridXY.visible = true;
+                gridYZ.visible = true;
 
-                if(ii == 0 || ii == 1){
-                    gridXZ.visible = true;
-                }
-                else if(ii == 2){
-                    gridXY.visible = true;
-                }
-                else if(ii == 3){
-                    gridYZ.visible = true;
+                if(ii == 0){
+                    gridXY.visible = false;
+                    gridYZ.visible = false;
                 }
 
                 view = views[ii];

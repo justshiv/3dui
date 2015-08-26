@@ -18,6 +18,11 @@ body {
     position: absolute;
 }
 
+#reset{
+    margin:10px;
+    position: absolute;
+}
+
 /*#perspective{*/
     /*left: 0px;*/
     /*top: 2px;*/
