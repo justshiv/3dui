@@ -44,137 +44,135 @@
     // standard global variables
     var container = document.getElementById( 'canvas-container' );
 
-    var scene, renderer, controls, stats;
-    var clock = new THREE.Clock();
+    var scene, renderer, controls;
 
     // custom global variables
-    var MovingCube, plane;
+    var movementPlane;
     var backCamera, leftCamera, bottomCamera, topCamera, rightCamera, frontCamera, mainCamera;
-    var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightCameraTarget, leftRenderTarget;
+    var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightRenderTarget, leftRenderTarget;
     var gridXZ, gridYZ, gridXY;
-    var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW, CENTRE;
-    var objects = [], planes = [], colors = [], movementPlane;
+    var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM;
+    var objects = [], planes = [], colors = [];
     var raycaster = new THREE.Raycaster();
-    var lighting;
-    var ambient;
-        var selectedEdge;
+    var selectedEdge;
 
+    var boxSide = 800;
 
-      var SCREEN_WIDTH = container.offsetWidth, SCREEN_HEIGHT = container.offsetHeight;
-        var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
-        var ORTH_PLANE_HEIGHT = 800, ORTH_PLANE_WIDTH = 800;
 
     init();
     animate();
 
     function reset(){
         mainCamera.position.set(1000,1000,1000);
-        console.log("works");
+    }
+
+    //function to add shadowbox's side plane camera's to the scene
+    function setupShadowboxCamera(orthPlaneWidth, orthPlaneHeight, position){
+
+        //standard settings for a orthographic camera
+        var left = orthPlaneWidth / -2;
+        var right = orthPlaneWidth  /  2;
+        var height = orthPlaneHeight /  2;
+        var bottom = orthPlaneHeight / -2;
+
+        //settings for our shadow box camera
+        var near = 10;
+        var far = 800; //must be 800, as at 801 the opposite box's side plane is visible
+
+        //setting up orthographic camera's location, up/down and look-at vector
+        var shadowboxCam = new THREE.OrthographicCamera(left, right, height, bottom, near, far);
+        shadowboxCam.up.set(0, 1, 0);
+        shadowboxCam.position.copy(position);
+        shadowboxCam.lookAt(scene.position);
+
+        //adding camera to scene
+        scene.add(shadowboxCam);
+
+        //returning for use
+        return shadowboxCam;
+    }
+
+    function setupRenderPlanes(position, xrot, yrot, zrot){
+
+        var renderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+        renderTarget.wrapS = THREE.RepeatWrapping;
+        renderTarget.repeat.x = - 1;
+
+        var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
+        var planeMaterial = new THREE.MeshBasicMaterial( { map: renderTarget } );
+        plane = new THREE.Mesh( planeGeometry, planeMaterial );
+        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+        plane.position.copy(position);
+
+        if(xrot) plane.rotation.x = xrot;
+        if(yrot) plane.rotation.y = yrot;
+        if(zrot) plane.rotation.z = zrot;
+        planes.push(plane);
+        scene.add(plane);
+
+        return renderTarget;
     }
 
     // FUNCTIONS
     function init()
     {
-        // SCENE
+        //*** SCENE ***//
         scene = new THREE.Scene();
 
-        // camera 1
-        mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+        //*** LIGHTS ***//
+        var lighting = new THREEx.ThreePointsLighting();
+        scene.add(lighting);
+        var ambient = new THREE.AmbientLight( 0x505050 ) ;
+        scene.add(ambient);
+
+        //*** CAMERAS ***//
+        var angle = 45;
+        var aspect = container.offsetWidth / container.offsetHeight;
+        var near = 10, far = 20000;
+//        var orthPlaneDims = 800;
+
+        //main scene camera that we see the scene through
+        mainCamera = new THREE.PerspectiveCamera(angle, aspect, near, far);
         scene.add(mainCamera);
         mainCamera.position.set(1000,1000,1000);
         mainCamera.lookAt(scene.position);
 
-        // camera 2
-        backCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
+        //positioning the shadowbox around the origin means the position
+        //of each camera will be at 1/2 the total length of 1 side
+        //of the box
+        var camPosition = boxSide/2;
 
-        backCamera.up.set(0, 1, 0);
-        backCamera.position.set(0,0, -400);
-        backCamera.lookAt(scene.position);
-        scene.add(backCamera);
+        //cameras projected onto sides of the shadow box
+        backCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(0, 0, -camPosition));
+        frontCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(0, 0, camPosition));
+        leftCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(-camPosition, 0, 0));
+        rightCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(camPosition, 0, 0));
+        bottomCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(0, -camPosition, 0));
+        topCamera = setupShadowboxCamera(boxSide, boxSide, new THREE.Vector3(0, camPosition, 0));
 
-        // camera 2
-        frontCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
+        //each projection plane must be 1px further from the cameras to avoid
+        //mirroring effect
+        var planePosition = boxSide/2 + 1;
 
-        frontCamera.up.set(0, 1, 0);
-        frontCamera.position.set(0,0, 400);
-        frontCamera.lookAt(scene.position);
-        scene.add(frontCamera);
+        //planes that display the camera projections forming the sides of the shadow box
+        backRenderTarget = setupRenderPlanes(new THREE.Vector3(0,0,-planePosition), Math.PI, Math.PI, Math.PI);
+        frontRenderTarget = setupRenderPlanes(new THREE.Vector3(0,0,planePosition), Math.PI, 2*Math.PI, Math.PI);
+        bottomRenderTarget = setupRenderPlanes(new THREE.Vector3(0, -planePosition, 0), Math.PI/2, Math.PI, Math.PI/2);
+        topRenderTarget = setupRenderPlanes(new THREE.Vector3(0, planePosition, 0), -Math.PI/2, Math.PI, -Math.PI/2);
+        leftRenderTarget = setupRenderPlanes(new THREE.Vector3(-planePosition, 0, 0), Math.PI, Math.PI/2, Math.PI);
+        rightRenderTarget = setupRenderPlanes(new THREE.Vector3(planePosition, 0, 0), Math.PI, -Math.PI/2, Math.PI);
 
-        // camera 3
-        leftCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
-
-        leftCamera.up.set(0, 1, 0);
-        leftCamera.position.set(-400,0,0);
-        leftCamera.lookAt(scene.position);
-        scene.add(leftCamera);
-
-        // camera 3
-        rightCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
-
-        rightCamera.up.set(0, 1, 0);
-        rightCamera.position.set(400,0,0);
-        rightCamera.lookAt(scene.position);
-        scene.add(rightCamera);
-
-        // camera 4
-        bottomCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
-
-        bottomCamera.up.set(0, 1, 0);
-        bottomCamera.position.set(0,-400,0);
-        bottomCamera.lookAt(scene.position);
-        scene.add(bottomCamera);
-
-        // camera 5
-        topCamera = new THREE.OrthographicCamera(
-                ORTH_PLANE_WIDTH / -2, ORTH_PLANE_WIDTH  /  2,
-                ORTH_PLANE_HEIGHT /  2, ORTH_PLANE_HEIGHT / -2,
-                10, 800  );
-
-        topCamera.up.set(0, 1, 0);
-        topCamera.position.set(0,400,0);
-        topCamera.lookAt(scene.position);
-        scene.add(topCamera);
-
+        //*** RENDERER ***/
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setClearColor("#cecece" );
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.sortObjects = false;
         renderer.shadowMapEnabled = true;
         renderer.shadowMapType = THREE.PCFShadowMap;
-
         renderer.setSize(container.offsetWidth, container.offsetHeight);
         container.appendChild( renderer.domElement );
-        renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
-        renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
-        renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
-        window.addEventListener( 'resize', onWindowResize, false );
-
-        // creating scene light
-        lighting = new THREEx.ThreePointsLighting();
-        scene.add(lighting);
-
-
-        ambient = new THREE.AmbientLight( 0x505050 ) ;
-        scene.add(ambient);
-
-        // FLOOR
+        //*** DISPLAY STRUCTURE ***//
         var axes = new THREE.AxisHelper(300);
         scene.add( axes );
 
@@ -189,16 +187,14 @@
         gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
         scene.add(gridXY);
 
-
         gridYZ = new THREE.GridHelper(400, 100);
         gridYZ.position.set( 0,0,0 );
         gridYZ.rotation.z = Math.PI/2;
         gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
         scene.add(gridYZ);
 
-        // add 3D text
+        //*** GEOMETRY ***//
         var letters = ["A", "B", "C", "D", "E"];
-
 
         for(var i = 0; i < letters.length; i++){
             currcolor = Math.random() * 0xffffff;
@@ -206,7 +202,7 @@
             var materialFront = new THREE.MeshLambertMaterial( {color: currcolor});
             var textGeom = new THREE.TextGeometry( letters[i],
             {
-                size: 150, height: 20, curveSegments: 20,
+                size: 100, height: 10, curveSegments: 20,
                 font: "droid sans", weight: "normal", style: "normal",
                 bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
                 material: 0, extrudeMaterial: 1
@@ -224,6 +220,8 @@
             scene.add( object );
             objects.push( object );
         }
+
+        //plane that enables drag/drop interaction with geometry
         movementPlane = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
             new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
@@ -231,95 +229,20 @@
         movementPlane.visible = false;
         scene.add( movementPlane );
 
-        //initialising what we're casting onto
-        var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
-        var planeMaterial;
-
-        // final version of camera texture, used in scene.
-        backRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: backRenderTarget } );
-
-        backRenderTarget.wrapS = THREE.RepeatWrapping;
-        backRenderTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(0,0,-401);
-        planes.push(plane);
-        scene.add(plane);
-
-        // final version of camera texture, used in scene.
-        frontRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: frontRenderTarget } );
-
-        frontRenderTarget.wrapS = THREE.RepeatWrapping;
-        frontRenderTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(0,0,401);
-        plane.rotation.y = Math.PI;
-        planes.push(plane);
-        scene.add(plane);
-
-        // final version of camera texture, used in scene.
-        bottomRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: bottomRenderTarget } );
-
-        bottomRenderTarget.wrapS = THREE.RepeatWrapping;
-        bottomRenderTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(0,-401,0);
-        plane.rotation.x = -Math.PI/2;
-        plane.rotation.z = -Math.PI/2;
-        planes.push(plane);
-        scene.add(plane);
-
-        // final version of camera texture, used in scene.
-        topRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: topRenderTarget } );
-
-        topRenderTarget.wrapS = THREE.RepeatWrapping;
-        topRenderTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(0,401,0);
-        plane.rotation.x = Math.PI/2;
-        plane.rotation.z = Math.PI/2;
-        planes.push(plane);
-        scene.add(plane);
-
-        // final version of camera texture, used in scene.
-        leftRenderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: leftRenderTarget } );
-
-        leftRenderTarget.wrapS = THREE.RepeatWrapping;
-        leftRenderTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(-401,0,0);
-        plane.rotation.y = Math.PI/2;
-        planes.push(plane);
-        scene.add(plane);
-
-        // final version of camera texture, used in scene.
-        rightCameraTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-        planeMaterial = new THREE.MeshBasicMaterial( { map: rightCameraTarget } );
-
-        rightCameraTarget.wrapS = THREE.RepeatWrapping;
-        rightCameraTarget.repeat.x = - 1;
-        plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-        plane.position.set(401,0,0);
-        plane.rotation.y = -Math.PI/2;
-        planes.push(plane);
-        scene.add(plane);
-
-        controls = new THREE.OrbitControls( mainCamera, container );
+        //*** SCENE INTERACTIONS ***//
+        //controls for the main camera
+        controls = new THREE.OrbitControls(mainCamera, container );
         controls.userRotate = true;
         controls.userZoom = true;
         controls.minDistance = 10;
         controls.maxDistance = 8000;
         controls.enabled = true;
+
+        //dom and window listeners
+        renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+        window.addEventListener( 'resize', onWindowResize, false );
 
     }
     function animate()
@@ -347,14 +270,13 @@
         renderer.render( scene, bottomCamera, bottomRenderTarget, true );
         renderer.render( scene, topCamera, topRenderTarget, true );
         renderer.render( scene, leftCamera, leftRenderTarget, true );
-        renderer.render( scene, rightCamera, rightCameraTarget, true );
+        renderer.render( scene, rightCamera, rightRenderTarget, true );
 
 
         for(i = 0; i < objects.length; i++){
             objects[i].material.color = new THREE.Color(colors[i]);
             objects[i].material.emissive =  new THREE.Color(0, 0, 0);
         }
-
 
         // render the main scene
         gridXZ.visible = false;
@@ -363,47 +285,48 @@
         renderer.render( scene, mainCamera );
     }
 
-
     function onDocumentMouseMove( event ) {
         event.preventDefault();
 
         position = cursorPositionInCanvas( renderer.domElement, event );
 
-
         mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
         mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
 
+        //if we are currently dragging an item
         if ( SELECTED ) {
 
+            //if our current camera is one of the box's sides
             if(CURRENTCAM != mainCamera){
 
+                //figure out which side we're on and adjust the mouse as such
                 raycaster.setFromCamera( mouse, mainCamera );
                 intersects = raycaster.intersectObjects(planes);
 
                 if(intersects.length > 0){
                     if (CURRENTCAM == leftCamera) {
-                    mouse.x = intersects[0].point.z / 400;
-                    mouse.y = intersects[0].point.y / 400;
+                    mouse.x = intersects[0].point.z / (boxSide/2);
+                    mouse.y = intersects[0].point.y / (boxSide/2);
                     }
                     else if (CURRENTCAM == rightCamera) {
-                        mouse.x = -intersects[0].point.z/400;
-                        mouse.y = intersects[0].point.y/400;
+                        mouse.x = -intersects[0].point.z/(boxSide/2);
+                        mouse.y = intersects[0].point.y/(boxSide/2);
                     }
                     else if (CURRENTCAM == topCamera) {
-                        mouse.x = -intersects[0].point.z/400;
-                        mouse.y = -intersects[0].point.x/400;
+                        mouse.x = -intersects[0].point.z/(boxSide/2);
+                        mouse.y = -intersects[0].point.x/(boxSide/2);
                     }
                     else if (CURRENTCAM == bottomCamera) {
-                        mouse.x = -intersects[0].point.z/400;
-                        mouse.y = intersects[0].point.x/400;
+                        mouse.x = -intersects[0].point.z/(boxSide/2);
+                        mouse.y = intersects[0].point.x/(boxSide/2);
                     }
                     else if (CURRENTCAM == frontCamera) {
-                        mouse.x = intersects[0].point.x/400;
-                        mouse.y = intersects[0].point.y/400;
+                        mouse.x = intersects[0].point.x/(boxSide/2);
+                        mouse.y = intersects[0].point.y/(boxSide/2);
                     }
                     else if (CURRENTCAM == backCamera) {
-                        mouse.x = -intersects[0].point.x/400;
-                        mouse.y = intersects[0].point.y/400;
+                        mouse.x = -intersects[0].point.x/(boxSide/2);
+                        mouse.y = intersects[0].point.y/(boxSide/2);
                     }
                 }
                 else{
@@ -426,20 +349,14 @@
 
         var intersects = raycaster.intersectObjects(objects);
         if ( intersects.length > 0 ) {
-
-                    scene.remove(selectedEdge);
-
-
-//            if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+            scene.remove(selectedEdge);
 
             INTERSECTED = intersects[ 0 ].object;
-            selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-            scene.add(selectedEdge);
-
-//            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-//            INTERSECTED.material.emissive.setHex( 0x888888 );
             movementPlane.position.copy( INTERSECTED.position);
             movementPlane.lookAt( CURRENTCAM.position );
+
+            selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+            scene.add(selectedEdge);
             container.style.cursor = 'pointer';
             return;
         }
@@ -448,13 +365,16 @@
             intersects = raycaster.intersectObjects(planes);
             if(intersects.length > 0){
                 currentMouse = intersects[0].point;
+
+//                console.log(mouse.x + " " + currentMouse.x);
+
                 planeLookAt = new THREE.Vector3();
 
                 if(currentMouse.x < -400){
                     CURRENTCAM = leftCamera;
 
-                    mouse.x = intersects[0].point.z/400;
-                    mouse.y = intersects[0].point.y/400;
+                    mouse.x = intersects[0].point.z/(boxSide/2);
+                    mouse.y = intersects[0].point.y/(boxSide/2);
 
                     planeLookAt.x = Math.PI;
                     planeLookAt.y = -Math.PI/2;
@@ -463,8 +383,8 @@
                 else if(currentMouse.x > 400){
                     CURRENTCAM = rightCamera;
 
-                    mouse.x = -intersects[0].point.z/400;
-                    mouse.y = intersects[0].point.y/400;
+                    mouse.x = -intersects[0].point.z/(boxSide/2);
+                    mouse.y = intersects[0].point.y/(boxSide/2);
 
                     planeLookAt.x = Math.PI;
                     planeLookAt.y = Math.PI/2;
@@ -473,8 +393,8 @@
                 else if(currentMouse.z < -400){
                     CURRENTCAM = backCamera;
 
-                    mouse.x = -intersects[0].point.x/400;
-                    mouse.y = intersects[0].point.y/400;
+                    mouse.x = -intersects[0].point.x/(boxSide/2);
+                    mouse.y = intersects[0].point.y/(boxSide/2);
 
                     planeLookAt.x = Math.PI*2;
                     planeLookAt.y = Math.PI;
@@ -484,8 +404,8 @@
                 else if(currentMouse.z > 400){
                     CURRENTCAM = frontCamera;
 
-                    mouse.x = intersects[0].point.x/400;
-                    mouse.y = intersects[0].point.y/400;
+                    mouse.x = intersects[0].point.x/(boxSide/2);
+                    mouse.y = intersects[0].point.y/(boxSide/2);
 
                     planeLookAt.x = Math.PI;
                     planeLookAt.y = Math.PI;
@@ -501,7 +421,6 @@
                     planeLookAt.x = -Math.PI/2;
                     planeLookAt.y = Math.PI;
                     planeLookAt.z = Math.PI;
-//                            plane.rotation.y = Math.PI;
 
                 }
                 else if(currentMouse.y > 400){
@@ -521,33 +440,24 @@
                 if(intersects.length > 0){
                     scene.remove(selectedEdge);
 
-
-//                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-
                     INTERSECTED = intersects[ 0 ].object;
-//                    INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-//                    INTERSECTED.material.emissive.setHex( 0x888888 );
-
-                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-                        scene.add(selectedEdge);
-
                     movementPlane.position.copy( INTERSECTED.position);
                     movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
-
                     movementPlane.rotation.x = planeLookAt.x;
                     movementPlane.rotation.y = planeLookAt.y;
                     movementPlane.rotation.z = planeLookAt.z;
+
                     container.style.cursor = 'pointer';
+                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                    scene.add(selectedEdge);
+
                     return;
                 }
             }
         }
-
         container.style.cursor = '-webkit-grab';
         scene.remove(selectedEdge);
-//        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
         INTERSECTED = null;
-
     }
     function onDocumentMouseDown( event ) {
         event.preventDefault();
@@ -557,7 +467,6 @@
             if ( intersects.length > 0 ) {
                 controls.enabled = false;
                 SELECTED = intersects[ 0 ].object;
-
 
                 var intersects = raycaster.intersectObject( movementPlane );
                 offset.copy( intersects[ 0 ].point ).sub( movementPlane.position );
@@ -573,10 +482,8 @@
             SELECTED = null;
         }
         container.style.cursor = '-webkit-grab';
-//        scene.remove(selectedEdge);
 
     }
-
     function onWindowResize() {
         mainCamera.aspect = container.offsetWidth / container.offsetHeight;
         mainCamera.updateProjectionMatrix();
