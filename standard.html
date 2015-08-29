@@ -8,34 +8,33 @@
 
     <!--styles-->
     <link href="libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="libs/font-awesome.min.css" rel="stylesheet">
-
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
 </head>
-<body id="bodyclass">
-
-    <div class="main-container">
-        <div id="ThreeJS"></div>
-    </div>
-    <div class="">
-        <div id="reset" class="">
-            <a class="btn btn-primary" onclick="reset()">Reset</a>
-        </div>
-        <div id="perspective" class=" label">
-            Perspective View
-        </div>
-        <div id="top" class="label">
-            Top (XZ) View
-        </div>
-        <div id="front" class=" label">
-            Front (YZ) View
-        </div>
-        <div id="side" class=" label">
-            Side (XY) View
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div id="perspective" class=" label">
+                Perspective View
+            </div>
+            <div id="top" class="label">
+                Top (XZ) View
+            </div>
+            <div id="front" class=" label">
+                Front (YZ) View
+            </div>
+            <div id="side" class=" label">
+                Side (XY) View
+            </div>
+            <div id="canvas-container" style="margin: 0 auto; text-align: center"></div>
         </div>
     </div>
-
+</div>
+    <div id="reset" class="">
+        <a class="btn btn-primary" onclick="reset()">Reset</a>
+    </div>
 
 </body>
 
@@ -47,10 +46,13 @@
     <script src="libs/three/threex.basiclighting.js"></script>
     <script src="libs/three/droid_sans_regular.typeface.js"></script>
 
+<script src="cursorPosition.js"></script>
+
+
     <script>
 
         // global attributes needed for scene
-        var container = document.getElementById( 'ThreeJS' );
+        var container = document.getElementById( 'canvas-container' );
 
         var camera, controls, scene, renderer;
         var objects = [], plane;
@@ -73,7 +75,7 @@
 					eye: [ 1000, 1000, 1000 ],
 					up: [ 0, 1, 0 ],
 					fov: 45,
-                    camera : new THREE.PerspectiveCamera( this.fov, window.innerWidth / window.innerHeight, 1, 10000 ),
+                    camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 ),
 				}
                 ,
                 {
@@ -86,7 +88,7 @@
 					eye: [ 0, 1000, 0 ],
 					up: [ 0, 1, 0 ],
 					fov: 45,
-                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
 				}
                 ,
 				{
@@ -99,7 +101,7 @@
 					eye: [ 0, 0, 1000 ],
 					up: [ 0, 1, 0  ],
 					fov: 45,
-                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
 				}
                 ,
 				{
@@ -112,7 +114,7 @@
 					eye: [ 1000, 0, 0 ],
 					up: [ 0, 1, 0 ],
 					fov: 45,
-                    camera : new THREE.OrthographicCamera(window.innerWidth / -1, window.innerWidth / 1, window.innerHeight / 1, window.innerHeight / -1, 1, 10000 ),
+                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
 				}
 			];
 
@@ -125,9 +127,9 @@
 
             persLabel.style.cssText = "left: 0px; top: 0px";
             reset.style.cssText = "left: 0px; top: 0px";
-            topLabel.style.cssText = "left: 0px; top: " + window.innerHeight/2 + "px";
-            frontLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: 0px";
-            sideLabel.style.cssText = "left: " + window.innerWidth/2 + "px; top: " + window.innerHeight/2 + "px";
+            topLabel.style.cssText = "left: 0px; top: " + container.offsetHeight/2 + "px";
+            frontLabel.style.cssText = "left: " + container.offsetWidth/2 + "px; top: 0px";
+            sideLabel.style.cssText = "left: " + container.offsetWidth/2 + "px; top: " + container.offsetHeight/2 + "px";
         }
 
         function setupViews(){
@@ -229,7 +231,7 @@
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setClearColor( 0xf0f0f0 );
 				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( container.offsetWidth, container.offsetHeight );
 				renderer.sortObjects = false;
 				renderer.shadowMapEnabled = true;
 				renderer.shadowMapType = THREE.PCFShadowMap;
@@ -260,10 +262,10 @@
                 camera = view.camera;
                 view.controls.update();
 
-                var left   = Math.floor( window.innerWidth  * view.left );
-                var bottom = Math.floor( window.innerHeight * view.bottom );
-                var width  = Math.floor( window.innerWidth  * view.width );
-                var height = Math.floor( window.innerHeight * view.height );
+                var left   = Math.floor( container.offsetWidth  * view.left );
+                var bottom = Math.floor( container.offsetHeight * view.bottom );
+                var width  = Math.floor( container.offsetWidth  * view.width );
+                var height = Math.floor( container.offsetHeight * view.height );
 
                 renderer.setViewport( left, bottom, width, height );
                 renderer.setScissor( left, bottom, width-1, height-1 );
@@ -279,24 +281,24 @@
             for ( var ii = 0; ii < views.length; ++ii ) {
                 view = views[ii];
                 camera = view.camera;
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.left = window.innerWidth*-1;
-                camera.right = window.innerWidth;
-                camera.top = window.innerHeight;
-                camera.bottom = window.innerHeight*-1;
+                camera.aspect = container.offsetWidth / container.offsetHeight;
+                camera.left = container.offsetWidth*-1;
+                camera.right = container.offsetWidth;
+                camera.top = container.offsetHeight;
+                camera.bottom = container.offsetHeight*-1;
                 camera.updateProjectionMatrix();
-                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setSize( container.offsetWidth, container.offsetHeight );
             }
-                    setupLabels();
+            setupLabels();
 
         }
 
         function onDocumentMouseMove( event ) {
 				event.preventDefault();
 
-				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
+            position = cursorPositionInCanvas( renderer.domElement, event );
+            mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
+            mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
 
                 views[0].controls.enabled = false;
                 views[1].controls.enabled = false;
