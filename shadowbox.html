@@ -53,7 +53,7 @@
     var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightCameraTarget, leftRenderTarget;
     var gridXZ, gridYZ, gridXY;
     var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW, CENTRE;
-    var objects = [], planes = [], movementPlane;
+    var objects = [], planes = [], colors = [], movementPlane;
     var raycaster = new THREE.Raycaster();
     var lighting;
     var ambient;
@@ -199,8 +199,11 @@
         // add 3D text
         var letters = ["A", "B", "C", "D", "E"];
 
+
         for(var i = 0; i < letters.length; i++){
-            var materialFront = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+            currcolor = Math.random() * 0xffffff;
+            colors.push( currcolor);
+            var materialFront = new THREE.MeshLambertMaterial( {color: currcolor});
             var textGeom = new THREE.TextGeometry( letters[i],
             {
                 size: 150, height: 20, curveSegments: 20,
@@ -334,12 +337,9 @@
         gridYZ.visible = true;
 
         for(i = 0; i < objects.length; i++){
-            objects[i].material.emissive = objects[i].material.color;
+            objects[i].material.emissive = new THREE.Color(colors[i]).multiplyScalar(0.5);
             objects[i].material.color =  new THREE.Color(0, 0, 0);
         }
-
-
-
 
         // put the result of frontCamera into the first texture.
         renderer.render( scene, backCamera, backRenderTarget, true );
@@ -351,7 +351,7 @@
 
 
         for(i = 0; i < objects.length; i++){
-            objects[i].material.color = objects[i].material.emissive;
+            objects[i].material.color = new THREE.Color(colors[i]);
             objects[i].material.emissive =  new THREE.Color(0, 0, 0);
         }
 
