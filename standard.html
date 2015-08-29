@@ -13,30 +13,29 @@
 
 </head>
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-lg-10 col-lg-offset-1">
-            <div id="perspective" class=" label">
-                Perspective View
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1">
+                <div id="perspective" class=" label">
+                    Perspective View
+                </div>
+                <div id="top" class="label">
+                    Top (XZ) View
+                </div>
+                <div id="front" class=" label">
+                    Front (YZ) View
+                </div>
+                <div id="side" class=" label">
+                    Side (XY) View
+                </div>
+                <div id="canvas-container" style="margin: 0 auto; text-align: center"></div>
             </div>
-            <div id="top" class="label">
-                Top (XZ) View
-            </div>
-            <div id="front" class=" label">
-                Front (YZ) View
-            </div>
-            <div id="side" class=" label">
-                Side (XY) View
-            </div>
-            <div id="canvas-container" style="margin: 0 auto; text-align: center"></div>
         </div>
     </div>
-</div>
-    <div id="reset" class="">
-        <a class="btn btn-primary" onclick="reset()">Reset</a>
-    </div>
 
-</body>
+        <div id="reset" class="">
+            <a class="btn btn-primary" onclick="reset()">Reset</a>
+        </div>
 
     <!--scripts-->
     <script src="libs/jquery-1.11.3.min.js"></script>
@@ -45,8 +44,7 @@
     <script src="libs/three/standardControls.js"></script>
     <script src="libs/three/threex.basiclighting.js"></script>
     <script src="libs/three/droid_sans_regular.typeface.js"></script>
-
-<script src="cursorPosition.js"></script>
+    <script src="scripts/cursorPosition.js"></script>
 
 
     <script>
@@ -67,58 +65,58 @@
         var mouseX = 0, mouseY = 0;
 
         var views = [
-                {
-                    name: "perspective",
-					left: 0,
-					bottom: 0.5,
-					width: 0.5,
-					height: 0.5,
-					background: new THREE.Color("#cecece"),
-					eye: [ 1000, 1000, 1000 ],
-					up: [ 0, 1, 0 ],
-					fov: 45,
-                    camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 ),
-				}
-                ,
-                {
-                    name: "top",
-					left: 0,
-					bottom: 0,
-					width: 0.5,
-					height: 0.5,
-					background: new THREE.Color("#cecece"),
-					eye: [ 0, 1000, 0 ],
-					up: [ 0, 1, 0 ],
-					fov: 45,
-                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
-				}
-                ,
-				{
-                    name: "front",
-					left: 0.5,
-					bottom: 0,
-					width: 0.5,
-					height: 0.5,
-					background: new THREE.Color("#cecece"),
-					eye: [ 0, 0, 1000 ],
-					up: [ 0, 1, 0  ],
-					fov: 45,
-                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
-				}
-                ,
-				{
-                    name: "side",
-					left: 0.5,
-					bottom: 0.5,
-					width: 0.5,
-					height: 0.5,
-					background: new THREE.Color("#cecece"),
-					eye: [ 1000, 0, 0 ],
-					up: [ 0, 1, 0 ],
-					fov: 45,
-                    camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
-				}
-			];
+            {
+                name: "perspective",
+                left: 0,
+                bottom: 0.5,
+                width: 0.5,
+                height: 0.5,
+                background: new THREE.Color("#cecece"),
+                eye: [ 1000, 1000, 1000 ],
+                up: [ 0, 1, 0 ],
+                fov: 45,
+                camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 ),
+            }
+            ,
+            {
+                name: "top",
+                left: 0,
+                bottom: 0,
+                width: 0.5,
+                height: 0.5,
+                background: new THREE.Color("#cecece"),
+                eye: [ 0, 1000, 0 ],
+                up: [ 0, 1, 0 ],
+                fov: 45,
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+            }
+            ,
+            {
+                name: "front",
+                left: 0.5,
+                bottom: 0,
+                width: 0.5,
+                height: 0.5,
+                background: new THREE.Color("#cecece"),
+                eye: [ 0, 0, 1000 ],
+                up: [ 0, 1, 0  ],
+                fov: 45,
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+            }
+            ,
+            {
+                name: "side",
+                left: 0.5,
+                bottom: 0.5,
+                width: 0.5,
+                height: 0.5,
+                background: new THREE.Color("#cecece"),
+                eye: [ 1000, 0, 0 ],
+                up: [ 0, 1, 0 ],
+                fov: 45,
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+            }
+        ];
 
         function setupLabels(){
             var persLabel = document.getElementById("perspective");
@@ -135,25 +133,25 @@
         }
 
         function setupViews(){
-                for (var ii =  0; ii < views.length; ++ii ) {
-					var view = views[ii];
-					view.camera.position.x = view.eye[ 0 ];
-					view.camera.position.y = view.eye[ 1 ];
-					view.camera.position.z = view.eye[ 2 ];
-					view.camera.up.x = view.up[ 0 ];
-					view.camera.up.y = view.up[ 1 ];
-					view.camera.up.z = view.up[ 2 ];
-                    view.camera.zoom = 1;
+            for (var ii =  0; ii < views.length; ++ii ) {
+                var view = views[ii];
+                view.camera.position.x = view.eye[ 0 ];
+                view.camera.position.y = view.eye[ 1 ];
+                view.camera.position.z = view.eye[ 2 ];
+                view.camera.up.x = view.up[ 0 ];
+                view.camera.up.y = view.up[ 1 ];
+                view.camera.up.z = view.up[ 2 ];
+                view.camera.zoom = 1;
 
 
-                    controls = new THREE.OrbitControls( view.camera, container );
-                    controls.userPan = true;
-                    controls.userZoom = true;
-                    controls.maxDistance = 8000;
-                    controls.minDistance = 500;
-                    view.controls = controls;
-				}
+                controls = new THREE.OrbitControls( view.camera, container );
+                controls.userPan = true;
+                controls.userZoom = true;
+                controls.maxDistance = 8000;
+                controls.minDistance = 500;
+                view.controls = controls;
             }
+        }
 
         init();
         animate();
@@ -172,8 +170,8 @@
             setupViews();
 
             // creating scene light
-        var lighting = new THREEx.ThreePointsLighting();
-        scene.add(lighting);
+            var lighting = new THREEx.ThreePointsLighting();
+            scene.add(lighting);
 
             gridXZ = new THREE.GridHelper(400, 100);
             gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
@@ -191,7 +189,6 @@
             gridYZ.rotation.z = Math.PI/2;
             gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
             scene.add(gridYZ);
-
 
             var axes = new THREE.AxisHelper(300);
             scene.add( axes );
@@ -223,8 +220,6 @@
             }
 
 
-
-
             plane = new THREE.Mesh(
                 new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
                 new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
@@ -233,25 +228,26 @@
             scene.add( plane );
 
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setClearColor( 0xf0f0f0 );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( container.offsetWidth, container.offsetHeight );
-				renderer.sortObjects = false;
-				renderer.shadowMapEnabled = true;
-				renderer.shadowMapType = THREE.PCFShadowMap;
-				container.appendChild( renderer.domElement );
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setClearColor( 0xf0f0f0 );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( container.offsetWidth, container.offsetHeight );
+            renderer.sortObjects = false;
+            renderer.shadowMapEnabled = true;
+            renderer.shadowMapType = THREE.PCFShadowMap;
+            container.appendChild( renderer.domElement );
 
-				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
-				renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
-				renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
-				//
-				window.addEventListener( 'resize', onWindowResize, false );
-			}
+            renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+            renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+            renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+            window.addEventListener( 'resize', onWindowResize, false );
+        }
+
         function animate() {
-				requestAnimationFrame( animate );
-				render();
-			}
+            requestAnimationFrame( animate );
+            render();
+        }
+
         function render() {
 
             for ( var ii = 0; ii < views.length; ++ii ) {
@@ -295,109 +291,100 @@
                 renderer.setSize( container.offsetWidth, container.offsetHeight );
             }
             setupLabels();
-
         }
 
         function onDocumentMouseMove( event ) {
-				event.preventDefault();
+            event.preventDefault();
 
             position = cursorPositionInCanvas( renderer.domElement, event );
             mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
             mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
 
-                views[0].controls.enabled = false;
-                views[1].controls.enabled = false;
-                views[2].controls.enabled = false;
-                views[3].controls.enabled = false;
+            views[0].controls.enabled = false;
+            views[1].controls.enabled = false;
+            views[2].controls.enabled = false;
+            views[3].controls.enabled = false;
 
-                if(mouse.x < 0 && mouse.y > 0){
-                    CURRENTVIEW = 0;
-                    mouse.x += 0.5;
-                    mouse.y -= 0.5;
+            if(mouse.x < 0 && mouse.y > 0){
+                CURRENTVIEW = 0;
+                mouse.x += 0.5;
+                mouse.y -= 0.5;
+            }
+            //top
+            else if(mouse.x < 0 && mouse.y < 0){
+                CURRENTVIEW = 1;
+                mouse.x += 0.5;
+                mouse.y += 0.5;
+            }
+            //front
+            else if(mouse.x > 0 && mouse.y < 0){
+                CURRENTVIEW = 2;
+
+                mouse.x -= 0.5;
+                mouse.y += 0.5;
+            }
+            //side
+            else if(mouse.x > 0 && mouse.y > 0){
+                CURRENTVIEW = 3;
+                mouse.x -= 0.5;
+                mouse.y -= 0.5;
+            }
+            mouse.x*=2;
+            mouse.y*=2;
+
+            views[CURRENTVIEW].controls.enabled = true;
+            CURRENTCAM = views[CURRENTVIEW].camera;
+
+            raycaster.setFromCamera( mouse, CURRENTCAM );
+            if ( SELECTED ) {
+                var intersects = raycaster.intersectObject( plane );
+                if(intersects.length > 0){
+                    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
                 }
-                //top
-                else if(mouse.x < 0 && mouse.y < 0){
-                    CURRENTVIEW = 1;
-                    mouse.x += 0.5;
-                    mouse.y += 0.5;
+                else{
+                    onDocumentMouseUp();
                 }
-                //front
-                else if(mouse.x > 0 && mouse.y < 0){
-                    CURRENTVIEW = 2;
+                return;
+            }
 
-                    mouse.x -= 0.5;
-                    mouse.y += 0.5;
-                }
-                //side
-                else if(mouse.x > 0 && mouse.y > 0){
-                    CURRENTVIEW = 3;
-                    mouse.x -= 0.5;
-                    mouse.y -= 0.5;
-                }
-                mouse.x*=2;
-                mouse.y*=2;
-
-                views[CURRENTVIEW].controls.enabled = true;
-                CURRENTCAM = views[CURRENTVIEW].camera;
-//                console.log(CURRENTCAM.zoom);
-
-				raycaster.setFromCamera( mouse, CURRENTCAM );
-				if ( SELECTED ) {
-					var intersects = raycaster.intersectObject( plane );
-                    if(intersects.length > 0){
-					    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-                    }
-                    else{
-                        onDocumentMouseUp();
-                    }
-					return;
-				}
-				var intersects = raycaster.intersectObjects( objects );
-				if ( intersects.length > 0 ) {
-					if ( INTERSECTED != intersects[ 0 ].object ) {
-                        scene.remove(selectedEdge);
-
-                        INTERSECTED = intersects[ 0 ].object;
-                        selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-                        scene.add(selectedEdge);
-
-						plane.position.copy( INTERSECTED.position);
-                        plane.lookAt( CURRENTCAM.position );
-
-
-                        if(CURRENTVIEW == 1){
-                            plane.rotation.x = Math.PI/2;
-                            plane.rotation.y = Math.PI;
-                            plane.rotation.z = Math.PI;
-                        }
-                        else if(CURRENTVIEW == 2){
-                            plane.rotation.x = Math.PI;
-                            plane.rotation.y = Math.PI;
-                            plane.rotation.z = Math.PI;
-                        }
-                        else if(CURRENTVIEW == 3){
-                            plane.rotation.x = Math.PI;
-                            plane.rotation.y = Math.PI/2;
-                            plane.rotation.z = Math.PI;
-                        }
-                        else if (CURRENTVIEW == 0){
-//                            plane.rotation.x = -Math.PI/4;
-//                            plane.rotation.y = Math.PI/4;
-//                            plane.rotation.z = Math.PI/6;
-
-                        }
-//                        console.log(plane.rotation.z);
-
-					}
-					container.style.cursor = 'pointer';
-				} else {
-//					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-
-					INTERSECTED = null;
-					container.style.cursor = '-webkit-grab';
+            var intersects = raycaster.intersectObjects( objects );
+            if ( intersects.length > 0 ) {
+                if ( INTERSECTED != intersects[ 0 ].object ) {
                     scene.remove(selectedEdge);
-				}
-			}
+
+                    INTERSECTED = intersects[ 0 ].object;
+                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                    scene.add(selectedEdge);
+
+                    plane.position.copy( INTERSECTED.position);
+                    plane.lookAt( CURRENTCAM.position );
+
+
+                    if(CURRENTVIEW == 1){
+                        plane.rotation.x = Math.PI/2;
+                        plane.rotation.y = Math.PI;
+                        plane.rotation.z = Math.PI;
+                    }
+                    else if(CURRENTVIEW == 2){
+                        plane.rotation.x = Math.PI;
+                        plane.rotation.y = Math.PI;
+                        plane.rotation.z = Math.PI;
+                    }
+                    else if(CURRENTVIEW == 3){
+                        plane.rotation.x = Math.PI;
+                        plane.rotation.y = Math.PI/2;
+                        plane.rotation.z = Math.PI;
+                    }
+                    else if (CURRENTVIEW == 0){}
+                }
+                container.style.cursor = 'pointer';
+            }
+            else {
+                INTERSECTED = null;
+                container.style.cursor = '-webkit-grab';
+                scene.remove(selectedEdge);
+            }
+        }
         function onDocumentMouseDown( event ) {
             event.preventDefault();
             raycaster.setFromCamera( mouse, CURRENTCAM );
@@ -424,5 +411,5 @@
 
     </script>
 
-
+</body>
 </html>

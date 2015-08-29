@@ -6,7 +6,7 @@ html {
 body {
     /*margin-top:40px;*/
     /*margin-bottom: 80px;*/
-    background: #1d1d1d;
+    /*background: #1d1d1d;*/
     color: #9f9f9f;
 }
 
@@ -31,28 +31,6 @@ body {
     margin:10px;
     position: absolute;
 }
-
-/*#perspective{*/
-    /*left: 0px;*/
-    /*top: 2px;*/
-/*}*/
-
-/*#top{*/
-    /*left: 0px;*/
-    /*top: 380px;*/
-/*}*/
-
-/*#front{*/
-    /*left: 720px;*/
-    /*top: 2px;*/
-/*}*/
-
-/*#side{*/
-    /*left:720px;*/
-    /*top: 380px;*/
-/*}*/
-
-
 
 
 .well{
