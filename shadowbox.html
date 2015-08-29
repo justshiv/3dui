@@ -9,30 +9,41 @@
 
     <!--styles-->
     <link href="libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="libs/font-awesome.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
 
-<!--<script src="libs/experiment/Three.js"></script>-->
+    <!--scripts-->
+    <script src="libs/jquery-1.11.3.min.js"></script>
+    <script src="libs/bootstrap/bootstrap.min.js"></script>
+
 <script src="libs/three/three.min.js"></script>
 <script src="libs/three/threex.basiclighting.js"></script>
 <script src="libs/three/OrbitControls.js"></script>
 <script src="libs/three/droid_sans_regular.typeface.js"></script>
 
 
-<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div id="shadowbox" class="label">
+                Shadowbox View
+            </div>
+            <div id="canvas-container" style="margin: 0 auto; text-align: center"></div>
+        </div>
+    </div>
+</div>
         <div id="reset" class="">
             <a class="btn btn-primary" onclick="reset()">Reset</a>
         </div>
-<div id="shadowbox" class="label">
-    Shadowbox View
-</div>
+
 <script>
 
     // standard global variables
-    var container, scene, renderer, controls, stats;
+    var container = document.getElementById( 'canvas-container' );
+
+    var scene, renderer, controls, stats;
     var clock = new THREE.Clock();
 
     // custom global variables
@@ -46,7 +57,8 @@
     var lighting;
     var ambient;
 
-      var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+
+      var SCREEN_WIDTH = container.offsetWidth, SCREEN_HEIGHT = container.offsetHeight;
         var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 10, FAR = 20000;
         var ORTH_PLANE_HEIGHT = 800, ORTH_PLANE_WIDTH = 800;
 
@@ -63,7 +75,6 @@
     {
         // SCENE
         scene = new THREE.Scene();
-        // CAMERAS
 
         // camera 1
         mainCamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
@@ -145,11 +156,13 @@
         renderer.shadowMapEnabled = true;
         renderer.shadowMapType = THREE.PCFShadowMap;
 
-        container = document.getElementById( 'ThreeJS' );
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
         container.appendChild( renderer.domElement );
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
         renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
         renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+        window.addEventListener( 'resize', onWindowResize, false );
 
         // creating scene light
         lighting = new THREEx.ThreePointsLighting();
@@ -206,25 +219,6 @@
             scene.add( object );
             objects.push( object );
         }
-
-
-//        var geometry = new THREE.BoxGeometry( 40, 40, 40 );
-//        for ( var i = 0; i < 5; i ++ ) {
-//            var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-//            object.position.x = Math.random() * 600 - 300;
-//            object.position.y = Math.random() * 600 - 300;
-//            object.position.z = Math.random() * 600 - 300;
-//            object.rotation.x = Math.random() * 2 * Math.PI;
-//            object.rotation.y = Math.random() * 2 * Math.PI;
-//            object.rotation.z = Math.random() * 2 * Math.PI;
-//            object.scale.x = Math.random() * 2 + 1;
-//            object.scale.y = Math.random() * 2 + 1;
-//            object.scale.z = Math.random() * 2 + 1;
-//            object.castShadow = true;
-//            object.receiveShadow = true;
-//            scene.add( object );
-//            objects.push( object );
-//        }
 
         movementPlane = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
@@ -342,7 +336,6 @@
         gridXY.visible = true;
         gridYZ.visible = true;
 
-
         // put the result of frontCamera into the first texture.
         renderer.render( scene, backCamera, backRenderTarget, true );
         renderer.render( scene, frontCamera, frontRenderTarget, true );
@@ -358,12 +351,43 @@
         renderer.render( scene, mainCamera );
     }
 
+    window.Object.defineProperty( Element.prototype, 'documentOffsetTop', {
+        get: function () {
+            return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop : 0 );
+        }
+    } );
+
+    window.Object.defineProperty( Element.prototype, 'documentOffsetLeft', {
+        get: function () {
+            return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
+        }
+    } );
+
+    function cursorPositionInCanvas(canvas, event) {
+        var x, y;
+
+        canoffsetLeft = container.documentOffsetLeft;
+        canoffsetTop = container.documentOffsetTop;
+
+        x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffsetLeft);
+        y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffsetTop) + 1;
+
+        return [x,y];
+    }
+
     function onDocumentMouseMove( event ) {
         event.preventDefault();
 
+        position = cursorPositionInCanvas( renderer.domElement, event );
 
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
+        mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
+
+//        console.log(container.offsetWidth);
+
+//        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+//        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 
 
@@ -556,53 +580,13 @@
         }
         container.style.cursor = '-webkit-grab';
     }
+
+    function onWindowResize() {
+        mainCamera.aspect = container.offsetWidth / container.offsetHeight;
+        mainCamera.updateProjectionMatrix();
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+    }
 </script>
 
 </body>
 </html>
-
-//    //back backing
-//	var planeGeometry = new THREE.BoxGeometry( 820, 820);
-//	var planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//	var planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(0,0,-402);
-//	scene.add(planeborder);
-//
-//    //bottom backing
-//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(0,-402,0);
-//    planeborder.rotation.x = Math.PI/2;
-////	scene.add(planeborder);
-//
-//    //left backing
-//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(-402,0,0);
-//    planeborder.rotation.y = Math.PI/2;
-////	scene.add(planeborder);
-//
-//    //front backing
-//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(0,0,402);
-////	scene.add(planeborder);
-//
-//    //right backing
-//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(402,0,0);
-//    planeborder.rotation.y = Math.PI/2;
-////	scene.add(planeborder);
-//
-//    //top backing
-//    planeGeometry = new THREE.BoxGeometry( 820, 820, 1, 1 );
-//    planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000,  transparent: true, opacity: 0.7  } );
-//    planeborder = new THREE.Mesh( planeGeometry, planeMaterial );
-//	planeborder.position.set(0,402,0);
-//    planeborder.rotation.x = Math.PI/2;
-//	scene.add(planeborder);
