@@ -194,9 +194,9 @@
             var letters = ["A", "B", "C", "D", "E"];
 
             for(var i = 0; i < letters.length; i++){
-                currcolor = Math.random() * 0xffffff;
-                colors.push( currcolor);
-                var materialFront = new THREE.MeshLambertMaterial( {color: currcolor});
+                var curColor = Math.random() * 0xffffff;
+                colors.push( curColor);
+                var materialFront = new THREE.MeshLambertMaterial( {color: curColor});
                 var textGeom = new THREE.TextGeometry( letters[i],
                 {
                     size: 100, height: 10, curveSegments: 20,
@@ -256,7 +256,7 @@
             gridXY.visible = true;
             gridYZ.visible = true;
 
-            for(i = 0; i < objects.length; i++){
+            for(var i = 0; i < objects.length; i++){
                 objects[i].material.emissive = new THREE.Color(colors[i]).multiplyScalar(0.5);
                 objects[i].material.color =  new THREE.Color(0, 0, 0);
             }
@@ -285,7 +285,7 @@
         function onDocumentMouseMove( event ) {
             event.preventDefault();
 
-            position = cursorPositionInCanvas( renderer.domElement, event );
+            var position = cursorPositionInCanvas( renderer.domElement, event );
 
             mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
             mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
@@ -361,11 +361,8 @@
 
                 intersects = raycaster.intersectObjects(planes);
                 if(intersects.length > 0){
-                    currentMouse = intersects[0].point;
-
-    //                console.log(mouse.x + " " + currentMouse.x);
-
-                    planeLookAt = new THREE.Vector3();
+                    var currentMouse = intersects[0].point;
+                    var planeLookAt = new THREE.Vector3();
 
                     if(currentMouse.x < -400){
                         CURRENTCAM = leftCamera;
@@ -373,62 +370,42 @@
                         mouse.x = intersects[0].point.z/(boxSide/2);
                         mouse.y = intersects[0].point.y/(boxSide/2);
 
-                        planeLookAt.x = Math.PI;
-                        planeLookAt.y = -Math.PI/2;
-                        planeLookAt.z = Math.PI;
+                        planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
                     }
                     else if(currentMouse.x > 400){
                         CURRENTCAM = rightCamera;
 
                         mouse.x = -intersects[0].point.z/(boxSide/2);
                         mouse.y = intersects[0].point.y/(boxSide/2);
-
-                        planeLookAt.x = Math.PI;
-                        planeLookAt.y = Math.PI/2;
-                        planeLookAt.z = Math.PI;
+                        planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
                     }
                     else if(currentMouse.z < -400){
                         CURRENTCAM = backCamera;
 
                         mouse.x = -intersects[0].point.x/(boxSide/2);
                         mouse.y = intersects[0].point.y/(boxSide/2);
-
-                        planeLookAt.x = Math.PI*2;
-                        planeLookAt.y = Math.PI;
-                        planeLookAt.z = Math.PI;
-
+                        planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
                     }
                     else if(currentMouse.z > 400){
                         CURRENTCAM = frontCamera;
 
                         mouse.x = intersects[0].point.x/(boxSide/2);
                         mouse.y = intersects[0].point.y/(boxSide/2);
-
-                        planeLookAt.x = Math.PI;
-                        planeLookAt.y = Math.PI;
-                        planeLookAt.z = Math.PI;
-
+                        planeLookAt.set(Math.PI, Math.PI, Math.PI);
                     }
                     else if(currentMouse.y < -400){
                         CURRENTCAM = bottomCamera;
 
                         mouse.x = -intersects[0].point.z/400;
                         mouse.y = intersects[0].point.x/400;
-
-                        planeLookAt.x = -Math.PI/2;
-                        planeLookAt.y = Math.PI;
-                        planeLookAt.z = Math.PI;
-
+                        planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
                     }
                     else if(currentMouse.y > 400){
                         CURRENTCAM = topCamera;
 
                         mouse.x = -intersects[0].point.z/400;
                         mouse.y = -intersects[0].point.x/400;
-
-                        planeLookAt.x = Math.PI/2;
-                        planeLookAt.y = Math.PI;
-                        planeLookAt.z = Math.PI;
+                        planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
                     }
 
                     raycaster.setFromCamera( mouse, CURRENTCAM );
@@ -440,9 +417,7 @@
                         INTERSECTED = intersects[ 0 ].object;
                         movementPlane.position.copy( INTERSECTED.position);
                         movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
-                        movementPlane.rotation.x = planeLookAt.x;
-                        movementPlane.rotation.y = planeLookAt.y;
-                        movementPlane.rotation.z = planeLookAt.z;
+                        movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
 
                         container.style.cursor = 'pointer';
                         selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
@@ -465,7 +440,7 @@
                     controls.enabled = false;
                     SELECTED = intersects[ 0 ].object;
 
-                    var intersects = raycaster.intersectObject( movementPlane );
+                    intersects = raycaster.intersectObject( movementPlane );
                     offset.copy( intersects[ 0 ].point ).sub( movementPlane.position );
                     container.style.cursor = 'move';
 

@@ -15,13 +15,12 @@
     } );
 
     function cursorPositionInCanvas(canvas, event) {
-        var x, y;
 
-        canoffsetLeft = container.documentOffsetLeft;
-        canoffsetTop = container.documentOffsetTop;
+        var canoffsetLeft = canvas.documentOffsetLeft;
+        var canoffsetTop = canvas.documentOffsetTop;
 
-        x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffsetLeft);
-        y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffsetTop) + 1;
+        var x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffsetLeft);
+        var y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffsetTop) + 1;
 
         return [x,y];
     }

@@ -56,9 +56,9 @@
         var objects = [], plane;
         var raycaster = new THREE.Raycaster();
         var gridXY, gridXZ, gridYZ;
-        var mouse = new THREE.Vector2(),
-        offset = new THREE.Vector3(),
-        INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
+        var mouse = new THREE.Vector2();
+        var offset = new THREE.Vector3();
+        var INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
 
         var selectedEdge;
 
@@ -75,7 +75,7 @@
                 eye: [ 1000, 1000, 1000 ],
                 up: [ 0, 1, 0 ],
                 fov: 45,
-                camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 ),
+                camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 )
             }
             ,
             {
@@ -88,7 +88,7 @@
                 eye: [ 0, 1000, 0 ],
                 up: [ 0, 1, 0 ],
                 fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
             }
             ,
             {
@@ -101,7 +101,7 @@
                 eye: [ 0, 0, 1000 ],
                 up: [ 0, 1, 0  ],
                 fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
             }
             ,
             {
@@ -114,7 +114,7 @@
                 eye: [ 1000, 0, 0 ],
                 up: [ 0, 1, 0 ],
                 fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth / 1, container.offsetHeight / 1, container.offsetHeight / -1, 1, 10000 ),
+                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
             }
         ];
 
@@ -259,7 +259,7 @@
                     gridYZ.visible = false;
                 }
 
-                view = views[ii];
+                var view = views[ii];
                 camera = view.camera;
                 view.controls.update();
 
@@ -280,7 +280,7 @@
 
         function onWindowResize() {
             for ( var ii = 0; ii < views.length; ++ii ) {
-                view = views[ii];
+                var view = views[ii];
                 camera = view.camera;
                 camera.aspect = container.offsetWidth / container.offsetHeight;
                 camera.left = container.offsetWidth*-1;
@@ -296,7 +296,7 @@
         function onDocumentMouseMove( event ) {
             event.preventDefault();
 
-            position = cursorPositionInCanvas( renderer.domElement, event );
+            var position = cursorPositionInCanvas( renderer.domElement, event );
             mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
             mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
 
@@ -337,7 +337,7 @@
 
             raycaster.setFromCamera( mouse, CURRENTCAM );
             if ( SELECTED ) {
-                var intersects = raycaster.intersectObject( plane );
+                intersects = raycaster.intersectObject( plane );
                 if(intersects.length > 0){
                     SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
                 }
@@ -393,7 +393,7 @@
 				if ( intersects.length > 0 ) {
 					views[CURRENTVIEW].controls.enabled = false;
 					SELECTED = intersects[ 0 ].object;
-					var intersects = raycaster.intersectObject( plane );
+                    intersects = raycaster.intersectObject( plane );
 					offset.copy( intersects[ 0 ].point ).sub( plane.position );
 					container.style.cursor = 'move';
 				}
