@@ -62,6 +62,8 @@
         offset = new THREE.Vector3(),
         INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
 
+        var selectedEdge;
+
         var mouseX = 0, mouseY = 0;
 
         var views = [
@@ -220,6 +222,9 @@
                 objects.push( object );
             }
 
+
+
+
             plane = new THREE.Mesh(
                 new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
                 new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
@@ -350,11 +355,11 @@
 				var intersects = raycaster.intersectObjects( objects );
 				if ( intersects.length > 0 ) {
 					if ( INTERSECTED != intersects[ 0 ].object ) {
-						if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                        scene.remove(selectedEdge);
 
                         INTERSECTED = intersects[ 0 ].object;
-                        INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-                        INTERSECTED.material.emissive.setHex( 0x666666 );
+                        selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                        scene.add(selectedEdge);
 
 						plane.position.copy( INTERSECTED.position);
                         plane.lookAt( CURRENTCAM.position );
@@ -386,10 +391,11 @@
 					}
 					container.style.cursor = 'pointer';
 				} else {
-					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+//					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
 					INTERSECTED = null;
 					container.style.cursor = '-webkit-grab';
+                    scene.remove(selectedEdge);
 				}
 			}
         function onDocumentMouseDown( event ) {
@@ -406,13 +412,14 @@
 				}
 			}
         function onDocumentMouseUp( event ) {
-//				event.preventDefault();
+				event.preventDefault();
 				views[CURRENTVIEW].controls.enabled = true;
 				if ( INTERSECTED ) {
 					plane.position.copy( INTERSECTED.position );
 					SELECTED = null;
 				}
 				container.style.cursor = '-webkit-grab';
+//                scene.remove(selectedEdge);
 			}
 
 

@@ -57,6 +57,7 @@
     var raycaster = new THREE.Raycaster();
     var lighting;
     var ambient;
+        var selectedEdge;
 
 
       var SCREEN_WIDTH = container.offsetWidth, SCREEN_HEIGHT = container.offsetHeight;
@@ -220,7 +221,6 @@
             scene.add( object );
             objects.push( object );
         }
-
         movementPlane = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
             new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
@@ -323,12 +323,8 @@
     {
         requestAnimationFrame( animate );
         render();
-        update();
     }
-    function update()
-    {
-        var delta = clock.getDelta(); // seconds.
-    }
+
     function render()
     {
         controls.update();
@@ -337,6 +333,14 @@
         gridXY.visible = true;
         gridYZ.visible = true;
 
+        for(i = 0; i < objects.length; i++){
+            objects[i].material.emissive = objects[i].material.color;
+            objects[i].material.color =  new THREE.Color(0, 0, 0);
+        }
+
+
+
+
         // put the result of frontCamera into the first texture.
         renderer.render( scene, backCamera, backRenderTarget, true );
         renderer.render( scene, frontCamera, frontRenderTarget, true );
@@ -344,6 +348,13 @@
         renderer.render( scene, topCamera, topRenderTarget, true );
         renderer.render( scene, leftCamera, leftRenderTarget, true );
         renderer.render( scene, rightCamera, rightCameraTarget, true );
+
+
+        for(i = 0; i < objects.length; i++){
+            objects[i].material.color = objects[i].material.emissive;
+            objects[i].material.emissive =  new THREE.Color(0, 0, 0);
+        }
+
 
         // render the main scene
         gridXZ.visible = false;
@@ -361,13 +372,6 @@
 
         mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
         mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
-
-//        console.log(container.offsetWidth);
-
-//        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-//        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-
 
         if ( SELECTED ) {
 
@@ -423,11 +427,17 @@
         var intersects = raycaster.intersectObjects(objects);
         if ( intersects.length > 0 ) {
 
-            if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                    scene.remove(selectedEdge);
+
+
+//            if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
             INTERSECTED = intersects[ 0 ].object;
-            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-            INTERSECTED.material.emissive.setHex( 0x888888 );
+            selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+            scene.add(selectedEdge);
+
+//            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+//            INTERSECTED.material.emissive.setHex( 0x888888 );
             movementPlane.position.copy( INTERSECTED.position);
             movementPlane.lookAt( CURRENTCAM.position );
             container.style.cursor = 'pointer';
@@ -509,12 +519,17 @@
                 intersects = raycaster.intersectObjects(objects);
 
                 if(intersects.length > 0){
+                    scene.remove(selectedEdge);
 
-                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
+//                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
                     INTERSECTED = intersects[ 0 ].object;
-                    INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-                    INTERSECTED.material.emissive.setHex( 0x888888 );
+//                    INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+//                    INTERSECTED.material.emissive.setHex( 0x888888 );
+
+                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                        scene.add(selectedEdge);
 
                     movementPlane.position.copy( INTERSECTED.position);
                     movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
@@ -529,12 +544,13 @@
         }
 
         container.style.cursor = '-webkit-grab';
-        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+        scene.remove(selectedEdge);
+//        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
         INTERSECTED = null;
 
     }
     function onDocumentMouseDown( event ) {
-//        event.preventDefault();
+        event.preventDefault();
         raycaster.setFromCamera( mouse, CURRENTCAM );
         var intersects = raycaster.intersectObjects( objects );
 
@@ -550,13 +566,15 @@
             }
         }
     function onDocumentMouseUp( event ) {
-//        event.preventDefault();
+        event.preventDefault();
         controls.enabled = true;
         if ( INTERSECTED ) {
             movementPlane.position.copy( INTERSECTED.position );
             SELECTED = null;
         }
         container.style.cursor = '-webkit-grab';
+//        scene.remove(selectedEdge);
+
     }
 
     function onWindowResize() {
