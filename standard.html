@@ -60,9 +60,10 @@
         var offset = new THREE.Vector3();
         var INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
 
+        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
+	    var objstate = OBJSTATE.NONE;
         var selectedEdge;
 
-        var mouseX = 0, mouseY = 0;
 
         var views = [
             {
@@ -254,6 +255,7 @@
             views[2].controls.enabled = false;
             views[3].controls.enabled = false;
 
+            var planeLookAt = new THREE.Vector3();
 
             if(mouse.x < 0 && mouse.y > 0){
                 CURRENTVIEW = 0;
@@ -261,14 +263,18 @@
             //top
             else if(mouse.x < 0 && mouse.y < 0){
                 CURRENTVIEW = 1;
+                planeLookAt.set(Math.PI/2, Math.PI, Math.PI);
+
             }
             //side
             else if(mouse.x > 0 && mouse.y < 0){
                 CURRENTVIEW = 2;
+                planeLookAt.set(Math.PI, Math.PI, Math.PI);
             }
             //front
             else if(mouse.x > 0 && mouse.y > 0){
                 CURRENTVIEW = 3;
+                planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
             }
             mouse.x += (-1 * Math.sign(mouse.x)) * 0.5;
             mouse.y += (-1 * Math.sign(mouse.y)) * 0.5;
@@ -279,56 +285,52 @@
             views[CURRENTVIEW].controls.enabled = true;
             CURRENTCAM = views[CURRENTVIEW].camera;
 
+
             var raycaster = new THREE.Raycaster();
             raycaster.setFromCamera( mouse, CURRENTCAM );
 
-            if ( SELECTED ) {
-                intersects = raycaster.intersectObject( movementPlane );
-                if(intersects.length > 0){
-                    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+            if(objstate === OBJSTATE.MOVE){
+                if ( SELECTED ) {
+                    intersects = raycaster.intersectObject( movementPlane );
+                    if(intersects.length > 0){
+                        SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                    }
+                    else{
+                        onDocumentMouseUp();
+                    }
+                    return;
                 }
-                else{
-                    onDocumentMouseUp();
-                }
-                return;
             }
+            else if(objstate === OBJSTATE.ROTATE){
 
-            var intersects = raycaster.intersectObjects( objects );
-            if ( intersects.length > 0 ) {
-                if ( INTERSECTED != intersects[ 0 ].object ) {
+            }
+            else if ( objstate === OBJSTATE.NONE )
+            {
+                var intersects = raycaster.intersectObjects( objects );
+                if ( intersects.length > 0 ) {
+                    if ( INTERSECTED != intersects[ 0 ].object ) {
+                        scene.remove(selectedEdge);
+
+                        INTERSECTED = intersects[ 0 ].object;
+                        selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                        scene.add(selectedEdge);
+
+                        movementPlane.position.copy( INTERSECTED.position);
+                        movementPlane.lookAt( CURRENTCAM.position );
+
+                        if(CURRENTVIEW != 0){
+                            movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
+                        }
+                    }
+                    container.style.cursor = 'pointer';
+                }
+                else {
+                    INTERSECTED = null;
+                    container.style.cursor = '-webkit-grab';
                     scene.remove(selectedEdge);
-
-                    INTERSECTED = intersects[ 0 ].object;
-                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-                    scene.add(selectedEdge);
-
-                    movementPlane.position.copy( INTERSECTED.position);
-                    movementPlane.lookAt( CURRENTCAM.position );
-
-                    if(CURRENTVIEW == 1){
-                        movementPlane.rotation.x = Math.PI/2;
-                        movementPlane.rotation.y = Math.PI;
-                        movementPlane.rotation.z = Math.PI;
-                    }
-                    else if(CURRENTVIEW == 2){
-                        movementPlane.rotation.x = Math.PI;
-                        movementPlane.rotation.y = Math.PI;
-                        movementPlane.rotation.z = Math.PI;
-                    }
-                    else if(CURRENTVIEW == 3){
-                        movementPlane.rotation.x = Math.PI;
-                        movementPlane.rotation.y = Math.PI/2;
-                        movementPlane.rotation.z = Math.PI;
-                    }
-                    else if (CURRENTVIEW == 0){}
                 }
-                container.style.cursor = 'pointer';
             }
-            else {
-                INTERSECTED = null;
-                container.style.cursor = '-webkit-grab';
-                scene.remove(selectedEdge);
-            }
+
         }
 
         function lockControls( ) {

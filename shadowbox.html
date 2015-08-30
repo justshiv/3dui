@@ -59,6 +59,9 @@
 
         var boxSide = 800;
 
+        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
+	    var objstate = OBJSTATE.NONE;
+
         init();
         animate();
 
@@ -172,146 +175,153 @@
 
             var raycaster = new THREE.Raycaster();
 
-            //if we are currently dragging an item
-            if ( SELECTED ) {
 
-                //if our current camera is one of the box's sides
-                if(CURRENTCAM != mainCamera){
+            if(objstate === OBJSTATE.MOVE){
+                if ( SELECTED ) {
 
-                    //figure out which side we're on and adjust the mouse as such
-                    raycaster.setFromCamera( mouse, mainCamera );
-                    intersects = raycaster.intersectObjects(planes);
+                    //if our current camera is one of the box's sides
+                    if(CURRENTCAM != mainCamera){
 
-                    if(intersects.length > 0){
-                        if (CURRENTCAM == leftCamera) {
-                        mouse.x = intersects[0].point.z / (boxSide/2);
-                        mouse.y = intersects[0].point.y / (boxSide/2);
+                        //figure out which side we're on and adjust the mouse as such
+                        raycaster.setFromCamera( mouse, mainCamera );
+                        intersects = raycaster.intersectObjects(planes);
+
+                        if(intersects.length > 0){
+                            if (CURRENTCAM == leftCamera) {
+                                mouse.x = intersects[0].point.z / (boxSide/2);
+                                mouse.y = intersects[0].point.y / (boxSide/2);
+                            }
+                            else if (CURRENTCAM == rightCamera) {
+                                mouse.x = -intersects[0].point.z/(boxSide/2);
+                                mouse.y = intersects[0].point.y/(boxSide/2);
+                            }
+                            else if (CURRENTCAM == topCamera) {
+                                mouse.x = -intersects[0].point.z/(boxSide/2);
+                                mouse.y = -intersects[0].point.x/(boxSide/2);
+                            }
+                            else if (CURRENTCAM == bottomCamera) {
+                                mouse.x = -intersects[0].point.z/(boxSide/2);
+                                mouse.y = intersects[0].point.x/(boxSide/2);
+                            }
+                            else if (CURRENTCAM == frontCamera) {
+                                mouse.x = intersects[0].point.x/(boxSide/2);
+                                mouse.y = intersects[0].point.y/(boxSide/2);
+                            }
+                            else if (CURRENTCAM == backCamera) {
+                                mouse.x = -intersects[0].point.x/(boxSide/2);
+                                mouse.y = intersects[0].point.y/(boxSide/2);
+                            }
                         }
-                        else if (CURRENTCAM == rightCamera) {
-                            mouse.x = -intersects[0].point.z/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
+                        else{
+                            return;
                         }
-                        else if (CURRENTCAM == topCamera) {
-                            mouse.x = -intersects[0].point.z/(boxSide/2);
-                            mouse.y = -intersects[0].point.x/(boxSide/2);
-                        }
-                        else if (CURRENTCAM == bottomCamera) {
-                            mouse.x = -intersects[0].point.z/(boxSide/2);
-                            mouse.y = intersects[0].point.x/(boxSide/2);
-                        }
-                        else if (CURRENTCAM == frontCamera) {
-                            mouse.x = intersects[0].point.x/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-                        }
-                        else if (CURRENTCAM == backCamera) {
-                            mouse.x = -intersects[0].point.x/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-                        }
-                    }
-                    else{
-                        return;
-                    }
-                }
-
-                raycaster.setFromCamera( mouse, CURRENTCAM );
-                intersects = raycaster.intersectObject( movementPlane );
-                if(intersects.length > 0){
-                    SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-                    container.style.cursor = 'move';
-                }
-                return;
-            }
-
-
-            CURRENTCAM = mainCamera;
-            raycaster.setFromCamera( mouse, mainCamera );
-
-            var intersects = raycaster.intersectObjects(objects);
-            if ( intersects.length > 0 ) {
-                scene.remove(selectedEdge);
-
-                INTERSECTED = intersects[ 0 ].object;
-                movementPlane.position.copy( INTERSECTED.position);
-                movementPlane.lookAt( CURRENTCAM.position );
-
-                selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-                scene.add(selectedEdge);
-                container.style.cursor = 'pointer';
-                return;
-            }
-            else {
-
-                intersects = raycaster.intersectObjects(planes);
-                if(intersects.length > 0){
-                    var currentMouse = intersects[0].point;
-                    var planeLookAt = new THREE.Vector3();
-
-                    if(currentMouse.x < -400){
-                        CURRENTCAM = leftCamera;
-
-                        mouse.x = intersects[0].point.z/(boxSide/2);
-                        mouse.y = intersects[0].point.y/(boxSide/2);
-
-                        planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
-                    }
-                    else if(currentMouse.x > 400){
-                        CURRENTCAM = rightCamera;
-
-                        mouse.x = -intersects[0].point.z/(boxSide/2);
-                        mouse.y = intersects[0].point.y/(boxSide/2);
-                        planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
-                    }
-                    else if(currentMouse.z < -400){
-                        CURRENTCAM = backCamera;
-
-                        mouse.x = -intersects[0].point.x/(boxSide/2);
-                        mouse.y = intersects[0].point.y/(boxSide/2);
-                        planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
-                    }
-                    else if(currentMouse.z > 400){
-                        CURRENTCAM = frontCamera;
-
-                        mouse.x = intersects[0].point.x/(boxSide/2);
-                        mouse.y = intersects[0].point.y/(boxSide/2);
-                        planeLookAt.set(Math.PI, Math.PI, Math.PI);
-                    }
-                    else if(currentMouse.y < -400){
-                        CURRENTCAM = bottomCamera;
-
-                        mouse.x = -intersects[0].point.z/400;
-                        mouse.y = intersects[0].point.x/400;
-                        planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
-                    }
-                    else if(currentMouse.y > 400){
-                        CURRENTCAM = topCamera;
-
-                        mouse.x = -intersects[0].point.z/400;
-                        mouse.y = -intersects[0].point.x/400;
-                        planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
                     }
 
                     raycaster.setFromCamera( mouse, CURRENTCAM );
-                    intersects = raycaster.intersectObjects(objects);
-
+                    intersects = raycaster.intersectObject( movementPlane );
                     if(intersects.length > 0){
-                        scene.remove(selectedEdge);
-
-                        INTERSECTED = intersects[ 0 ].object;
-                        movementPlane.position.copy( INTERSECTED.position);
-                        movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
-                        movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
-
-                        container.style.cursor = 'pointer';
-                        selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
-                        scene.add(selectedEdge);
-
-                        return;
+                        SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+                        container.style.cursor = 'move';
                     }
+                    return;
                 }
             }
-            container.style.cursor = '-webkit-grab';
-            scene.remove(selectedEdge);
-            INTERSECTED = null;
+            else if(objstate === OBJSTATE.ROTATE){
+
+            }
+            else if ( objstate === OBJSTATE.NONE )
+            {
+                CURRENTCAM = mainCamera;
+                raycaster.setFromCamera( mouse, mainCamera );
+
+                var intersects = raycaster.intersectObjects(objects);
+                if ( intersects.length > 0 ) {
+                    scene.remove(selectedEdge);
+
+                    INTERSECTED = intersects[ 0 ].object;
+                    movementPlane.position.copy( INTERSECTED.position);
+                    movementPlane.lookAt( CURRENTCAM.position );
+
+                    selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                    scene.add(selectedEdge);
+                    container.style.cursor = 'pointer';
+                    return;
+                }
+                else {
+
+                    intersects = raycaster.intersectObjects(planes);
+                    if(intersects.length > 0){
+                        var currentMouse = intersects[0].point;
+                        var planeLookAt = new THREE.Vector3();
+
+                        if(currentMouse.x < -400){
+                            CURRENTCAM = leftCamera;
+
+                            mouse.x = intersects[0].point.z/(boxSide/2);
+                            mouse.y = intersects[0].point.y/(boxSide/2);
+
+                            planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
+                        }
+                        else if(currentMouse.x > 400){
+                            CURRENTCAM = rightCamera;
+
+                            mouse.x = -intersects[0].point.z/(boxSide/2);
+                            mouse.y = intersects[0].point.y/(boxSide/2);
+                            planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
+                        }
+                        else if(currentMouse.z < -400){
+                            CURRENTCAM = backCamera;
+
+                            mouse.x = -intersects[0].point.x/(boxSide/2);
+                            mouse.y = intersects[0].point.y/(boxSide/2);
+                            planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
+                        }
+                        else if(currentMouse.z > 400){
+                            CURRENTCAM = frontCamera;
+
+                            mouse.x = intersects[0].point.x/(boxSide/2);
+                            mouse.y = intersects[0].point.y/(boxSide/2);
+                            planeLookAt.set(Math.PI, Math.PI, Math.PI);
+                        }
+                        else if(currentMouse.y < -400){
+                            CURRENTCAM = bottomCamera;
+
+                            mouse.x = -intersects[0].point.z/400;
+                            mouse.y = intersects[0].point.x/400;
+                            planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
+                        }
+                        else if(currentMouse.y > 400){
+                            CURRENTCAM = topCamera;
+
+                            mouse.x = -intersects[0].point.z/400;
+                            mouse.y = -intersects[0].point.x/400;
+                            planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
+                        }
+
+                        raycaster.setFromCamera( mouse, CURRENTCAM );
+                        intersects = raycaster.intersectObjects(objects);
+
+                        if(intersects.length > 0){
+                            scene.remove(selectedEdge);
+
+                            INTERSECTED = intersects[ 0 ].object;
+                            movementPlane.position.copy( INTERSECTED.position);
+                            movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
+                            movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
+
+                            container.style.cursor = 'pointer';
+                            selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
+                            scene.add(selectedEdge);
+
+                            return;
+                        }
+                    }
+                }
+
+                container.style.cursor = '-webkit-grab';
+                scene.remove(selectedEdge);
+                INTERSECTED = null;
+            }
         }
 
         function onWindowResize() {
