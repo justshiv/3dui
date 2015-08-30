@@ -1,4 +1,7 @@
 /**
+ * Created by siobhan on 15/08/30.
+ */
+/**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com
  * @author alteredq / http://alteredqualia.com/
@@ -11,9 +14,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
 	// API
-
 	this.enabled = true;
-
 	this.center = new THREE.Vector3();
 
 	this.userZoom = true;
@@ -23,7 +24,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.userRotateSpeed = 1.0;
 
 	this.userPan = true;
-	this.userPanSpeed = 2.0;
+	this.userPanSpeed = 15.0;
 
 	this.autoRotate = false;
 	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
@@ -34,11 +35,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.minDistance = 0;
 	this.maxDistance = Infinity;
 
-	// 65 /*A*/, 83 /*S*/, 68 /*D*/
-	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40, ROTATE: 65, ZOOM: 83, PAN: 68 };
-
 	// internals
-
 	var scope = this;
 
 	var EPS = 0.000001;
@@ -232,8 +229,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			if ( event.button === 2 )
 				state = STATE.PAN;
 		}
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			//state = STATE.ROTATE;
@@ -263,8 +260,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			rotateEnd.set( event.clientX, event.clientY );
@@ -343,52 +340,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
-	}
-
-	function onKeyDown( event ) {
-
-		if ( scope.enabled === false ) return;
-		if ( scope.userPan === false ) return;
-
-		switch ( event.keyCode ) {
-
-			/*case scope.keys.UP:
-				scope.pan( new THREE.Vector3( 0, 1, 0 ) );
-				break;
-			case scope.keys.BOTTOM:
-				scope.pan( new THREE.Vector3( 0, - 1, 0 ) );
-				break;
-			case scope.keys.LEFT:
-				scope.pan( new THREE.Vector3( - 1, 0, 0 ) );
-				break;
-			case scope.keys.RIGHT:
-				scope.pan( new THREE.Vector3( 1, 0, 0 ) );
-				break;
-			*/
-			case scope.keys.ROTATE:
-				state = STATE.ROTATE;
-				break;
-			case scope.keys.ZOOM:
-				state = STATE.ZOOM;
-				break;
-			case scope.keys.PAN:
-				state = STATE.PAN;
-				break;
-				
-		}
-
-	}
-	
-	function onKeyUp( event ) {
-
-		switch ( event.keyCode ) {
-
-			case scope.keys.ROTATE:
-			case scope.keys.ZOOM:
-			case scope.keys.PAN:
-				state = STATE.NONE;
-				break;
-		}
+        //zooming for ortho views
+        if(object.type == "OrthographicCamera"){
+            test = object.zoom / scale;
+            if(test < 3 && test > 0.15){
+                object.zoom = test;
+            }
+        }
 
 	}
 
@@ -396,9 +354,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
-	window.addEventListener( 'keydown', onKeyDown, false );
-	window.addEventListener( 'keyup', onKeyUp, false );
-
 };
 
 THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
