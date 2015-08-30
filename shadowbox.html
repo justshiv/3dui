@@ -35,8 +35,10 @@
     <script src="libs/three/threex.basiclighting.js"></script>
     <script src="libs/three/droid_sans_regular.typeface.js"></script>
 
-    <script src="scripts/cursorPosition.js"></script>
     <script src="scripts/cameraControls.js"></script>
+    <script src="scripts/objectControls.js"></script>
+    <script src="scripts/interface.js"></script>
+
 
 
     <script>
@@ -53,100 +55,18 @@
         var gridXZ, gridYZ, gridXY;
         var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM;
         var objects = [], planes = [], colors = [];
-        var raycaster = new THREE.Raycaster();
         var selectedEdge;
 
         var boxSide = 800;
 
-
         init();
         animate();
 
-        function reset(){
-            mainCamera = setupMainCamera(container);
-        }
-
-        //function to add shadowbox's side plane camera's to the scene
-        function setupShadowboxCamera(orthPlaneWidth, orthPlaneHeight, position){
-
-            //standard settings for a orthographic camera
-            var left = orthPlaneWidth / -2;
-            var right = orthPlaneWidth  /  2;
-            var height = orthPlaneHeight /  2;
-            var bottom = orthPlaneHeight / -2;
-
-            //settings for our shadow box camera
-            var near = 10;
-            var far = 800; //must be 800, as at 801 the opposite box's side plane is visible
-
-            //setting up orthographic camera's location, up/down and look-at vector
-            var shadowboxCam = new THREE.OrthographicCamera(left, right, height, bottom, near, far);
-            shadowboxCam.up.set(0, 1, 0);
-            shadowboxCam.position.copy(position);
-            shadowboxCam.lookAt(scene.position);
-
-            //adding camera to scene
-            scene.add(shadowboxCam);
-
-            //returning for use
-            return shadowboxCam;
-        }
-
-        function setupRenderPlanes(position, xrot, yrot, zrot){
-
-            var renderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
-            renderTarget.wrapS = THREE.RepeatWrapping;
-            renderTarget.repeat.x = - 1;
-
-            var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
-            var planeMaterial = new THREE.MeshBasicMaterial( { map: renderTarget } );
-            plane = new THREE.Mesh( planeGeometry, planeMaterial );
-            plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
-            plane.position.copy(position);
-
-            if(xrot) plane.rotation.x = xrot;
-            if(yrot) plane.rotation.y = yrot;
-            if(zrot) plane.rotation.z = zrot;
-            planes.push(plane);
-            scene.add(plane);
-
-            return renderTarget;
-        }
-
-        function setupMainCamera(container){
-            var angle = 45;
-            var aspect = container.offsetWidth / container.offsetHeight;
-            var near = 10, far = 20000;
-
-            //main scene camera that we see the scene through
-            var camera = new THREE.PerspectiveCamera(angle, aspect, near, far);
-            scene.add(camera);
-            camera.position.set(1000,1000,1000);
-            camera.lookAt(scene.position);
-
-            //*** SCENE INTERACTIONS ***//
-            //controls for the main camera
-            controls = new THREE.OrbitControls(camera, container );
-            controls.userRotate = true;
-            controls.userZoom = true;
-            controls.minDistance = 10;
-            controls.maxDistance = 8000;
-            controls.enabled = true;
-
-            return camera;
-        }
 
         // FUNCTIONS
         function init()
         {
-            //*** SCENE ***//
-            scene = new THREE.Scene();
-
-            //*** LIGHTS ***//
-            var lighting = new THREEx.ThreePointsLighting();
-            scene.add(lighting);
-            var ambient = new THREE.AmbientLight( 0x505050 ) ;
-            scene.add(ambient);
+            setupInterface();
 
             //*** CAMERAS ***//
             mainCamera = setupMainCamera(container);
@@ -176,37 +96,6 @@
             leftRenderTarget = setupRenderPlanes(new THREE.Vector3(-planePosition, 0, 0), Math.PI, Math.PI/2, Math.PI);
             rightRenderTarget = setupRenderPlanes(new THREE.Vector3(planePosition, 0, 0), Math.PI, -Math.PI/2, Math.PI);
 
-            //*** RENDERER ***/
-            renderer = new THREE.WebGLRenderer( { antialias: true } );
-            renderer.setClearColor("#cecece" );
-            renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.sortObjects = false;
-            renderer.shadowMapEnabled = true;
-            renderer.shadowMapType = THREE.PCFShadowMap;
-            renderer.setSize(container.offsetWidth, container.offsetHeight);
-            container.appendChild( renderer.domElement );
-
-            //*** DISPLAY STRUCTURE ***//
-            var axes = new THREE.AxisHelper(300);
-            scene.add( axes );
-
-            gridXZ = new THREE.GridHelper(400, 100);
-            gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
-            gridXZ.position.set( 0,0,0 );
-            scene.add(gridXZ);
-
-            gridXY = new THREE.GridHelper(400, 100);
-            gridXY.position.set( 0,0,0 );
-            gridXY.rotation.x = Math.PI/2;
-            gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
-            scene.add(gridXY);
-
-            gridYZ = new THREE.GridHelper(400, 100);
-            gridYZ.position.set( 0,0,0 );
-            gridYZ.rotation.z = Math.PI/2;
-            gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
-            scene.add(gridYZ);
-
             //*** GEOMETRY ***//
             var letters = ["A", "B", "C", "D", "E"];
 
@@ -234,22 +123,8 @@
                 scene.add( object );
                 objects.push( object );
             }
-
-            //plane that enables drag/drop interaction with geometry
-            movementPlane = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
-                new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
-            );
-            movementPlane.visible = false;
-            scene.add( movementPlane );
-
-            //dom and window listeners
-            renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
-            renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
-            renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
-            window.addEventListener( 'resize', onWindowResize, false );
-
         }
+
         function animate()
         {
             requestAnimationFrame( animate );
@@ -293,10 +168,9 @@
         function onDocumentMouseMove( event ) {
             event.preventDefault();
 
-            var position = cursorPositionInCanvas( renderer.domElement, event );
+            mouse = cursorPositionInCanvas( renderer.domElement, event );
 
-            mouse.x = (position[0]/ (container.offsetWidth)) * 2 - 1;
-            mouse.y = - (position[1]/ (container.offsetHeight)) * 2 + 1;
+            var raycaster = new THREE.Raycaster();
 
             //if we are currently dragging an item
             if ( SELECTED ) {
@@ -439,35 +313,93 @@
             scene.remove(selectedEdge);
             INTERSECTED = null;
         }
-        function onDocumentMouseDown( event ) {
-            event.preventDefault();
-            raycaster.setFromCamera( mouse, CURRENTCAM );
-            var intersects = raycaster.intersectObjects( objects );
 
-                if ( intersects.length > 0 ) {
-                    controls.enabled = false;
-                    SELECTED = intersects[ 0 ].object;
-
-                    intersects = raycaster.intersectObject( movementPlane );
-                    offset.copy( intersects[ 0 ].point ).sub( movementPlane.position );
-                    container.style.cursor = 'move';
-
-                }
-            }
-        function onDocumentMouseUp( event ) {
-            event.preventDefault();
-            controls.enabled = true;
-            if ( INTERSECTED ) {
-                movementPlane.position.copy( INTERSECTED.position );
-                SELECTED = null;
-            }
-            container.style.cursor = '-webkit-grab';
-
-        }
         function onWindowResize() {
             mainCamera.aspect = container.offsetWidth / container.offsetHeight;
             mainCamera.updateProjectionMatrix();
             renderer.setSize(container.offsetWidth, container.offsetHeight);
+        }
+
+        function lockControls( ) {
+            controls.enabled = false;
+        }
+
+        function releaseControls( ) {
+            controls.enabled = true;
+        }
+
+        function reset(){
+            mainCamera = setupMainCamera(container);
+        }
+
+        //function to add shadowbox's side plane camera's to the scene
+        function setupShadowboxCamera(orthPlaneWidth, orthPlaneHeight, position){
+
+            //standard settings for a orthographic camera
+            var left = orthPlaneWidth / -2;
+            var right = orthPlaneWidth  /  2;
+            var height = orthPlaneHeight /  2;
+            var bottom = orthPlaneHeight / -2;
+
+            //settings for our shadow box camera
+            var near = 10;
+            var far = 800; //must be 800, as at 801 the opposite box's side plane is visible
+
+            //setting up orthographic camera's location, up/down and look-at vector
+            var shadowboxCam = new THREE.OrthographicCamera(left, right, height, bottom, near, far);
+            shadowboxCam.up.set(0, 1, 0);
+            shadowboxCam.position.copy(position);
+            shadowboxCam.lookAt(scene.position);
+
+            //adding camera to scene
+            scene.add(shadowboxCam);
+
+            //returning for use
+            return shadowboxCam;
+        }
+
+        function setupRenderPlanes(position, xrot, yrot, zrot){
+
+            var renderTarget = new THREE.WebGLRenderTarget( 1024, 1024, { format: THREE.RGBFormat } );
+            renderTarget.wrapS = THREE.RepeatWrapping;
+            renderTarget.repeat.x = - 1;
+
+            var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
+            var planeMaterial = new THREE.MeshBasicMaterial( { map: renderTarget } );
+            var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+            plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));
+            plane.position.copy(position);
+
+            if(xrot) plane.rotation.x = xrot;
+            if(yrot) plane.rotation.y = yrot;
+            if(zrot) plane.rotation.z = zrot;
+            planes.push(plane);
+            scene.add(plane);
+
+            return renderTarget;
+        }
+
+        function setupMainCamera(container){
+            var angle = 45;
+            var aspect = container.offsetWidth / container.offsetHeight;
+            var near = 10, far = 20000;
+
+            //main scene camera that we see the scene through
+            var camera = new THREE.PerspectiveCamera(angle, aspect, near, far);
+            scene.add(camera);
+            camera.position.set(1000,1000,1000);
+            camera.lookAt(scene.position);
+
+            //*** SCENE INTERACTIONS ***//
+            //controls for the main camera
+            controls = new THREE.OrbitControls(camera, container );
+            controls.userRotate = true;
+            controls.userZoom = true;
+            controls.minDistance = 10;
+            controls.maxDistance = 8000;
+            controls.enabled = true;
+
+            return camera;
         }
     </script>
 
