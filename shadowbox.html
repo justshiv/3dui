@@ -58,27 +58,6 @@
 
     <script>
 
-        // standard global variables
-        var container = document.getElementById( 'canvas-container' );
-
-        var scene, renderer, controls;
-
-        // custom global variables
-        var movementPlane;
-        var backCamera, leftCamera, bottomCamera, topCamera, rightCamera, frontCamera, mainCamera;
-        var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightRenderTarget, leftRenderTarget;
-        var gridXZ, gridYZ, gridXY;
-        var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM;
-        var objects = [], planes = [], colors = [];
-        var selectedEdge;
-
-        var boxSide = 800;
-
-        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
-        var objstate = OBJSTATE.NONE;
-
-        var circle, rotx, roty, rotz;
-
         init();
         animate();
 

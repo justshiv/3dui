@@ -66,77 +66,6 @@
 
     <script>
 
-        // global attributes needed for scene
-        var container = document.getElementById( 'canvas-container' );
-        var camera, controls, scene, renderer;
-        var objects = [], movementPlane;
-        var gridXY, gridXZ, gridYZ;
-        var mouse = new THREE.Vector2();
-        var offset = new THREE.Vector3();
-        var INTERSECTED, SELECTED, CURRENTCAM, CURRENTVIEW;
-
-        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
-	    var objstate = OBJSTATE.NONE;
-        var selectedEdge;
-
-
-        var circle, rotx, roty, rotz;
-
-
-        var views = [
-            {
-                name: "perspective",
-                left: 0,
-                bottom: 0.5,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 1000, 1000, 1000 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 )
-            }
-            ,
-            {
-                name: "top",
-                left: 0,
-                bottom: 0,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 0, 1000, 0 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-            ,
-            {
-                name: "front",
-                left: 0.5,
-                bottom: 0,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 0, 0, 1000 ],
-                up: [ 0, 1, 0  ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-            ,
-            {
-                name: "side",
-                left: 0.5,
-                bottom: 0.5,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 1000, 0, 0 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-        ];
-
         function setupLabels(){
             var persLabel = document.getElementById("perspective");
             var topLabel = document.getElementById("top");
@@ -168,7 +97,6 @@
                 view.controls = controls;
             }
         }
-
 
         init();
         animate();
