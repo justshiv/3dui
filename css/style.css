@@ -112,6 +112,10 @@ div.tooltip {
 }
 
 div.tooltip-inner {
-    max-width: 100px;
+    min-width: 100px;
+}
+.tooltip.in {
+  opacity: 1;
+  filter: alpha(opacity=100);
 }
 
