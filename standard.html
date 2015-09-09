@@ -20,7 +20,7 @@
                         <nav id="toolbar" class="navbar navbar-default">
                             <div class="container-fluid">
                                 <ul class="nav navbar-nav navbar-left">
-                                   <li id="rotate"><a data-toggle="tooltip" data-placement="bottom" title="Rotate objects" onclick="rotate()"><i class="fa fa-refresh"></i> Rotate</a></li>
+                                   <li id="rotate"><a data-toggle="tooltip" data-placement="bottom" title="Rotate objects" onclick="rot()"><i class="fa fa-refresh"></i> Rotate</a></li>
                                    <li id="translate"><a data-toggle="tooltip" data-placement="bottom" title="Translate objects" onclick="trans()"><i class="fa fa-arrows"></i> Translate</a></li>
                                 </ul>
                                 <ul class="nav navbar-nav navbar-right">
@@ -33,21 +33,27 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                       <div id="perspective" class=" label">
-                        Perspective View
-                    </div>
-                    <div id="top" class="label">
-                        Top (XZ) View
-                    </div>
-                    <div id="front" class=" label">
-                        Side (YZ) View
-                    </div>
-                    <div id="side" class=" label">
-                        Front (XY) View
-                    </div>
+                        <div id="perspective" class="label">
+                            Perspective View
+                        </div>
+                        <div id="top" class="label">
+                            Top (XZ) View
+                        </div>
+                        <div id="front" class=" label">
+                            Side (YZ) View
+                        </div>
+                        <div id="side" class=" label">
+                            Front (XY) View
+                        </div>
                         <div id="canvas-container" style="margin: 0 auto; text-align: center"></div>
                     </div>
                 </div>
+                <div class="row">
+                    <div id="submit" class="col-lg-12">
+                        <a onclick="submit()" class= "btn btn-success">Submit</a>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -73,10 +79,10 @@
             var sideLabel = document.getElementById("side");
             var reset = document.getElementById("reset");
 
-            persLabel.style.cssText = "left: 0px; top: 0px";
-            reset.style.cssText = "left: 0px; top: 0px";
+            persLabel.style.cssText = "left: 0px;";
+            reset.style.cssText = "left: 0px; ";
             topLabel.style.cssText = "left: 0px; top: " + container.offsetHeight/2 + "px";
-            frontLabel.style.cssText = "left: " + container.offsetWidth/2 + "px; top: 0px";
+            frontLabel.style.cssText = "left: " + container.offsetWidth/2 + "px;";
             sideLabel.style.cssText = "left: " + container.offsetWidth/2 + "px; top: " + container.offsetHeight/2 + "px";
         }
 
@@ -125,6 +131,7 @@
                     bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
                     material: 0, extrudeMaterial: 1
                 });
+                textGeom.computeBoundingBox();
 
                 var object = new THREE.Mesh(textGeom, materialFront );
                 object.position.x = Math.random() * 1000 - 500;

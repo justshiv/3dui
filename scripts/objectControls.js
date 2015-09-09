@@ -8,11 +8,19 @@ function onDocumentMouseDown( event ) {
 
     if ( objstate === OBJSTATE.NONE )
     {
-        if ( event.button === 0 )
-            objstate = OBJSTATE.ROTATE;
+        //if ( event.button === 0 )
+        //    objstate = OBJSTATE.ROTATE;
+        //
+        //if ( event.button === 2 )
+        //    objstate = OBJSTATE.MOVE;
 
-        if ( event.button === 2 )
+        if(translate == true){
             objstate = OBJSTATE.MOVE;
+        }
+
+        if(rotate == true){
+            objstate = OBJSTATE.ROTATE;
+        }
     }
 
     if(objstate === OBJSTATE.ROTATE){
@@ -45,14 +53,39 @@ function onDocumentMouseUp( event ) {
     event.preventDefault();
 
     if(objstate === OBJSTATE.MOVE){
-        releaseControls();
 
         if ( INTERSECTED ) {
             movementPlane.position.copy( INTERSECTED.position );
             SELECTED = null;
+            INTERSECTED = null;
         }
+        releaseControls();
         container.style.cursor = '-webkit-grab';
     }
     objstate = OBJSTATE.NONE;
-
 }
+
+    function rot(){
+        if( $('#rotate').hasClass('active')){
+             $('#rotate').removeClass('active');
+            rotate = false;
+        }
+        else{
+            $('#translate').removeClass('active');
+            $('#rotate').addClass('active');
+            translate = false;
+            rotate = true;
+        }
+    }
+    function trans(){
+        if( $('#translate').hasClass('active')){
+             $('#translate').removeClass('active');
+            translate = false;
+        }
+        else{
+            $('#rotate').removeClass('active');
+            $('#translate').addClass('active');
+            rotate = false;
+            translate = true;
+        }
+    }

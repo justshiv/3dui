@@ -25,6 +25,8 @@
 
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
         var objstate = OBJSTATE.NONE;
+        var translate = false;
+        var rotate = false;
 
         var circle, rotx, roty, rotz;
 
@@ -141,7 +143,7 @@
         scene.add( movementPlane );
 
         renderer = new THREE.WebGLRenderer( { antialias: true } );
-        renderer.setClearColor( 0xf0f0f0 );
+        renderer.setClearColor( new THREE.Color("#cecece") );
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( container.offsetWidth, container.offsetHeight );
         renderer.sortObjects = false;
@@ -182,25 +184,26 @@
             return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
         }
     } );
-    //
-    function rotate(){
-        objstate = OBJSTATE.ROTATE;
-        if( $('#rotate').hasClass('active')){
-             $('#rotate').removeClass('active');
-        }
-        else{
-            $('#translate').removeClass('active');
-            $('#rotate').addClass('active');
-        }
-    }
 
-    function trans(){
-        objstate = OBJSTATE.NONE;
-        if( $('#translate').hasClass('active')){
-             $('#translate').removeClass('active');
+
+        function drawRotHelpers(currObject){
+            currObject.geometry.computeBoundingBox();
+
+            var center = currObject.geometry.boundingBox;
+            var centerX = 0.5 * ( center.max.x - center.min.x );
+            var centerY = 0.5 * ( center.max.y - center.min.y );
+            var centerZ = 0.5 * ( center.max.z - center.min.z );
+
+            rotx.position.copy( currObject.position );
+            rotx.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
+
+            roty.position.copy( currObject.position );
+            roty.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
+
+            rotz.position.copy( currObject.position );
+            rotz.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
         }
-        else{
-            $('#rotate').removeClass('active');
-            $('#translate').addClass('active');
-        }
-    }
+
+function submit(){
+    alert("submitted!");
+}

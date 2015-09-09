@@ -14,6 +14,10 @@ a{
     cursor:pointer;
 }
 
+#shadowbox {
+    margin-left: 10px;
+}
+
 #toolbar{
     margin-bottom:0;
     /*margin-left: -15px;*/
@@ -43,6 +47,11 @@ a{
 
 .page-content{
     margin-top: 20px;
+}
+
+#submit {
+    margin-top: 10px;
+    text-align: center;
 }
 
 #index-content{
@@ -85,8 +94,11 @@ float: left !important;
 }
 
 .navbar-nav>li>a {
-    padding-top: 12px;
-    padding-bottom: 12px;
+
+    margin: 5px 4px 5px 4px;
+
+    /*padding-top: 12px;*/
+    /*padding-bottom: 12px;*/
     line-height: 21px;
 }
 
