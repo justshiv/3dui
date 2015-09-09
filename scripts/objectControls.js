@@ -16,7 +16,9 @@ function onDocumentMouseDown( event ) {
     }
 
     if(objstate === OBJSTATE.ROTATE){
-
+        if(INTERSECTED){
+            drawRotHelpers(INTERSECTED);
+        }
     }
     else if(objstate === OBJSTATE.MOVE){
         var raycaster = new THREE.Raycaster();

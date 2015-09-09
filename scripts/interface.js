@@ -2,6 +2,10 @@
  * Created by siobhan on 15/08/30.
  */
 
+        $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+});
+
 
     function setupInterface(){
         //*** SCENE & LIGHTS ***//
@@ -93,11 +97,25 @@
             return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
         }
     } );
-
-    function rotate (){
+    //
+    function rotate(){
         objstate = OBJSTATE.ROTATE;
+        if( $('#rotate').hasClass('active')){
+             $('#rotate').removeClass('active');
+        }
+        else{
+            $('#translate').removeClass('active');
+            $('#rotate').addClass('active');
+        }
     }
 
-    function move (){
+    function trans(){
         objstate = OBJSTATE.NONE;
+        if( $('#translate').hasClass('active')){
+             $('#translate').removeClass('active');
+        }
+        else{
+            $('#rotate').removeClass('active');
+            $('#translate').addClass('active');
+        }
     }
