@@ -30,6 +30,19 @@
         var axes = new THREE.AxisHelper(300);
         scene.add( axes );
 
+        circle = new THREE.CircleGeometry(70, 64);
+
+        rotx = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0xff0000}));
+        scene.add(rotx);
+
+        roty = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0x00ff00}));
+        roty.rotation.x = Math.PI/2;
+        scene.add(roty);
+
+        rotz = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0x0000ff}));
+        rotz.rotation.y = Math.PI/2;
+        scene.add(rotz);
+
         //plane that enables drag/drop interaction with geometry
         movementPlane = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
@@ -80,3 +93,11 @@
             return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
         }
     } );
+
+    function rotate (){
+        objstate = OBJSTATE.ROTATE;
+    }
+
+    function move (){
+        objstate = OBJSTATE.NONE;
+    }
