@@ -131,7 +131,7 @@
                     bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
                     material: 0, extrudeMaterial: 1
                 });
-                textGeom.computeBoundingBox();
+                textGeom.center();
 
                 var object = new THREE.Mesh(textGeom, materialFront );
                 object.position.x = Math.random() * 1000 - 500;

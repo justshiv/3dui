@@ -121,16 +121,16 @@
         var axes = new THREE.AxisHelper(300);
         scene.add( axes );
 
-        circle = new THREE.CircleGeometry(70, 64);
+        circle = new THREE.CircleGeometry(100, 64);
 
-        rotx = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0xff0000}));
+        rotx = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0x0000ff}));
         scene.add(rotx);
 
         roty = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0x00ff00}));
         roty.rotation.x = Math.PI/2;
         scene.add(roty);
 
-        rotz = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0x0000ff}));
+        rotz = new THREE.Line(circle, new THREE.LineBasicMaterial({color: 0xff0000}));
         rotz.rotation.y = Math.PI/2;
         scene.add(rotz);
 
@@ -188,20 +188,26 @@
 
         function drawRotHelpers(currObject){
             currObject.geometry.computeBoundingBox();
+            currObject.geometry.computeBoundingSphere();
 
             var center = currObject.geometry.boundingBox;
+            console.log(currObject.geometry.boundingSphere);
             var centerX = 0.5 * ( center.max.x - center.min.x );
             var centerY = 0.5 * ( center.max.y - center.min.y );
             var centerZ = 0.5 * ( center.max.z - center.min.z );
 
+            //rotx.position.copy( currObject.geometry.boundingSphere.center );
+            //roty.position.copy( currObject.geometry.boundingSphere.center );
+            //rotz.position.copy( currObject.geometry.boundingSphere.center );
+
             rotx.position.copy( currObject.position );
-            rotx.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
-
+            //rotx.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
+            //
             roty.position.copy( currObject.position );
-            roty.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
-
+            //roty.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
+            //
             rotz.position.copy( currObject.position );
-            rotz.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
+            //rotz.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
         }
 
 function submit(){

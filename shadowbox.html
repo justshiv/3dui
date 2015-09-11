@@ -56,6 +56,10 @@
         <script src="libs/three/threex.basiclighting.js"></script>
         <script src="libs/three/droid_sans_regular.typeface.js"></script>
 
+        <script src="libs/three/OBJMTLLoader.js"></script>
+        <script src="libs/three/MTLLoader.js"></script>
+        <script src="libs/three/DDSLoader.js"></script>
+
         <script src="scripts/cameraControls.js"></script>
         <script src="scripts/objectControls.js"></script>
         <script src="scripts/interface.js"></script>
@@ -124,9 +128,7 @@
                     material: 0,
                     extrudeMaterial: 1
                 });
-
-                textGeom.computeBoundingBox();
-    //                textGeom.computeVertexNormals();
+                textGeom.center();
 
                 var object = new THREE.Mesh(textGeom, materialFront );
                 object.position.x = Math.random() * 600 - 300;
@@ -143,6 +145,28 @@
                 objects.push( object );
             }
 
+            var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+
+				var onError = function ( xhr ) {
+				};
+
+
+				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+
+            var loader = new THREE.OBJMTLLoader();
+				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
+//				loader.load( 'objects/birthday_cake_obj/birthday_cake.obj', 'objects/birthday_cake_obj/birthday_cake.mtl', function ( lily ) {
+
+					lily.position.y = 0;
+                    lily.scale.set(50, 50, 50);
+					scene.add( lily );
+				}, onProgress, onError );
 
         }
 
