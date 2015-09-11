@@ -14,6 +14,12 @@ a{
     cursor:pointer;
 }
 
+/*OVERWRITING BOOTSTRAP'S LABELS*/
+label, .control-label, .help-block, .checkbox, .radio {
+    font-size: inherit;
+    font-weight: bold;
+}
+
 #shadowbox {
     margin-left: 10px;
 }
