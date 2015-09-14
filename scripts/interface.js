@@ -196,18 +196,9 @@
             var centerY = 0.5 * ( center.max.y - center.min.y );
             var centerZ = 0.5 * ( center.max.z - center.min.z );
 
-            //rotx.position.copy( currObject.geometry.boundingSphere.center );
-            //roty.position.copy( currObject.geometry.boundingSphere.center );
-            //rotz.position.copy( currObject.geometry.boundingSphere.center );
-
             rotx.position.copy( currObject.position );
-            //rotx.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
-            //
             roty.position.copy( currObject.position );
-            //roty.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
-            //
             rotz.position.copy( currObject.position );
-            //rotz.position.add( new THREE.Vector3( centerX, centerY, centerZ ) );
         }
 
 function submit(){

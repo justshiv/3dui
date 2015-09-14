@@ -60,6 +60,11 @@ label, .control-label, .help-block, .checkbox, .radio {
     text-align: center;
 }
 
+
+.mrt-questions{
+    margin-bottom: 40px;
+}
+
 #index-content{
     text-align: center;
 }
