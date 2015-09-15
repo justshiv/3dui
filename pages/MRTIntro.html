@@ -17,20 +17,89 @@
     <div class="page-content">
         <div class="container">
             <div class="row">
-                <div class="col-sm-10 col-sm-offset-1">
+                <div class="col-sm-8 col-sm-offset-2">
                         <h2> MRT Instructions </h2>
                         <hr>
-                    <div class="text-content" id="">
+                    <div class="text-content">
+
+                        <p>Please look at these five figures</p>
+                        <div class="images">
+                            <img style="" src="../images/MRT-instructions/1.png">
+                        </div>
                         <p>
-                            Introduction & Explain MRT
+                            Note that these are all pictures of the same object which is shown from different angles.
+                            Try to imagine moving the object (or yourself with respect to the object), as you look from one drawing to the next.
+                        </p>
+
+                        <div class="images">
+                            <img src="../images/MRT-instructions/2.png">
+                        </div>
+                        <p>
+                            Here are two drawings of a new figure that is different from the one shown in the first 5 drawings.
+                            Satisfy yourself that these two drawings show an object that is different and cannot be "rotated" to be identical with the object shown in the first five drawings.
+                        </p>
+
+                        <div class="example">
+                            <h4>Example 1</h4>
+                            <p>
+                                Now look at this object. Two of these four drawings show the same object.
+                                Can you find those two?
+                            </p>
+                            <div class="images">
+                                <img src="../images/MRT-instructions/3.png">
+                            </div>
+                            <p>
+                                If you marked the first and third drawings, you made the correct choice.
+                            </p>
+
+                            <p>
+                                Below are three more examples.
+                                Again, the target object is shown <u>twice</u> in each set of four alternatives from which you choose the correct ones.
+                            </p>
+                        </div>
+
+                        <div class="example">
+                            <h4>Example 2</h4>
+                            <div class="images">
+                                <img src="../images/MRT-instructions/4.png">
+                            </div>
+                            <p>Which two drawings match the one on the left?</p>
+                        </div>
+
+                        <div class="example">
+                            <h4>Example 3</h4>
+                            <div class="images">
+                                <img src="../images/MRT-instructions/5.png">
+                            </div>
+                            <p>Which two drawings match the one on the left?</p>
+                        </div>
+
+                        <div class="example">
+                            <h4>Example 4</h4>
+                            <div class="images">
+                                <img src="../images/MRT-instructions/6.png">
+                            </div>
+                            <p>Which two drawings match the one on the left?</p>
+                        </div>
+
+                        <b>Correct Answers</b>
+                        <ul>
+                            <li>Example 2: second and third</li>
+                            <li>Example 3: first and fourth</li>
+                            <li>Example 4: first and third</li>
+                        </ul>
+
+                        <p>
+                            When you do the test, please remember that for each problem set there are <u>two</u> and <u>only two</u> figures that match the target figure.
+                            You will only be given a point if you mark off <u>both</u> correct matching figures, marking off only one of these will result in no marks.
                         </p>
                     </div>
 
 
-                        <form class="form-horizontal"  style="margin-top: 20px;">a
+                        <form class="form-horizontal" style="margin-top: 20px;">
                           <div class="form-group">
                             <div class="col-xs-offset-1 col-xs-10">
-                              <a href="pages/MRT.html" type="submit" onclick="proceed()" class="btn btn-primary">Proceed</a>
+                              <a type="submit" onclick="proceed()" class="btn btn-primary">Continue</a>
                             </div>
                           </div>
                         </form>
@@ -49,8 +118,7 @@
     <script>
 
         function proceed(){
-            var participantNo = document.getElementById("partNo").value;
-            store("participantNo", participantNo);
+            window.location = "MRT.html";
         }
 
     </script>
