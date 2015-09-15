@@ -18,30 +18,28 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1">
-                    <div class="" id="index-content">
-                        <h2> Welcome </h2>
-                        <hr>
-                        <p>
-                            Thank you for agreeing to participate in our evaluation.
-                            Please ensure that you have been presented with your informed consent form and information booklet.
-                            Enter your student number below and continue.
-                        </p>
+                    <h2> Welcome </h2>
+                    <hr>
+                    <p>
+                        Thank you for agreeing to participate in our evaluation.
+                        Please ensure that you have been presented with your informed consent form and information booklet.
+                        Enter your student number below and continue.
+                    </p>
 
 
-                        <form class="form-horizontal"  style="margin-top: 20px;">
-                          <div class="form-group">
-                            <div class="col-xs-offset-3 col-xs-6">
-                              <input type="text" class="form-control" id="partNo" placeholder="Enter Student No.">
-                            </div>
-                          </div>
+                    <form class="form-horizontal"  style="margin-top: 20px;">
+                      <div class="form-group">
+                        <div class="col-xs-offset-3 col-xs-6">
+                          <input type="text" class="form-control" id="partNo" placeholder="Enter Student No.">
+                        </div>
+                      </div>
 
-                          <div class="form-group">
-                            <div class="col-xs-offset-1 col-xs-10">
-                              <a href="pages/introduction.html" type="submit" onclick="proceed()" class="btn btn-primary">Proceed</a>
-                            </div>
-                          </div>
-                        </form>
-                    </div>
+                      <div class="form-group">
+                        <div class="col-xs-offset-1 col-xs-10">
+                          <a type="submit" onclick="proceed()" class="btn btn-primary">Continue</a>
+                        </div>
+                      </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -58,7 +56,14 @@
 
         function proceed(){
             var participantNo = document.getElementById("partNo").value;
-            store("participantNo", participantNo);
+
+            if(participantNo.length != 9){
+                alert("Please enter a valid student number!");
+            }
+            else{
+                store("participantNo", participantNo);
+                window.location = "pages/introduction.html";
+            }
         }
 
     </script>

@@ -160,12 +160,16 @@
 
 
             var loader = new THREE.OBJMTLLoader();
-				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
+				loader.load( '../objects/Dodecahedron/Dodecahedron.obj', '../objects/Dodecahedron/Dodecahedron.mtl', function ( dodeca ) {
+//				loader.load( '../objects/cube/cube.obj', '../objects/cube/cube.mtl', function ( lily ) {
+//				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
 //				loader.load( 'objects/birthday_cake_obj/birthday_cake.obj', 'objects/birthday_cake_obj/birthday_cake.mtl', function ( lily ) {
 
-					lily.position.y = 0;
-                    lily.scale.set(50, 50, 50);
-					scene.add( lily );
+//                    dodeca.position.y = 0;
+                    dodeca.position.set(50, 100, 300);
+//					lily.position.y = 0;
+//                    lily.scale.set(5, 5, 5);
+					scene.add( dodeca );
 				}, onProgress, onError );
 
         }
