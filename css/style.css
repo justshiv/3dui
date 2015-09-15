@@ -60,7 +60,7 @@ p{
 /*OVERWRITING BOOTSTRAP'S LABELS*/
 label, .control-label, .help-block, .checkbox, .radio {
     font-size: inherit;
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 #shadowbox {
