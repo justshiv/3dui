@@ -29,7 +29,11 @@ CountDownTimer.prototype.start = function() {
     } else {
       diff = 0;
       that.running = false;
-        alert("woo");
+
+        alert("Your time is up!");
+        proceed();
+
+        //return true;
     }
 
     obj = CountDownTimer.format(that.duration, diff, that.display);

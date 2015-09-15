@@ -84,7 +84,7 @@
     <script src="../scripts/CountDownTimer.js"></script>
 
     <script>
-        ∂
+
         function proceed(){
             var checkedBoxes = [];
 
@@ -100,7 +100,8 @@
             }
 
             store("mrt-answers", checkedBoxes);
-        }∂
+            window.location = "explaining-interfaces.html";
+        }
 
         $(window).load(function(){
             displayQuestions();
@@ -111,6 +112,7 @@
             var display = document.querySelector('#time');
             var timer = new CountDownTimer(60 * 10, display);
             timer.start();
+
         }
 
         function displayQuestions(){
