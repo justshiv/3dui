@@ -8,11 +8,6 @@ function onDocumentMouseDown( event ) {
 
     if ( objstate === OBJSTATE.NONE )
     {
-        //if ( event.button === 0 )
-        //    objstate = OBJSTATE.ROTATE;
-        //
-        //if ( event.button === 2 )
-        //    objstate = OBJSTATE.MOVE;
 
         if(translate == true){
             objstate = OBJSTATE.MOVE;
@@ -25,8 +20,13 @@ function onDocumentMouseDown( event ) {
 
     if(objstate === OBJSTATE.ROTATE){
         if(INTERSECTED){
-            drawRotHelpers(INTERSECTED);
+            SELECTED = INTERSECTED;
+            lockControls();
+            container.style.cursor = 'alias';
         }
+
+        drawRotHelpers(SELECTED);
+
     }
     else if(objstate === OBJSTATE.MOVE){
         var raycaster = new THREE.Raycaster();
@@ -46,7 +46,7 @@ function onDocumentMouseDown( event ) {
         }
     }
 
-    console.log(objstate);
+    //console.log(objstate);
 }
 
 function onDocumentMouseUp( event ) {
@@ -59,9 +59,19 @@ function onDocumentMouseUp( event ) {
             SELECTED = null;
             INTERSECTED = null;
         }
-        releaseControls();
-        container.style.cursor = '-webkit-grab';
     }
+    else if(objstate === OBJSTATE.ROTATE){
+
+        if ( INTERSECTED ) {
+            SELECTED = null;
+            INTERSECTED = null;
+        }
+    }
+    releaseControls();
+
+    container.style.cursor = '-webkit-grab';
+
+
     objstate = OBJSTATE.NONE;
 }
 

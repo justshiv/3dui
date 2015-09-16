@@ -64,7 +64,7 @@ label, .control-label, .help-block, .checkbox, .radio {
 }
 
 #shadowbox {
-    margin-left: 10px;
+    left: 0px;
 }
 
 #toolbar{

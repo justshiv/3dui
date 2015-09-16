@@ -159,18 +159,18 @@
 				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
 
 
-            var loader = new THREE.OBJMTLLoader();
-				loader.load( '../objects/Dodecahedron/Dodecahedron.obj', '../objects/Dodecahedron/Dodecahedron.mtl', function ( dodeca ) {
-//				loader.load( '../objects/cube/cube.obj', '../objects/cube/cube.mtl', function ( lily ) {
-//				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
-//				loader.load( 'objects/birthday_cake_obj/birthday_cake.obj', 'objects/birthday_cake_obj/birthday_cake.mtl', function ( lily ) {
-
-//                    dodeca.position.y = 0;
-                    dodeca.position.set(50, 100, 300);
-//					lily.position.y = 0;
-//                    lily.scale.set(5, 5, 5);
-					scene.add( dodeca );
-				}, onProgress, onError );
+//            var loader = new THREE.OBJMTLLoader();
+//				loader.load( '../objects/Dodecahedron/Dodecahedron.obj', '../objects/Dodecahedron/Dodecahedron.mtl', function ( dodeca ) {
+////				loader.load( '../objects/cube/cube.obj', '../objects/cube/cube.mtl', function ( lily ) {
+////				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
+////				loader.load( 'objects/birthday_cake_obj/birthday_cake.obj', 'objects/birthday_cake_obj/birthday_cake.mtl', function ( lily ) {
+//
+////                    dodeca.position.y = 0;
+//                    dodeca.position.set(50, 100, 300);
+////					lily.position.y = 0;
+////                    lily.scale.set(5, 5, 5);
+//					scene.add( dodeca );
+//				}, onProgress, onError );
 
         }
 
@@ -224,7 +224,6 @@
 
             var raycaster = new THREE.Raycaster();
 
-
             if(objstate === OBJSTATE.MOVE){
                 if ( SELECTED ) {
 
@@ -236,43 +235,16 @@
                         intersects = raycaster.intersectObjects(planes);
 
                         if(intersects.length > 0){
-                            if (CURRENTCAM == leftCamera) {
-                                mouse.x = intersects[0].point.z / (boxSide/2);
-                                mouse.y = intersects[0].point.y / (boxSide/2);
-                            }
-                            else if (CURRENTCAM == rightCamera) {
-                                mouse.x = -intersects[0].point.z/(boxSide/2);
-                                mouse.y = intersects[0].point.y/(boxSide/2);
-                            }
-                            else if (CURRENTCAM == topCamera) {
-                                mouse.x = -intersects[0].point.z/(boxSide/2);
-                                mouse.y = -intersects[0].point.x/(boxSide/2);
-                            }
-                            else if (CURRENTCAM == bottomCamera) {
-                                mouse.x = -intersects[0].point.z/(boxSide/2);
-                                mouse.y = intersects[0].point.x/(boxSide/2);
-                            }
-                            else if (CURRENTCAM == frontCamera) {
-                                mouse.x = intersects[0].point.x/(boxSide/2);
-                                mouse.y = intersects[0].point.y/(boxSide/2);
-                            }
-                            else if (CURRENTCAM == backCamera) {
-                                mouse.x = -intersects[0].point.x/(boxSide/2);
-                                mouse.y = intersects[0].point.y/(boxSide/2);
-                            }
-                        }
-                        else{
-                            return;
+                            mouse.copy(getInterfaceSpecificMouse(intersects[0].point));
                         }
                     }
 
                     raycaster.setFromCamera( mouse, CURRENTCAM );
                     intersects = raycaster.intersectObject( movementPlane );
+
                     if(intersects.length > 0){
                         SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-                        container.style.cursor = 'move';
                     }
-                    return;
                 }
             }
             else if(objstate === OBJSTATE.ROTATE){
@@ -303,55 +275,14 @@
                         var currentMouse = intersects[0].point;
                         var planeLookAt = new THREE.Vector3();
 
-                        if(currentMouse.x < -400){
-                            CURRENTCAM = leftCamera;
-
-                            mouse.x = intersects[0].point.z/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-
-                            planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
-                        }
-                        else if(currentMouse.x > 400){
-                            CURRENTCAM = rightCamera;
-
-                            mouse.x = -intersects[0].point.z/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-                            planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
-                        }
-                        else if(currentMouse.z < -400){
-                            CURRENTCAM = backCamera;
-
-                            mouse.x = -intersects[0].point.x/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-                            planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
-                        }
-                        else if(currentMouse.z > 400){
-                            CURRENTCAM = frontCamera;
-
-                            mouse.x = intersects[0].point.x/(boxSide/2);
-                            mouse.y = intersects[0].point.y/(boxSide/2);
-                            planeLookAt.set(Math.PI, Math.PI, Math.PI);
-                        }
-                        else if(currentMouse.y < -400){
-                            CURRENTCAM = bottomCamera;
-
-                            mouse.x = -intersects[0].point.z/400;
-                            mouse.y = intersects[0].point.x/400;
-                            planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
-                        }
-                        else if(currentMouse.y > 400){
-                            CURRENTCAM = topCamera;
-
-                            mouse.x = -intersects[0].point.z/400;
-                            mouse.y = -intersects[0].point.x/400;
-                            planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
-                        }
+                        mouse.copy(getInterfaceSpecificMouse(currentMouse));
+                        planeLookAt.copy(getPlaneLookAt(currentMouse));
+                        CURRENTCAM = getCurrentCam(currentMouse);
 
                         raycaster.setFromCamera( mouse, CURRENTCAM );
                         intersects = raycaster.intersectObjects(objects);
 
                         if(intersects.length > 0){
-                            scene.remove(selectedEdge);
 
                             INTERSECTED = intersects[ 0 ].object;
                             movementPlane.position.copy( INTERSECTED.position);
@@ -359,6 +290,8 @@
                             movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
 
                             container.style.cursor = 'pointer';
+
+                            scene.remove(selectedEdge);
                             selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
                             scene.add(selectedEdge);
 
@@ -371,6 +304,85 @@
                 scene.remove(selectedEdge);
                 INTERSECTED = null;
             }
+        }
+
+        function getCurrentCam(currentMouse){
+
+            if(currentMouse.x < -400){
+                return leftCamera;
+            }
+            else if(currentMouse.x > 400){
+                return rightCamera;
+            }
+            else if(currentMouse.z < -400){
+                return backCamera;
+            }
+            else if(currentMouse.z > 400){
+                return frontCamera;
+            }
+            else if(currentMouse.y < -400){
+                return bottomCamera;
+            }
+            else if(currentMouse.y > 400){
+                return topCamera;
+            }
+        }
+
+        function getPlaneLookAt(currentMouse){
+            var planeLookAt = new THREE.Vector3();
+
+            if(currentMouse.x < -400){
+                planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
+            }
+            else if(currentMouse.x > 400){
+                planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
+            }
+            else if(currentMouse.z < -400){
+                planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
+            }
+            else if(currentMouse.z > 400){
+                planeLookAt.set(Math.PI, Math.PI, Math.PI);
+            }
+            else if(currentMouse.y < -400){
+                planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
+            }
+            else if(currentMouse.y > 400){
+                planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
+            }
+
+            return planeLookAt;
+        }
+
+        function getInterfaceSpecificMouse(currentMouse){
+
+            var mouse = new THREE.Vector2();
+
+                if(currentMouse.x < -400){
+                    mouse.x = currentMouse.z/(boxSide/2);
+                    mouse.y = currentMouse.y/(boxSide/2);
+                }
+                else if(currentMouse.x > 400){
+                    mouse.x = -1 * currentMouse.z/(boxSide/2);
+                    mouse.y = currentMouse.y/(boxSide/2);
+                }
+                else if(currentMouse.z < -400){
+                    mouse.x = -1 * currentMouse.x/(boxSide/2);
+                    mouse.y = currentMouse.y/(boxSide/2);
+                }
+                else if(currentMouse.z > 400){
+                    mouse.x = currentMouse.x/(boxSide/2);
+                    mouse.y = currentMouse.y/(boxSide/2);
+                }
+                else if(currentMouse.y < -400){
+                    mouse.x = -1 * currentMouse.z/400;
+                    mouse.y = currentMouse.x/400;
+                }
+                else if(currentMouse.y > 400){
+                    mouse.x = -1 * currentMouse.z/400;
+                    mouse.y = -1 * currentMouse.x/400;
+                }
+
+            return mouse;
         }
 
         function onWindowResize() {

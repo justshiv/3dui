@@ -214,64 +214,47 @@
 
             var planeLookAt = new THREE.Vector3();
 
-            if(mouse.x < 0 && mouse.y > 0){
-                CURRENTVIEW = 0;
-            }
-            //top
-            else if(mouse.x < 0 && mouse.y < 0){
-                CURRENTVIEW = 1;
-                planeLookAt.set(Math.PI/2, Math.PI, Math.PI);
-
-            }
-            //side
-            else if(mouse.x > 0 && mouse.y < 0){
-                CURRENTVIEW = 2;
-                planeLookAt.set(Math.PI, Math.PI, Math.PI);
-            }
-            //front
-            else if(mouse.x > 0 && mouse.y > 0){
-                CURRENTVIEW = 3;
-                planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
-            }
-            mouse.x += (-1 * Math.sign(mouse.x)) * 0.5;
-            mouse.y += (-1 * Math.sign(mouse.y)) * 0.5;
-
-            mouse.x*=2;
-            mouse.y*=2;
+            CURRENTVIEW = getCurrentCam(mouse);
+            planeLookAt.copy(getPlaneLookAt(mouse));
+            mouse.copy(getInterfaceSpecificMouse(mouse));
 
             views[CURRENTVIEW].controls.enabled = true;
             CURRENTCAM = views[CURRENTVIEW].camera;
 
-
             var raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera( mouse, CURRENTCAM );
 
             if(objstate === OBJSTATE.MOVE){
                 if ( SELECTED ) {
+                    raycaster.setFromCamera( mouse, CURRENTCAM );
                     intersects = raycaster.intersectObject( movementPlane );
                     if(intersects.length > 0){
                         SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
                     }
-                    else{
-                        onDocumentMouseUp();
-                    }
-                    return;
                 }
             }
             else if(objstate === OBJSTATE.ROTATE){
-
+                if(SELECTED){
+                    //rotate here
+                }
             }
             else if ( objstate === OBJSTATE.NONE )
             {
+                raycaster.setFromCamera( mouse, CURRENTCAM );
                 var intersects = raycaster.intersectObjects( objects );
                 if ( intersects.length > 0 ) {
-                    if ( INTERSECTED != intersects[ 0 ].object ) {
-                        scene.remove(selectedEdge);
 
+                    //if the currently stored intersected obj does not match the new one
+                    if ( INTERSECTED != intersects[ 0 ].object ) {
+
+                        //store the new object as the intersected one
                         INTERSECTED = intersects[ 0 ].object;
+
+                        //highlight it
+                        scene.remove(selectedEdge);
                         selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
                         scene.add(selectedEdge);
 
+                        //copy position of plane
                         movementPlane.position.copy( INTERSECTED.position);
                         movementPlane.lookAt( CURRENTCAM.position );
 
@@ -279,15 +262,68 @@
                             movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
                         }
                     }
+
+                    //pointer to indicate to users they can click down
                     container.style.cursor = 'pointer';
                 }
                 else {
+                    //undoing the highlighting of the hovered over object once we've moved on
                     INTERSECTED = null;
                     container.style.cursor = '-webkit-grab';
                     scene.remove(selectedEdge);
                 }
             }
 
+        }
+
+        function getCurrentCam(currentMouse){
+            if(currentMouse.x < 0 && currentMouse.y > 0){
+                return 0;
+            }
+            //top
+            else if(currentMouse.x < 0 && currentMouse.y < 0){
+                return 1;
+            }
+            //side
+            else if(currentMouse.x > 0 && currentMouse.y < 0){
+                return 2;
+            }
+            //front
+            else if(currentMouse.x > 0 && currentMouse.y > 0){
+                return 3;
+            }
+        }
+
+        function getPlaneLookAt(currentMouse){
+
+            var planeLookAt = new THREE.Vector3();
+
+            if(currentMouse.x < 0 && currentMouse.y < 0){
+                planeLookAt.set(Math.PI/2, Math.PI, Math.PI);
+            }
+            //side
+            else if(currentMouse.x > 0 && currentMouse.y < 0){
+                planeLookAt.set(Math.PI, Math.PI, Math.PI);
+            }
+            //front
+            else if(currentMouse.x > 0 && currentMouse.y > 0){
+                planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
+            }
+
+            return planeLookAt;
+        }
+
+        function getInterfaceSpecificMouse(currentMouse){
+
+            var mouse = new THREE.Vector2();
+            mouse.copy(currentMouse);
+            mouse.x += (-1 * Math.sign(mouse.x)) * 0.5;
+            mouse.y += (-1 * Math.sign(mouse.y)) * 0.5;
+
+            mouse.x*=2;
+            mouse.y*=2;
+
+            return mouse;
         }
 
         function lockControls( ) {
