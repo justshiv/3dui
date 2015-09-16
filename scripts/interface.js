@@ -187,7 +187,6 @@
         }
     } );
 
-
         function drawRotHelpers(currObject){
             rotx.visible = true;
             roty.visible = true;

@@ -5,8 +5,6 @@
 
 function onDocumentMouseDown( event ) {
     event.preventDefault();
-    hideRotHelpers();
-
 
     if ( objstate === OBJSTATE.NONE )
     {
@@ -86,6 +84,8 @@ function onDocumentMouseUp( event ) {
         }
         else{
             $('#rotate').removeClass('active');
+
+            hideRotHelpers();
             $('#translate').addClass('active');
             rotate = false;
             translate = true;
