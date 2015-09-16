@@ -2,6 +2,10 @@
  * Created by siobhan on 15/08/30.
  */
 
+var mouseRotStart = new THREE.Vector2();
+var mouseRotEnd = new THREE.Vector2();
+var radius = 4;
+var rotateQuarts;
 
 function onDocumentMouseDown( event ) {
     event.preventDefault();
@@ -20,12 +24,17 @@ function onDocumentMouseDown( event ) {
 
     if(objstate === OBJSTATE.ROTATE){
         if(INTERSECTED){
+
+            mouseRotStart.copy(mouse);
+
             SELECTED = INTERSECTED;
             lockControls();
             container.style.cursor = 'alias';
+
+            drawRotHelpers(SELECTED);
+
         }
 
-        drawRotHelpers(SELECTED);
 
     }
     else if(objstate === OBJSTATE.MOVE){
@@ -46,7 +55,7 @@ function onDocumentMouseDown( event ) {
         }
     }
 
-    //console.log(objstate);
+    console.log(objstate);
 }
 
 function onDocumentMouseUp( event ) {
@@ -62,15 +71,14 @@ function onDocumentMouseUp( event ) {
     }
     else if(objstate === OBJSTATE.ROTATE){
 
-        if ( INTERSECTED ) {
+        //if ( INTERSECTED ) {
             SELECTED = null;
             INTERSECTED = null;
-        }
+        //}
     }
     releaseControls();
 
     container.style.cursor = '-webkit-grab';
-
 
     objstate = OBJSTATE.NONE;
 }
@@ -101,3 +109,41 @@ function onDocumentMouseUp( event ) {
             translate = true;
         }
     }
+
+function calculateRotation (model){
+        rotateQuarts = rotateQuaternion(mapToSphere(mouseRotStart.x, mouseRotStart.y, radius), mapToSphere(mouseRotEnd.x, mouseRotEnd.y, radius));
+        rotateModelyByQuarternion(model, rotateQuarts);
+        //mouseRotStart = mouseRotEnd;
+}
+
+function rotateModelyByQuarternion(model, rotate){
+
+    var currQuaternion = model.quaternion;
+    currQuaternion.multiplyQuaternions(rotate, currQuaternion);
+    currQuaternion.normalize();
+    model.setRotationFromQuaternion(currQuaternion);
+}
+
+function rotateQuaternion(rotateStart, rotateEnd){
+    var axis = new THREE.Vector3();
+    var rotate = new THREE.Quaternion();
+    var angle = Math.acos(rotateStart.dot(rotateEnd) / rotateStart.length() / rotateEnd.length());
+
+    if(angle){
+        axis.crossVectors(rotateStart, rotateEnd).normalize();
+        rotate.setFromAxisAngle(axis, angle);
+    }
+    return rotate;
+}
+
+function mapToSphere(x, y, radius){
+    var pointOnSphere = new THREE.Vector3(x / radius, y / radius, 0);
+    var length = pointOnSphere.length();
+
+    if(length >= 1){
+        pointOnSphere.normalize();
+    } else {
+        pointOnSphere.z = Math.sqrt(1.0 - (length * length));
+    }
+    return pointOnSphere;
+}

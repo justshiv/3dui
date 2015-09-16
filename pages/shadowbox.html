@@ -248,6 +248,24 @@
                 }
             }
             else if(objstate === OBJSTATE.ROTATE){
+                if(SELECTED){
+                    //rotate here
+
+                    //if our current camera is one of the box's sides
+                    if(CURRENTCAM != mainCamera){
+
+                        //figure out which side we're on and adjust the mouse as such
+                        raycaster.setFromCamera( mouse, mainCamera );
+                        intersects = raycaster.intersectObjects(planes);
+
+                        if(intersects.length > 0){
+                            mouse.copy(getInterfaceSpecificMouse(intersects[0].point));
+                        }
+                    }
+
+                    mouseRotEnd.copy(mouse);
+                    calculateRotation(SELECTED);
+                }
 
             }
             else if ( objstate === OBJSTATE.NONE )
@@ -257,19 +275,20 @@
 
                 var intersects = raycaster.intersectObjects(objects);
                 if ( intersects.length > 0 ) {
-                    scene.remove(selectedEdge);
 
                     INTERSECTED = intersects[ 0 ].object;
                     movementPlane.position.copy( INTERSECTED.position);
                     movementPlane.lookAt( CURRENTCAM.position );
 
+                    container.style.cursor = 'pointer';
+
+                    scene.remove(selectedEdge);
                     selectedEdge = new THREE.EdgesHelper(INTERSECTED, 0xffffff );
                     scene.add(selectedEdge);
-                    container.style.cursor = 'pointer';
+
                     return;
                 }
                 else {
-
                     intersects = raycaster.intersectObjects(planes);
                     if(intersects.length > 0){
                         var currentMouse = intersects[0].point;
@@ -283,10 +302,9 @@
                         intersects = raycaster.intersectObjects(objects);
 
                         if(intersects.length > 0){
-
                             INTERSECTED = intersects[ 0 ].object;
                             movementPlane.position.copy( INTERSECTED.position);
-                            movementPlane.lookAt( CURRENTCAM.position.x, CURRENTCAM.position.y, CURRENTCAM.position.z  );
+                            movementPlane.lookAt( CURRENTCAM.position);
                             movementPlane.rotation.set(planeLookAt.x, planeLookAt.y, planeLookAt.z);
 
                             container.style.cursor = 'pointer';

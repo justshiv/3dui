@@ -235,6 +235,8 @@
             else if(objstate === OBJSTATE.ROTATE){
                 if(SELECTED){
                     //rotate here
+                    mouseRotEnd.copy(mouse);
+                    calculateRotation(SELECTED);
                 }
             }
             else if ( objstate === OBJSTATE.NONE )
