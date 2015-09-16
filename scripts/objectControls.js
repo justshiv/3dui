@@ -5,6 +5,8 @@
 
 function onDocumentMouseDown( event ) {
     event.preventDefault();
+    hideRotHelpers();
+
 
     if ( objstate === OBJSTATE.NONE )
     {

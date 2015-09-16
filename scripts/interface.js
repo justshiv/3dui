@@ -134,6 +134,8 @@
         rotz.rotation.y = Math.PI/2;
         scene.add(rotz);
 
+        hideRotHelpers();
+
         //plane that enables drag/drop interaction with geometry
         movementPlane = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 10000, 10000, 0, 0 ),
@@ -187,18 +189,19 @@
 
 
         function drawRotHelpers(currObject){
-            currObject.geometry.computeBoundingBox();
-            currObject.geometry.computeBoundingSphere();
-
-            var center = currObject.geometry.boundingBox;
-            console.log(currObject.geometry.boundingSphere);
-            var centerX = 0.5 * ( center.max.x - center.min.x );
-            var centerY = 0.5 * ( center.max.y - center.min.y );
-            var centerZ = 0.5 * ( center.max.z - center.min.z );
+            rotx.visible = true;
+            roty.visible = true;
+            rotz.visible = true;
 
             rotx.position.copy( currObject.position );
             roty.position.copy( currObject.position );
             rotz.position.copy( currObject.position );
+        }
+
+        function hideRotHelpers(){
+            rotx.visible = false;
+            roty.visible = false;
+            rotz.visible = false;
         }
 
 function submit(){

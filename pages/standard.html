@@ -100,6 +100,10 @@
                 controls = new THREE.OrbitControls( view.camera, container );
                 controls.maxDistance = 8000;
                 controls.minDistance = 500;
+                if(view.camera.type == "OrthographicCamera"){
+                    controls.userRotate = false;
+                }
+
                 view.controls = controls;
             }
         }
