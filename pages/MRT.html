@@ -43,7 +43,7 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                         <div class="col-xs-offset-1 col-xs-10">
-                          <a type="submit" onclick="proceed()" class="btn btn-success">Submit</a>
+                          <a type="submit" onclick="proceed()" class="btn btn-success no-load-prompt">Submit</a>
                         </div>
                       </div>
                     </form>
@@ -80,10 +80,12 @@
     <!--scripts-->
     <script src="../libs/jquery-1.11.3.min.js"></script>
     <script src="../libs/bootstrap/bootstrap.min.js"></script>
-    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/main.js"></script>
     <script src="../scripts/CountDownTimer.js"></script>
 
     <script>
+
+        var autosubmit = false;
 
         function proceed(){
             var checkedBoxes = [];
@@ -96,10 +98,15 @@
                         currQ.push(j);
                     }
                 }
+                if(currQ.length < 1 && autosubmit != true){
+                    alert("Please answer each question!");
+                    return;
+                }
                 checkedBoxes.push(currQ);
             }
 
             store("mrt-answers", checkedBoxes);
+            disableLoadMsg();
             window.location = "explaining-tasks.html";
         }
 
@@ -110,9 +117,8 @@
 
         function startTiming(){
             var display = document.querySelector('#time');
-            var timer = new CountDownTimer(60 * 10, display);
+            var timer = new CountDownTimer(1 * 10, display);
             timer.start();
-
         }
 
         function displayQuestions(){

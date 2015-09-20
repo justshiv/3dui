@@ -43,7 +43,7 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                         <div class="col-xs-offset-1 col-xs-10">
-                          <a type="submit" onclick="proceed()" class="btn btn-success">Submit</a>
+                          <a type="submit" onclick="proceed()" class="btn btn-success no-load-prompt">Submit</a>
                         </div>
                       </div>
                     </form>
@@ -57,7 +57,7 @@
     <!--scripts-->
     <script src="../libs/jquery-1.11.3.min.js"></script>
     <script src="../libs/bootstrap/bootstrap.min.js"></script>
-    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/main.js"></script>
     <script src="../scripts/CountDownTimer.js"></script>
 
     <script>
@@ -99,19 +99,25 @@
                     radios.push(option_value);
                 }
             }
+            var prevPageArr = document.referrer.split("/");
+            var prevPage = prevPageArr[prevPageArr.length -1];
+            console.log(prevPage);
 
-            store("sus-answers", radios);
-
-            var prevPage = document.referrer;
-
-            if(retrieve("standard-1results") != null && retrieve("shadowbox-1results") != null) {
-                window.location = "end.html";
-            }
-            else if(retrieve("shadowbox-1results") == null){
-                window.location = "explaining-shadowbox.html";
+            if(prevPage === "shadowbox.html"){
+                store("shadowbox-sus-answers", radios);
             }
             else{
+                store("standard-sus-answers", radios);
+            }
+
+            if(retrieve("shadowbox-sus-answers") != null && retrieve("standard-sus-answers") != null){
+                window.location = "end.html";
+            }
+            else if(retrieve("shadowbox-sus-answers") != null){
                 window.location = "explaining-standard.html";
+            }
+            else{
+                window.location = "explaining-shadowbox.html";
             }
         }
 

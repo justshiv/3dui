@@ -31,6 +31,7 @@ CountDownTimer.prototype.start = function() {
       that.running = false;
 
         alert("Your time is up!");
+        autosubmit = true;
         proceed();
 
         //return true;
