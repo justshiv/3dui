@@ -99,21 +99,21 @@
                     radios.push(option_value);
                 }
             }
-            var prevPageArr = document.referrer.split("/");
-            var prevPage = prevPageArr[prevPageArr.length -1];
+            var prevPageArr = window.location.href.split("?");
+            var prevPage = prevPageArr[1];
             console.log(prevPage);
 
-            if(prevPage === "shadowbox.html"){
-                store("shadowbox-sus-answers", radios);
-            }
-            else{
-                store("standard-sus-answers", radios);
-            }
 
-            if(retrieve("shadowbox-sus-answers") != null && retrieve("standard-sus-answers") != null){
+            var submissionData = {
+                sus: radios
+            };
+
+            store(prevPage, submissionData);
+
+            if(retrieve("shadowbox") != null && retrieve("standard") != null){
                 window.location = "end.html";
             }
-            else if(retrieve("shadowbox-sus-answers") != null){
+            else if(retrieve("shadowbox") != null){
                 window.location = "explaining-standard.html";
             }
             else{
@@ -123,7 +123,6 @@
 
         $(window).load(function(){
             displayQuestions();
-            console.log(document.referrer);
         });
 
 

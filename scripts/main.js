@@ -29,7 +29,16 @@ $(function()
 });
 
 function store(name, item){
-    localStorage.setItem(name, JSON.stringify(item));
+    var current = retrieve(name);
+
+    if(current == null){
+        current = [];
+    }
+
+    current.push(item);
+
+    localStorage.setItem(name, JSON.stringify(current));
+
 }
 
 function retrieve(name){
