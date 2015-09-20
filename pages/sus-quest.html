@@ -1,0 +1,147 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>3DUI Experiment - Siobhan O'Donovan</title>
+
+    <!--initial favicon-->
+    <link id="favicon" rel="icon" type="image/png" href="../images/cube.png" />
+
+    <!--styles-->
+    <link href="../libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                        <h2> System Usability Scale (SUS) </h2>
+                        <hr>
+                    <div class="text-content">
+                        <p>
+                            Please complete the questionnaire below to
+                        </p>
+
+                        <table id="sus" class="table">
+                            <tr>
+                                <th>Question</th>
+                                <th class="sus-column">Strongly Agree</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th class="sus-column">Strongly Disagree</th>
+                            </tr>
+
+                        </table>
+                    </div>
+
+
+                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                        <div class="col-xs-offset-1 col-xs-10">
+                          <a type="submit" onclick="proceed()" class="btn btn-success">Submit</a>
+                        </div>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+    <!--scripts-->
+    <script src="../libs/jquery-1.11.3.min.js"></script>
+    <script src="../libs/bootstrap/bootstrap.min.js"></script>
+    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/CountDownTimer.js"></script>
+
+    <script>
+
+
+            var sus_questions = [
+                "I think that I would like to use this system frequently",
+                "I found the system unnecessarily complex",
+                "I thought the system was easy to use",
+                "I think that I would need the support of a technical person to be able to use this system",
+                "I found the various functions in this system were well integrated",
+                "I thought there was too much inconsistency in this system",
+                "I would imagine that most people would learn to use this system very quickly",
+                "I found the system very cumbersome to use",
+                "I felt very confident using the system",
+                "I needed to learn a lot of things before I could get going with this system",
+            ];
+
+
+        function proceed(){
+            var radios = [];
+//            var processed = false;
+
+            for(var i = 0; i < sus_questions.length; i++){
+
+                var options = document.getElementsByName('q' + i);
+                var option_value = -1;
+                for(var j = 0; j < options.length; j++){
+                    if(options[j].checked){
+                        option_value = j+1;
+                    }
+                }
+
+                if(option_value == -1){
+                    alert("Please ensure you answer each question!");
+                    return;
+                }
+                else{
+                    radios.push(option_value);
+                }
+            }
+
+            store("sus-answers", radios);
+
+            var prevPage = document.referrer;
+
+            if(retrieve("standard-1results") != null && retrieve("shadowbox-1results") != null) {
+                window.location = "end.html";
+            }
+            else if(retrieve("shadowbox-1results") == null){
+                window.location = "explaining-shadowbox.html";
+            }
+            else{
+                window.location = "explaining-standard.html";
+            }
+        }
+
+        $(window).load(function(){
+            displayQuestions();
+            console.log(document.referrer);
+        });
+
+
+        function displayQuestions(){
+
+            var table = document.getElementById("sus");
+
+            var data = "";
+
+            for(var i = 0; i < sus_questions.length; i++){
+                var row = table.insertRow(i+1);
+
+                var quest = row.insertCell(0);
+                quest.innerHTML = sus_questions[i];
+
+                for(var j = 1; j <= 5; j++){
+                    var option = row.insertCell(j);
+                    option.classList.add('sus-column');
+                    option.innerHTML = '<label ><input type="radio" name="q' + i + '"> '+ j +'</label>';
+                }
+            }
+        }
+
+    </script>
+
+
+</html>

@@ -63,6 +63,11 @@ label, .control-label, .help-block, .checkbox, .radio {
     /*font-weight: bold;*/
 }
 
+.sus-column {
+    width: 50px;
+    text-align: center;
+}
+
 #shadowbox {
     left: 0px;
 }

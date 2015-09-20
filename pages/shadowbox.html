@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Shadowbox Interface</title>
+        <title>3DUI Experiment - Siobhan O'Donovan</title>
 
         <!--initial favicon-->
         <link id="favicon" rel="icon" type="image/png" href="../images/cube.png" />
@@ -63,6 +63,7 @@
         <script src="../scripts/cameraControls.js"></script>
         <script src="../scripts/objectControls.js"></script>
         <script src="../scripts/interface.js"></script>
+        <script src="../scripts/storage.js"></script>
 
     </body>
 
@@ -75,6 +76,7 @@
         // FUNCTIONS
         function init()
         {
+            interfaceType = "shadowbox";
             setupInterface();
 
             //*** CAMERAS ***//
@@ -499,6 +501,7 @@
     //            currObject.rotation.setFromRotationMatrix(currObject.matrix);
             drawRotHelpers(currObject);
         }
+
 
 
     </script>

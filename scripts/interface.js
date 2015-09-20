@@ -7,6 +7,10 @@
           $('[data-toggle="tooltip"]').tooltip()
         });
 
+        var interfaceType = "";
+
+        var taskNo = 0;
+
         // standard global variables
         var container = document.getElementById( 'canvas-container' );
 
@@ -89,10 +93,6 @@
                 camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
             }
         ];
-
-
-
-
 
     function setupInterface(){
         //*** SCENE & LIGHTS ***//
@@ -204,5 +204,22 @@
         }
 
 function submit(){
-    alert("submitted!");
+
+    var submissionData = [];
+    submissionData.push(interfaceType);
+    submissionData.push(taskNo);
+    submissionData.push(objects[0]);
+
+
+    store(interfaceType + "-" + taskNo + "results", submissionData);
+    console.log("submitted: " + taskNo);
+    loadTask();
+}
+
+function loadTask(){
+    taskNo++;
+
+    if(taskNo == 5){
+        window.location = "sus-quest.html";
+    }
 }
