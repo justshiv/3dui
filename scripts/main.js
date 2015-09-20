@@ -5,12 +5,26 @@
 $(function()
 {
 
+    //class definition to allow certain buttons to NOT output
+    //load dissuasion message below
     $('.no-load-prompt').click(
         function() {
 
             disableLoadMsg();
 
         });
+
+    //output to dissuade people to close/refresh current page
+    window.onbeforeunload = function(){
+        return "Leaving this page may result in losing experimental results.";
+    };
+
+    //disables clicking on back button
+    //UNLESS user holds back button down
+    history.pushState(null, null, location.href);
+    window.onpopstate = function(event) {
+        history.go(1);
+    };
 
 });
 
@@ -79,8 +93,4 @@ function deleteAll(){
 function disableLoadMsg(){
     window.onbeforeunload = null;
 }
-
-window.onbeforeunload = function(){
-    return "Leaving this page may result in losing experimental results.";
-};
 

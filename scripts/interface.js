@@ -223,3 +223,15 @@ function loadTask(){
         window.location = "sus-quest.html";
     }
 }
+
+function calculateAccuracy(){
+    return 0.8;
+}
+
+function timeTaken(){
+    //start timer
+
+    //do everything
+
+    //end timer
+}
