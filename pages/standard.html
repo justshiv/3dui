@@ -166,6 +166,7 @@
                 if(view.camera.type == "OrthographicCamera"){
                     controls.userRotate = false;
                 }
+                controls.userPan = true;
 
                 view.controls = controls;
             }
@@ -187,32 +188,32 @@
 
             setupViews();
 
-//            // add 3D text
-//            var letters = ["A", "B", "C", "D", "E"];
-//
-//            for(var i = 0; i < letters.length; i++){
-//                var materialFront = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
-//                var textGeom = new THREE.TextGeometry( letters[i],
-//                {
-//                    size: 150, height: 20, curveSegments: 20,
-//                    font: "droid sans", weight: "normal", style: "normal",
-//                    bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
-//                    material: 0, extrudeMaterial: 1
-//                });
-//                textGeom.center();
-//
-//                var object = new THREE.Mesh(textGeom, materialFront );
-//                object.position.x = Math.random() * 1000 - 500;
-//                object.position.y = Math.random() * 600 - 300;
-//                object.position.z = Math.random() * 800 - 400;
-//                object.rotation.x = Math.random() * 2 * Math.PI;
-//                object.rotation.y = Math.random() * 2 * Math.PI;
-//                object.rotation.z = Math.random() * 2 * Math.PI;
-//                object.castShadow = true;
-//                object.receiveShadow = true;
-//                scene.add( object );
-//                objects.push( object );
-//            }
+            // add 3D text
+            var letters = ["G", "J", "P", "Q", "R"];
+
+            for(var i = 0; i < letters.length; i++){
+                var materialFront = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+                var textGeom = new THREE.TextGeometry( letters[i],
+                {
+                    size: 150, height: 10, curveSegments: 20,
+                    font: "droid sans", weight: "normal", style: "normal",
+                    bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
+                    material: 0, extrudeMaterial: 1
+                });
+                textGeom.center();
+
+                var object = new THREE.Mesh(textGeom, materialFront );
+                object.position.x = Math.random() * 1000 - 500;
+                object.position.y = Math.random() * 600 - 300;
+                object.position.z = Math.random() * 800 - 400;
+                object.rotation.x = Math.random() * 2 * Math.PI;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                object.rotation.z = Math.random() * 2 * Math.PI;
+                object.castShadow = true;
+                object.receiveShadow = true;
+                scene.add( object );
+                objects.push( object );
+            }
 
         }
 

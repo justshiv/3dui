@@ -216,13 +216,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function onMouseDown( event ) {
 
 		if ( scope.enabled === false ) return;
-		if ( scope.userRotate === false ) return;
 
 		event.preventDefault();
 
 		if ( state === STATE.NONE )
 		{
 			if ( event.button === 0 )
+		        if ( scope.userRotate === false ) return;
 				state = STATE.ROTATE;
 			if ( event.button === 1 )
 				state = STATE.ZOOM;
@@ -291,11 +291,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		} else if ( state === STATE.PAN ) {
 
-			var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-			var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+			var movementX = event.movementX || event.mozMovementX || event.movementX || 0;
+			var movementY = event.movementY || event.mozMovementY || event.movementY || 0;
 
 			scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
-
+			scope.domElement.style.cursor = "-webkit-grabbing";
 		}
 
 	}
@@ -303,7 +303,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function onMouseUp( event ) {
 
 		if ( scope.enabled === false ) return;
-		if ( scope.userRotate === false ) return;
+		//if ( scope.userRotate === false ) return;
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
 		document.removeEventListener( 'mouseup', onMouseUp, false );

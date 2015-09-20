@@ -214,7 +214,7 @@ function newScene(){
 
     var geometry = new THREE.DodecahedronGeometry(250, 0);
     //var material = new THREE.MeshPhongMaterial( {side: THREE.BackSide, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
-    var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.9, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
+    var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.93, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
     var dodeca = new THREE.Mesh(geometry, material);
     var wireframe = new THREE.WireframeHelper( dodeca, new THREE.Color("#708090"));
 
