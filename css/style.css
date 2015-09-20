@@ -163,6 +163,7 @@ footer {
 
 .navbar-nav>li, .navbar-nav {
 float: left !important;
+    z-index: 2;
 }
 
 .navbar-nav>li>a {
@@ -201,5 +202,19 @@ div.tooltip-inner {
 .tooltip.in {
   opacity: 1;
   filter: alpha(opacity=100);
+}
+
+.navbar-brand
+{
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    text-align: center;
+    margin: auto;
+
+    padding:12px 15px 12px 15px;
+    margin: 5px 4px 5px 4px;
 }
 

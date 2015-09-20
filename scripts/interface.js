@@ -7,27 +7,26 @@
           $('[data-toggle="tooltip"]').tooltip()
         });
 
+        //stuff that never changes
         var interfaceType = "";
-
         var taskNo = 0;
+        var totalTasks = 15;
+        var container = document.getElementById( 'canvas-container' );
+        var boxSide = 800;
+        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
 
         // standard global variables
-        var container = document.getElementById( 'canvas-container' );
 
         var scene, renderer, controls;
 
         // custom global variables
-        var movementPlane;
         var backCamera, leftCamera, bottomCamera, topCamera, rightCamera, frontCamera, mainCamera;
         var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightRenderTarget, leftRenderTarget;
         var gridXZ, gridYZ, gridXY;
-        var mouse = new THREE.Vector2(), offset = new THREE.Vector3(), INTERSECTED, SELECTED, CURRENTCAM;
-        var objects = [], planes = [], colors = [];
+        var mouse, offset, INTERSECTED, SELECTED, CURRENTCAM;
+        var objects, planes, movementPlane, colors;
         var selectedEdge;
 
-        var boxSide = 800;
-
-        var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
         var objstate = OBJSTATE.NONE;
         var translate = false;
         var rotate = false;
@@ -39,62 +38,16 @@
         var camera;
         var CURRENTVIEW;
 
-
-        var views = [
-            {
-                name: "perspective",
-                left: 0,
-                bottom: 0.5,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 1000, 1000, 1000 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.PerspectiveCamera( this.fov, container.offsetWidth / container.offsetHeight, 1, 10000 )
-            }
-            ,
-            {
-                name: "top",
-                left: 0,
-                bottom: 0,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 0, 1000, 0 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-            ,
-            {
-                name: "front",
-                left: 0.5,
-                bottom: 0,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 0, 0, 1000 ],
-                up: [ 0, 1, 0  ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-            ,
-            {
-                name: "side",
-                left: 0.5,
-                bottom: 0.5,
-                width: 0.5,
-                height: 0.5,
-                background: new THREE.Color("#cecece"),
-                eye: [ 1000, 0, 0 ],
-                up: [ 0, 1, 0 ],
-                fov: 45,
-                camera : new THREE.OrthographicCamera(container.offsetWidth / -1, container.offsetWidth, container.offsetHeight, container.offsetHeight / -1, 1, 10000 )
-            }
-        ];
+        var views;
 
     function setupInterface(){
+        mouse = new THREE.Vector2();
+        offset = new THREE.Vector3();
+
+        objects = [];
+        planes = [];
+        colors = [];
+
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
         scene.add( new THREE.AmbientLight( 0x505050 ) );
@@ -151,7 +104,13 @@
         renderer.sortObjects = false;
         renderer.shadowMapEnabled = true;
         renderer.shadowMapType = THREE.PCFShadowMap;
-        container.appendChild( renderer.domElement );
+
+        if(container.childNodes.length > 0){
+            container.replaceChild( renderer.domElement, container.childNodes[0] );
+        }
+        else{
+            container.appendChild(renderer.domElement);
+        }
 
         //dom and window listeners
         renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -187,31 +146,29 @@
         }
     } );
 
-        function drawRotHelpers(currObject){
-            rotx.visible = true;
-            roty.visible = true;
-            rotz.visible = true;
+function drawRotHelpers(currObject){
+    rotx.visible = true;
+    roty.visible = true;
+    rotz.visible = true;
 
-            rotx.position.copy( currObject.position );
-            roty.position.copy( currObject.position );
-            rotz.position.copy( currObject.position );
-        }
+    rotx.position.copy( currObject.position );
+    roty.position.copy( currObject.position );
+    rotz.position.copy( currObject.position );
+}
 
-        function hideRotHelpers(){
-            rotx.visible = false;
-            roty.visible = false;
-            rotz.visible = false;
-        }
+function hideRotHelpers(){
+    rotx.visible = false;
+    roty.visible = false;
+    rotz.visible = false;
+}
 
 function submit(){
-
     var submissionData = [];
     submissionData.push(interfaceType);
     submissionData.push(taskNo);
     submissionData.push(objects[0]);
 
-
-    store(interfaceType + "-" + taskNo + "results", submissionData);
+    store(interfaceType + "-" + taskNo + "-results", submissionData);
     console.log("submitted: " + taskNo);
     loadTask();
 }
@@ -219,9 +176,15 @@ function submit(){
 function loadTask(){
     taskNo++;
 
-    if(taskNo == 5){
+    if(taskNo == totalTasks){
         window.location = "sus-quest.html";
     }
+
+    //resetting
+    init();
+
+    var title =  document.getElementById("taskNo");
+    title.innerHTML = "Task " + (taskNo + 1);
 }
 
 function calculateAccuracy(){
