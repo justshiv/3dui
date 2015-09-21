@@ -5,15 +5,24 @@
 
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
+
+            startTiming();
         });
 
         //stuff that never changes
         var interfaceType = "";
         var taskNo = 0;
-        var totalTasks = 15;
+        var totalTasks = 16;
         var container = document.getElementById( 'canvas-container' );
-        var boxSide = 800;
+        var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
+        var colors = [
+            new THREE.Color("rgb(107, 110, 207)"),
+            new THREE.Color("rgb(181, 207, 107)"),
+            new THREE.Color("rgb(231, 186, 82)"),
+            new THREE.Color("rgb(214, 97, 107)"),
+            new THREE.Color("rgb(206, 109, 189)")
+        ];
 
         // standard global variables
 
@@ -25,7 +34,7 @@
         var gridXZ, gridYZ, gridXY;
         var mouse, offset, INTERSECTED, SELECTED, CURRENTCAM;
         var objects, targets;
-        var planes, movementPlane, colors;
+        var planes, movementPlane;
         var selectedEdge;
 
         var objstate = OBJSTATE.NONE;
@@ -52,28 +61,27 @@
         targets = [];
         objects = [];
         planes = [];
-        colors = [];
-
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-        dodecahedronScene();
+        alignScene();
+        //dodecahedronScene();
         //roomScene();
         //*** DISPLAY STRUCTURE ***//
-        gridXZ = new THREE.GridHelper(400, 100);
+        gridXZ = new THREE.GridHelper((boxSide/2), 100);
         gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
         gridXZ.position.set( 0,0,0 );
         scene.add(gridXZ);
 
-        gridXY = new THREE.GridHelper(400, 100);
+        gridXY = new THREE.GridHelper((boxSide/2), 100);
         gridXY.position.set( 0,0,0 );
         gridXY.rotation.x = Math.PI/2;
         gridXY.setColors( new THREE.Color(0x000066), new THREE.Color(0x000066) );
         scene.add(gridXY);
 
-        gridYZ = new THREE.GridHelper(400, 100);
+        gridYZ = new THREE.GridHelper((boxSide/2), 100);
         gridYZ.position.set( 0,0,0 );
         gridYZ.rotation.z = Math.PI/2;
         gridYZ.setColors( new THREE.Color(0x660000), new THREE.Color(0x660000) );
@@ -172,18 +180,41 @@ function hideRotHelpers(){
 
 function submit(){
     var timeTaken = new Date().getTime() - startTime;
-    var accuracy = calculateAccuracy();
+    //var accuracy = calculateAccuracy();
+
+    var subObjectsArr = [];
+    var subTargetsArr = [];
+
+    for(var i = 0; i < targets.length; i++){
+        var subObject = {
+            position: objects[0].position,
+            quarternion: objects[0].quarternion,
+            rotation: objects[0].rotation,
+            up: objects[0].up
+
+        };
+        var subTarget = {
+            position: objects[0].position,
+            quarternion: objects[0].quarternion,
+            rotation: objects[0].rotation,
+            up: objects[0].up
+
+        };
+        subObjectsArr.push(subObject);
+        subTargetsArr.push(subTarget);
+    }
 
     var submissionData = {
         taskNo: taskNo,
         timeTaken: timeTaken,
-        accuracy: accuracy
+        objects: subObjectsArr,
+        targets: subTargetsArr
     };
 
-    //store(interfaceType, submissionData);
+    store(interfaceType, submissionData);
 
-    console.log("accuracy: " + accuracy);
-    //loadTask();
+    //console.log("accuracy: " + objects[0]);
+    loadTask();
 }
 
 function loadTask(){
@@ -197,7 +228,7 @@ function loadTask(){
     init();
 
     var title =  document.getElementById("taskNo");
-    title.innerHTML = "Task " + (taskNo + 1);
+    title.innerHTML = "Task " + taskNo;
 }
 
 function calculateAccuracy(){
@@ -245,7 +276,7 @@ function dodecahedronScene(){
 
         var random_item = items[Math.floor(Math.random() * items.length)];
 
-        var objMaterial = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+        var objMaterial = new THREE.MeshLambertMaterial( { color: colors[i] } );
         var objGeom = new THREE.TextGeometry( random_item,
         {
             size: 150, height: 10, curveSegments: 20,
@@ -258,7 +289,7 @@ function dodecahedronScene(){
         var object = new THREE.Mesh(objGeom, objMaterial );
         object.position.x = Math.random() * 1000 - 500;
         object.position.y = Math.random() * 600 - 300;
-        object.position.z = Math.random() * 800 - 400;
+        object.position.z = Math.random() * 800 - (boxSide/2);
         object.rotation.x = Math.random() * 2 * Math.PI;
         object.rotation.y = Math.random() * 2 * Math.PI;
         object.rotation.z = Math.random() * 2 * Math.PI;
@@ -331,7 +362,7 @@ function roomScene(){
     combinedGeom.merge(rightLeg.geometry, rightLeg.matrix);
     leftLeg.updateMatrix();
     combinedGeom.merge(leftLeg.geometry, leftLeg.matrix);
-
+    combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom, material);
     var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#996633"));
@@ -340,15 +371,70 @@ function roomScene(){
     scene.add( wireframe );
     objects.push(combined);
 
-    var geometry = new THREE.BoxGeometry( 300, 5, 300 );
+    geometry = new THREE.BoxGeometry( 300, 5, 300 );
+    geometry.center();
     var texture = THREE.ImageUtils.loadTexture( "../images/floor-tile.jpg" );
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    //texture.repeat.set( 4, 4 );
     material = new THREE.MeshBasicMaterial( {map:texture, side:THREE.DoubleSide} );
     var floor = new THREE.Mesh( geometry, material );
     floor.position.set(0, 0, 0);
     scene.add(floor);
     objects.push(floor);
+}
+
+function alignScene(){
+
+        var letters = ["G", "J", "P", "Q", "R"];
+
+        for(var i = 0; i < letters.length; i++){
+            var materialFront = new THREE.MeshLambertMaterial( { color: colors[i]} );
+            var textGeom = new THREE.TextGeometry( letters[i],
+            {
+                size: 150, height: 10, curveSegments: 20,
+                font: "droid sans", weight: "normal", style: "normal",
+                bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
+                material: 0, extrudeMaterial: 1
+            });
+            textGeom.center();
+
+            var object = new THREE.Mesh(textGeom, materialFront );
+            object.position.x = Math.random() * 1000 - 500;
+            object.position.y = Math.random() * 600 - 300;
+            object.position.z = Math.random() * 800 - 400;
+            object.rotation.x = Math.random() * 2 * Math.PI;
+            object.rotation.y = Math.random() * 2 * Math.PI;
+            object.rotation.z = Math.random() * 2 * Math.PI;
+            object.castShadow = true;
+            object.receiveShadow = true;
+            scene.add( object );
+            objects.push( object );
+        }
+
+        var geometry = new THREE.BoxGeometry( 300, 5, 300 );
+        geometry.center();
+        var material = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.7, color: new THREE.Color("#000000")} );
+        var floorplane = new THREE.Mesh( geometry, material );
+        floorplane.position.set(0, 0, 0);
+        scene.add(floorplane);
+        targets.push(floorplane);
+}
+
+function trainingScene(){
+    //timer
+
+    //instructions
+
+    //
+
+}
+
+function startTiming(){
+    var display = document.querySelector('#time');
+    var timer = new CountDownTimer(60 * 3, display);
+    timer.start();
+}
+
+function proceed(){
 
 }

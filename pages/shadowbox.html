@@ -16,6 +16,14 @@
     <body>
         <div class="page-content">
             <div class="container">
+                <div class="row" style="height: 70px;">
+                    <div class="col-lg-12">
+                        <div class="tut-timer pull-left">
+                            Time Left: <span id="time"></span>
+                        </div>
+                        <h4>Instructions:</h4>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-lg-12">
                         <nav id="toolbar" class="navbar navbar-default">
@@ -25,7 +33,7 @@
                                    <li id="translate"><a data-toggle="tooltip" data-placement="bottom" title="Translate objects" onclick="trans()"><i class="fa fa-arrows"></i> Translate</a></li>
                                 </ul>
 
-                                <a id="taskNo" class="navbar-brand" href="#">Task 1</a>
+                                <a id="taskNo" class="navbar-brand" href="#">Training Task</a>
 
                                 <ul class="nav navbar-nav navbar-right">
                                   <li id="reset"><a data-toggle="tooltip" data-placement="bottom" title="Reset entire scene" onclick="reset()"><i class="fa fa-history"></i> Reset</a></li>
@@ -59,14 +67,12 @@
         <script src="../libs/three/threex.basiclighting.js"></script>
         <script src="../libs/three/droid_sans_regular.typeface.js"></script>
 
-        <script src="../libs/three/OBJMTLLoader.js"></script>
-        <script src="../libs/three/MTLLoader.js"></script>
-        <script src="../libs/three/DDSLoader.js"></script>
 
         <script src="../scripts/cameraControls.js"></script>
         <script src="../scripts/objectControls.js"></script>
         <script src="../scripts/interface.js"></script>
         <script src="../scripts/main.js"></script>
+        <script src="../scripts/CountDownTimer.js"></script>
 
     </body>
 
@@ -110,82 +116,13 @@
             leftRenderTarget = setupRenderPlanes(new THREE.Vector3(-planePosition, 0, 0), Math.PI, Math.PI/2, Math.PI);
             rightRenderTarget = setupRenderPlanes(new THREE.Vector3(planePosition, 0, 0), Math.PI, -Math.PI/2, Math.PI);
 
-            //*** GEOMETRY ***//
-            var letters = ["A", "B", "C", "D", "E"];
-
-            for(var i = 0; i < letters.length; i++){
-                var curColor = Math.random() * 0xffffff;
-                colors.push( curColor);
-                var materialFront = new THREE.MeshLambertMaterial( {color: curColor});
-                var textGeom = new THREE.TextGeometry( letters[i],
-                {
-                    size: 100,
-                    height: 10,
-                    curveSegments: 10,
-
-                    font: "droid sans",
-                    weight: "normal",
-                    style: "normal",
-
-                    bevelThickness: 10,
-                    bevelSize: 5,
-                    bevelEnabled: true,
-                    material: 0,
-                    extrudeMaterial: 1
-                });
-                textGeom.center();
-
-                var object = new THREE.Mesh(textGeom, materialFront );
-                object.position.x = Math.random() * 600 - 300;
-                object.position.y = Math.random() * 600 - 300;
-                object.position.z = Math.random() * 600 - 300;
-                    object.rotation.x = Math.random() * 2 * Math.PI;
-                    object.rotation.y = Math.random() * 2 * Math.PI;
-                    object.rotation.z = Math.random() * 2 * Math.PI;
-                object.castShadow = true;
-                object.receiveShadow = true;
-    //                console.log(object);
-
-                scene.add( object );
-                objects.push( object );
-            }
-
-            var onProgress = function ( xhr ) {
-					if ( xhr.lengthComputable ) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						console.log( Math.round(percentComplete, 2) + '% downloaded' );
-					}
-				};
-
-				var onError = function ( xhr ) {
-				};
-
-
-				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-
-
-//            var loader = new THREE.OBJMTLLoader();
-//				loader.load( '../objects/Dodecahedron/Dodecahedron.obj', '../objects/Dodecahedron/Dodecahedron.mtl', function ( dodeca ) {
-////				loader.load( '../objects/cube/cube.obj', '../objects/cube/cube.mtl', function ( lily ) {
-////				loader.load( 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.obj', 'objects/calla_lily_with_roses_obj/calla_lily_with_roses.mtl', function ( lily ) {
-////				loader.load( 'objects/birthday_cake_obj/birthday_cake.obj', 'objects/birthday_cake_obj/birthday_cake.mtl', function ( lily ) {
-//
-////                    dodeca.position.y = 0;
-//                    dodeca.position.set(50, 100, 300);
-////					lily.position.y = 0;
-////                    lily.scale.set(5, 5, 5);
-//					scene.add( dodeca );
-//				}, onProgress, onError );
-
         }
 
         function animate()
         {
             requestAnimationFrame( animate );
-            render();
-
-    //            var xAxis = new THREE.Vector3(1,0,0);
-    //            objControls(objects[0], xAxis, Math.PI / 180);
+            requestAnimationFrame( render );
+//            render()
         }
 
         function render()
@@ -331,22 +268,22 @@
 
         function getCurrentCam(currentMouse){
 
-            if(currentMouse.x < -400){
+            if(currentMouse.x < -1 * (boxSide/2)){
                 return leftCamera;
             }
-            else if(currentMouse.x > 400){
+            else if(currentMouse.x >(boxSide/2)){
                 return rightCamera;
             }
-            else if(currentMouse.z < -400){
+            else if(currentMouse.z < -1 * (boxSide/2)){
                 return backCamera;
             }
-            else if(currentMouse.z > 400){
+            else if(currentMouse.z >(boxSide/2)){
                 return frontCamera;
             }
-            else if(currentMouse.y < -400){
+            else if(currentMouse.y < -1 * (boxSide/2)){
                 return bottomCamera;
             }
-            else if(currentMouse.y > 400){
+            else if(currentMouse.y > (boxSide/2)){
                 return topCamera;
             }
         }
@@ -354,22 +291,22 @@
         function getPlaneLookAt(currentMouse){
             var planeLookAt = new THREE.Vector3();
 
-            if(currentMouse.x < -400){
+            if(currentMouse.x < -1 * (boxSide/2)){
                 planeLookAt.set(Math.PI, -Math.PI/2, Math.PI);
             }
-            else if(currentMouse.x > 400){
+            else if(currentMouse.x > (boxSide/2)){
                 planeLookAt.set(Math.PI, Math.PI/2, Math.PI);
             }
-            else if(currentMouse.z < -400){
+            else if(currentMouse.z < -1 * (boxSide/2)){
                 planeLookAt.set(Math.PI*2, Math.PI, Math.PI);
             }
-            else if(currentMouse.z > 400){
+            else if(currentMouse.z > (boxSide/2)){
                 planeLookAt.set(Math.PI, Math.PI, Math.PI);
             }
-            else if(currentMouse.y < -400){
+            else if(currentMouse.y < -1 * (boxSide/2)){
                 planeLookAt.set( -Math.PI/2, Math.PI, Math.PI);
             }
-            else if(currentMouse.y > 400){
+            else if(currentMouse.y > (boxSide/2)){
                 planeLookAt.set( Math.PI/2, Math.PI, Math.PI);
             }
 
@@ -380,29 +317,29 @@
 
             var mouse = new THREE.Vector2();
 
-                if(currentMouse.x < -400){
+                if(currentMouse.x < -1 * (boxSide/2)){
                     mouse.x = currentMouse.z/(boxSide/2);
                     mouse.y = currentMouse.y/(boxSide/2);
                 }
-                else if(currentMouse.x > 400){
+                else if(currentMouse.x > (boxSide/2)){
                     mouse.x = -1 * currentMouse.z/(boxSide/2);
                     mouse.y = currentMouse.y/(boxSide/2);
                 }
-                else if(currentMouse.z < -400){
+                else if(currentMouse.z < -1 * (boxSide/2)){
                     mouse.x = -1 * currentMouse.x/(boxSide/2);
                     mouse.y = currentMouse.y/(boxSide/2);
                 }
-                else if(currentMouse.z > 400){
+                else if(currentMouse.z > (boxSide/2)){
                     mouse.x = currentMouse.x/(boxSide/2);
                     mouse.y = currentMouse.y/(boxSide/2);
                 }
-                else if(currentMouse.y < -400){
-                    mouse.x = -1 * currentMouse.z/400;
-                    mouse.y = currentMouse.x/400;
+                else if(currentMouse.y < -1 * (boxSide/2)){
+                    mouse.x = -1 * currentMouse.z/(boxSide/2);
+                    mouse.y = currentMouse.x/(boxSide/2);
                 }
-                else if(currentMouse.y > 400){
-                    mouse.x = -1 * currentMouse.z/400;
-                    mouse.y = -1 * currentMouse.x/400;
+                else if(currentMouse.y > (boxSide/2)){
+                    mouse.x = -1 * currentMouse.z/(boxSide/2);
+                    mouse.y = -1 * currentMouse.x/(boxSide/2);
                 }
 
             return mouse;
@@ -458,7 +395,7 @@
             renderTarget.wrapS = THREE.RepeatWrapping;
             renderTarget.repeat.x = - 1;
 
-            var planeGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
+            var planeGeometry = new THREE.PlaneBufferGeometry( boxSide, boxSide );
             var planeMaterial = new THREE.MeshBasicMaterial( { map: renderTarget } );
             var plane = new THREE.Mesh( planeGeometry, planeMaterial );
             plane.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 1));

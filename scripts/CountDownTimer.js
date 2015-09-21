@@ -30,7 +30,7 @@ CountDownTimer.prototype.start = function() {
       diff = 0;
       that.running = false;
 
-        alert("Your time is up!");
+        //alert("Your time is up!");
         autosubmit = true;
         proceed();
 

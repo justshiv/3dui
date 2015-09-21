@@ -15,18 +15,25 @@
     <body>
         <div class="page-content">
             <div class="container">
+                <div class="row" style="height: 70px;">
+                    <div class="col-lg-12">
+                        <div class="tut-timer pull-left">
+                            Time Left: <span id="time"></span>
+                        </div>
+                        <h4>Instructions:</h4>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-lg-12">
                         <nav id="toolbar" class="navbar navbar-default">
                             <div class="container-fluid">
-                                <a id="taskNo" class="navbar-brand" href="#">Task 1</a>
+                                <a id="taskNo" class="navbar-brand" href="#">Training Task</a>
 
                                 <ul class="nav navbar-nav navbar-left">
                                    <li id="rotate"><a data-toggle="tooltip" data-placement="bottom" title="Rotate objects" onclick="rot()"><i class="fa fa-refresh"></i> Rotate</a></li>
                                    <li id="translate"><a data-toggle="tooltip" data-placement="bottom" title="Translate objects" onclick="trans()"><i class="fa fa-arrows"></i> Translate</a></li>
                                 </ul>
-
-
 
                                 <ul class="nav navbar-nav navbar-right">
                                   <li id="reset"><a data-toggle="tooltip" data-placement="bottom" title="Reset entire scene" onclick="reset()"><i class="fa fa-history"></i> Reset</a></li>
@@ -73,6 +80,8 @@
         <script src="../scripts/objectControls.js"></script>
         <script src="../scripts/interface.js"></script>
         <script src="../scripts/main.js"></script>
+        <script src="../scripts/CountDownTimer.js"></script>
+
 
 
     </body>

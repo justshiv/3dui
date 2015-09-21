@@ -31,6 +31,16 @@ p{
     width: 100px;
     height: 80px;
 }
+.tut-timer{
+    z-index: 100;
+
+    text-align: left;
+    font-size: 16px;
+
+    background-color: #333333;
+    padding:10px;
+    width: 135px;
+}
 
 .images{
     text-align:center;
@@ -83,7 +93,7 @@ label, .control-label, .help-block, .checkbox, .radio {
 }
 
 #canvas-container{
-    height:600px;
+    height:550px;
     width:100%;
     margin:0;
 }
