@@ -108,7 +108,7 @@
                 sus: radios
             };
 
-            store(prevPage, submissionData);
+            store(prevPage + "-questionnaire", submissionData);
 
             if(retrieve("shadowbox") != null && retrieve("standard") != null){
                 window.location = "end.html";

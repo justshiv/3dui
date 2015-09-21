@@ -178,6 +178,8 @@ function hideRotHelpers(){
     rotz.visible = false;
 }
 
+var taskDataArr = [];
+
 function submit(){
     var timeTaken = new Date().getTime() - startTime;
     //var accuracy = calculateAccuracy();
@@ -187,6 +189,7 @@ function submit(){
 
     for(var i = 0; i < targets.length; i++){
         var subObject = {
+            type: "object",
             position: objects[0].position,
             quarternion: objects[0].quarternion,
             rotation: objects[0].rotation,
@@ -194,6 +197,7 @@ function submit(){
 
         };
         var subTarget = {
+            type: "target",
             position: objects[0].position,
             quarternion: objects[0].quarternion,
             rotation: objects[0].rotation,
@@ -211,7 +215,7 @@ function submit(){
         targets: subTargetsArr
     };
 
-    store(interfaceType, submissionData);
+    taskDataArr.push(submissionData);
 
     //console.log("accuracy: " + objects[0]);
     loadTask();
@@ -221,6 +225,7 @@ function loadTask(){
     taskNo++;
 
     if(taskNo == totalTasks){
+        store(interfaceType + "-tasks", taskDataArr);
         window.location = "sus-quest.html?" + interfaceType;
     }
 

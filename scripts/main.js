@@ -2,6 +2,9 @@
  * Created by siobhan on 15/09/20.
  */
 
+var participantKey = "CurrentParticipant";
+
+
 $(function()
 {
 
@@ -9,9 +12,12 @@ $(function()
     //load dissuasion message below
     $('.no-load-prompt').click(
         function() {
-
             disableLoadMsg();
+        });
 
+    $('.no-load-prompt').submit(
+        function() {
+            disableLoadMsg();
         });
 
     //output to dissuade people to close/refresh current page
@@ -25,28 +31,26 @@ $(function()
     window.onpopstate = function(event) {
         history.go(1);
     };
-
 });
 
 function store(name, item){
-    var current = retrieve(name);
+    var current = retrieve();
 
-    if(current == null){
-        current = [];
-    }
+    current[name] = item;
 
-    current.push(item);
-
-    localStorage.setItem(name, JSON.stringify(current));
-
+    localStorage.setItem(participantKey, JSON.stringify(current));
 }
 
-function retrieve(name){
-    return JSON.parse( localStorage.getItem( name ));
+function retrieve(){
+    var current =  JSON.parse( localStorage.getItem( participantKey ));
+    if(current == null){
+        current = {};
+    }
+    return current;
 }
 
 function getGroup(){
-    var name = retrieve("participantNo");
+    var name = retrieve()["participantNo"];
     return name.slice(0, 1);
 }
 
@@ -61,8 +65,6 @@ function deleteAll(){
   //loop through keys
   for( var i=0; i<keys.length; i++ ){
     var key = keys[i];
-
-    //check if key excluded
 
     //delete key
       localStorage.removeItem(key)
