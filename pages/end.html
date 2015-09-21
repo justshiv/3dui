@@ -30,7 +30,7 @@
 
                       <div class="form-group">
                         <div class="col-xs-offset-1 col-xs-10">
-                          <a id="download" type="submit" onclick="proceed()" class="btn btn-primary no-load-prompt">Download</a>
+                          <a name="data" id="data" type="submit" onclick="proceed()" class="btn btn-primary no-load-prompt">Download</a>
                         </div>
                       </div>
                     </form>
@@ -48,10 +48,10 @@
 
     <script>
 
-        download();
+        downloadItem();
 
 
-        function download(){
+        function downloadItem(){
             var key = participantKey;
 
             //check if key excluded
@@ -61,7 +61,7 @@
                 var base64 = window.btoa(localStorage.getItem(key));
 
                 // create an a tag
-                var a = document.getElementById("download");
+                var a = document.getElementById("data");
                 a.href = 'data:application/octet-stream;base64,' + base64;
         }
 
