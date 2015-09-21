@@ -110,10 +110,10 @@
 
             store(prevPage + "-questionnaire", submissionData);
 
-            if(retrieve("shadowbox") != null && retrieve("standard") != null){
+            if(retrieve()["shadowbox-tasks"] != null && retrieve()["standard-tasks"] != null){
                 window.location = "end.html";
             }
-            else if(retrieve("shadowbox") != null){
+            else if(retrieve()["shadowbox-tasks"] != null){
                 window.location = "explaining-standard.html";
             }
             else{
