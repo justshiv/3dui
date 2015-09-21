@@ -23,6 +23,7 @@
             new THREE.Color("rgb(214, 97, 107)"),
             new THREE.Color("rgb(206, 109, 189)")
         ];
+        interfaceCounter = 0;
 
         // standard global variables
 
@@ -66,9 +67,27 @@
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-        alignScene();
-        //dodecahedronScene();
-        //roomScene();
+
+        var instr = "";
+        if(interfaceCounter == 1){
+            interfaceCounter++;
+            alignScene();
+            instr = "Instructions: Align the letters with the plane";
+        }
+        else if(interfaceCounter == 0){
+            interfaceCounter++;
+            dodecahedronScene();
+            instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
+        }
+        else{
+            interfaceCounter = 0;
+            roomScene();
+            instr = "Instructions: Put the table on the floor, and the vase on the table";
+        }
+
+
+        document.getElementById("instruction").innerHTML = instr;
+
         //*** DISPLAY STRUCTURE ***//
         gridXZ = new THREE.GridHelper((boxSide/2), 100);
         gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
@@ -441,5 +460,7 @@ function startTiming(){
 }
 
 function proceed(){
-
+    document.getElementById("timer-div").style.display = "none";
+    document.getElementById("submit").style.display = "inline-block";
+    submit();
 }
