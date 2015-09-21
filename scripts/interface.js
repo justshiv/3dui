@@ -24,7 +24,8 @@
         var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightRenderTarget, leftRenderTarget;
         var gridXZ, gridYZ, gridXY;
         var mouse, offset, INTERSECTED, SELECTED, CURRENTCAM;
-        var objects, planes, movementPlane, colors;
+        var objects, targets;
+        var planes, movementPlane, colors;
         var selectedEdge;
 
         var objstate = OBJSTATE.NONE;
@@ -48,6 +49,7 @@
         mouse = new THREE.Vector2();
         offset = new THREE.Vector3();
 
+        targets = [];
         objects = [];
         planes = [];
         colors = [];
@@ -57,8 +59,8 @@
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-        newScene();
-
+        dodecahedronScene();
+        //roomScene();
         //*** DISPLAY STRUCTURE ***//
         gridXZ = new THREE.GridHelper(400, 100);
         gridXZ.setColors( new THREE.Color(0x006600), new THREE.Color(0x006600) );
@@ -170,7 +172,7 @@ function hideRotHelpers(){
 
 function submit(){
     var timeTaken = new Date().getTime() - startTime;
-    var accuracy = 0.0;
+    var accuracy = calculateAccuracy();
 
     var submissionData = {
         taskNo: taskNo,
@@ -178,10 +180,10 @@ function submit(){
         accuracy: accuracy
     };
 
-    store(interfaceType, submissionData);
+    //store(interfaceType, submissionData);
 
-    console.log("time: " + timeTaken);
-    loadTask();
+    console.log("accuracy: " + accuracy);
+    //loadTask();
 }
 
 function loadTask(){
@@ -199,7 +201,17 @@ function loadTask(){
 }
 
 function calculateAccuracy(){
-    return 0.8;
+
+    var difference = 0;
+
+    for(var i = 0; i < targets.length; i++){
+        var currDiff = 0;
+        currDiff = targets[i].position.distanceTo(objects[i].position);
+        difference += currDiff;
+    }
+    difference = Math.floor(difference/targets.length);
+
+    return difference;
 }
 
 function timeTaken(){
@@ -210,92 +222,133 @@ function timeTaken(){
     //end timer
 }
 
-function newScene(){
+function dodecahedronScene(){
 
     var geometry = new THREE.DodecahedronGeometry(250, 0);
     //var material = new THREE.MeshPhongMaterial( {side: THREE.BackSide, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
     var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.93, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
     var dodeca = new THREE.Mesh(geometry, material);
-    var wireframe = new THREE.WireframeHelper( dodeca, new THREE.Color("#708090"));
+    var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("#708090"));
 
     geometry.mergeVertices();
     console.log(geometry.faces.length);
 
     dodeca.position.set(0,0,0);
     scene.add(dodeca);
-    //scene.add(wireframe);
+    scene.add(wireframe);
 
     // add 3D text
-    var letters = ["G", "J", "P", "Q", "R"];
-    var materialFront = new THREE.MeshPhongMaterial( {side: THREE.BackSide,  color: new THREE.Color("#999999") , shading: THREE.FlatShading } );
-    var textGeom = new THREE.TextGeometry( letters[3],
-    {
-        size: 150, height: 1, curveSegments: 20,
-        font: "droid sans", weight: "normal", style: "normal",
-        bevelThickness: 1, bevelSize: 5, bevelEnabled: true,
-        material: 0, extrudeMaterial: 1
-    });
-    textGeom.center();
-
-    var object = new THREE.Mesh(textGeom, materialFront );
-
-    object.position.x = 174;
-    object.position.y = 100;
-    object.position.z = 0;
-
-    object.rotation.x = -Math.PI/2;
-    object.rotation.y =  1.018;
-    object.rotation.z = Math.PI/2;
-
-    object.castShadow = true;
-    object.receiveShadow = true;
-    scene.add( object );
+    var items = ["G", "J", "P", "Q", "R", "1", "2", "4", "5", "7"];
 
 
-    //next
-    textGeom = new THREE.TextGeometry( letters[1],
-    {
-        size: 150, height: 1, curveSegments: 20,
-        font: "droid sans", weight: "normal", style: "normal",
-        bevelThickness: 1, bevelSize: 5, bevelEnabled: true,
-        material: 0, extrudeMaterial: 1
-    });
-    textGeom.center();
+    for(var i = 0; i < 3; i++){
 
-    object = new THREE.Mesh(textGeom, materialFront );
+        var random_item = items[Math.floor(Math.random() * items.length)];
 
-    object.position.x = -174;
-    object.position.y = 100;
-    object.position.z = 0;
+        var objMaterial = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+        var objGeom = new THREE.TextGeometry( random_item,
+        {
+            size: 150, height: 10, curveSegments: 20,
+            font: "droid sans", weight: "normal", style: "normal",
+            bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
+            material: 0, extrudeMaterial: 1
+        });
+        objGeom.center();
 
-    object.rotation.x = -Math.PI/2;
-    object.rotation.y =  -1.018;
-    object.rotation.z = -Math.PI/2;
+        var object = new THREE.Mesh(objGeom, objMaterial );
+        object.position.x = Math.random() * 1000 - 500;
+        object.position.y = Math.random() * 600 - 300;
+        object.position.z = Math.random() * 800 - 400;
+        object.rotation.x = Math.random() * 2 * Math.PI;
+        object.rotation.y = Math.random() * 2 * Math.PI;
+        object.rotation.z = Math.random() * 2 * Math.PI;
+        object.castShadow = true;
+        object.receiveShadow = true;
+        scene.add( object );
+        objects.push( object );
 
-    object.castShadow = true;
-    object.receiveShadow = true;
-    scene.add( object );
+        var targetMaterial = new THREE.MeshPhongMaterial( {side: THREE.BackSide,  color: new THREE.Color("#999999") , shading: THREE.FlatShading } );
+        var targetGeom = new THREE.TextGeometry( random_item,
+        {
+            size: 150, height: 1, curveSegments: 20,
+            font: "droid sans", weight: "normal", style: "normal",
+            bevelThickness: 1, bevelSize: 5, bevelEnabled: true,
+            material: 0, extrudeMaterial: 1
+        });
+        targetGeom.center();
+
+        var target = new THREE.Mesh(targetGeom, targetMaterial );
+
+        target.castShadow = true;
+        target.receiveShadow = true;
+        scene.add( target );
+        targets.push(target);
+    }
 
 
-    textGeom = new THREE.TextGeometry( letters[4],
-    {
-        size: 150, height: 1, curveSegments: 20,
-        font: "droid sans", weight: "normal", style: "normal",
-        bevelThickness: 1, bevelSize: 5, bevelEnabled: true,
-        material: 0, extrudeMaterial: 1
-    });
-    textGeom.center();
+    targets[0].position.x = 174;
+    targets[0].position.y = 100;
+    targets[0].position.z = 0;
+    targets[0].rotation.x = -Math.PI/2;
+    targets[0].rotation.y =  1.018;
+    targets[0].rotation.z = Math.PI/2;
 
-    object = new THREE.Mesh(textGeom, materialFront );
+    targets[1].position.x = -174;
+    targets[1].position.y = 100;
+    targets[1].position.z = 0;
+    targets[1].rotation.x = -Math.PI/2;
+    targets[1].rotation.y =  -1.018;
+    targets[1].rotation.z = -Math.PI/2;
 
-    object.position.x = 0;
-    object.position.y = -174;
-    object.position.z = 100;
+    targets[2].position.x = 0;
+    targets[2].position.y = -174;
+    targets[2].position.z = 100;
+    targets[2].rotation.x =  1.018;
 
-    object.rotation.x =  1.018;
+}
 
-    object.castShadow = true;
-    object.receiveShadow = true;
-    scene.add( object );
+function roomScene(){
+    //var group = new THREE.Object3D();//create an empty container
+    //group.position.set(0, 0, 0);
+
+    var geometry = new THREE.BoxGeometry( 200, 10, 100 );
+    var material = new THREE.MeshBasicMaterial( {color: new THREE.Color("#CC9966")} );
+    var tabletop = new THREE.Mesh( geometry, material );
+    tabletop.position.set(0, 50, 0);
+
+    geometry = new THREE.CylinderGeometry( 10, 5, 90, 30, 1 );
+    //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("#CC9966")} );
+    var rightLeg = new THREE.Mesh( geometry, material );
+    rightLeg.position.set(50, 0, 0);
+
+    var leftLeg = new THREE.Mesh( geometry, material );
+    leftLeg.position.set(-50, 0, 0);
+
+    var combinedGeom = new THREE.Geometry();
+    tabletop.updateMatrix();
+    combinedGeom.merge(tabletop.geometry, tabletop.matrix);
+    rightLeg.updateMatrix();
+    combinedGeom.merge(rightLeg.geometry, rightLeg.matrix);
+    leftLeg.updateMatrix();
+    combinedGeom.merge(leftLeg.geometry, leftLeg.matrix);
+
+
+    var combined = new THREE.Mesh(combinedGeom, material);
+    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#996633"));
+
+    scene.add( combined );
+    scene.add( wireframe );
+    objects.push(combined);
+
+    var geometry = new THREE.BoxGeometry( 300, 5, 300 );
+    var texture = THREE.ImageUtils.loadTexture( "../images/floor-tile.jpg" );
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    //texture.repeat.set( 4, 4 );
+    material = new THREE.MeshBasicMaterial( {map:texture, side:THREE.DoubleSide} );
+    var floor = new THREE.Mesh( geometry, material );
+    floor.position.set(0, 0, 0);
+    scene.add(floor);
+    objects.push(floor);
 
 }
