@@ -289,6 +289,8 @@
             var planeLookAt = new THREE.Vector3();
 
             CURRENTVIEW = getCurrentCam(mouse);
+//            console.log(CURRENTVIEW);
+
             planeLookAt.copy(getPlaneLookAt(mouse));
             mouse.copy(getInterfaceSpecificMouse(mouse));
 
@@ -307,6 +309,7 @@
                 }
             }
             else if(objstate === OBJSTATE.ROTATE){
+
                 if(SELECTED){
                     //rotate here
                     mouseRotStart.copy(mouseRotEnd);
@@ -319,10 +322,6 @@
 
                     calculateRotation(SELECTED);
 
-//                    mouseRotStart.copy(mouse);
-//                    calculateRotation(SELECTED);
-//                    mouseRotEnd.copy(mouseRotStart);
-//                    console.log(mouseRotEnd);
                 }
             }
             else if ( objstate === OBJSTATE.NONE )

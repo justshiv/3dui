@@ -191,8 +191,9 @@
                 }
             }
             else if(objstate === OBJSTATE.ROTATE){
-                if(SELECTED){
-                    //rotate here
+                if ( SELECTED ) {
+
+                    mouseRotStart.copy(mouseRotEnd);
 
                     //if our current camera is one of the box's sides
                     if(CURRENTCAM != mainCamera){
@@ -206,10 +207,16 @@
                         }
                     }
 
-                    mouseRotEnd.copy(mouse);
-                    calculateRotation(SELECTED);
-                }
+                    raycaster.setFromCamera( mouse, CURRENTCAM );
+                    intersects = raycaster.intersectObject( movementPlane );
 
+                    if(intersects.length > 0){
+                        mouseRotEnd.copy( intersects[ 0 ].point.sub( offset ) );
+                    }
+
+                    calculateRotation(SELECTED);
+
+                }
             }
             else if ( objstate === OBJSTATE.NONE )
             {

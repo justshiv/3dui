@@ -2,9 +2,9 @@
  * Created by siobhan on 15/08/30.
  */
 
-var mouseRotStart = new THREE.Vector2();
-var mouseRotEnd = new THREE.Vector2();
-var radius = 50;
+var mouseRotStart = new THREE.Vector3();
+var mouseRotEnd = new THREE.Vector3();
+var radius = 200;
 var rotateQuarts;
 
 function onDocumentMouseDown( event ) {
@@ -26,6 +26,7 @@ function onDocumentMouseDown( event ) {
         if(INTERSECTED){
 
             //mouseRotStart.copy(mouse);
+            //mouseRotEnd.copy(mouse);
 
             SELECTED = INTERSECTED;
             lockControls();
@@ -55,7 +56,7 @@ function onDocumentMouseDown( event ) {
         }
     }
 
-    console.log(objstate);
+    //console.log(objstate);
 }
 
 function onDocumentMouseUp( event ) {
@@ -74,6 +75,8 @@ function onDocumentMouseUp( event ) {
         //if ( INTERSECTED ) {
             SELECTED = null;
             INTERSECTED = null;
+            //mouseRotStart = new THREE.Vector3();
+            //mouseRotEnd = new THREE.Vector3();
         //}
     }
     releaseControls();
@@ -112,12 +115,24 @@ function onDocumentMouseUp( event ) {
 
 function calculateRotation (model){
         //mouseRotStart = mouseToWorldObj (x, y, camera)
-        //mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, model, CURRENTCAM);
-        //mouseRotEnd3d = mouseToWorldObj(mouseRotEnd.x, mouseRotEnd.y, model, CURRENTCAM);
 
-        rotateQuarts = rotateQuaternion(mapToSphere(mouseRotStart.x, mouseRotStart.y, radius), mapToSphere(mouseRotEnd.x, mouseRotEnd.y, radius));
+        console.log(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z);
+
+        mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z, model, CURRENTCAM);
+        mouseRotEnd3d = mouseToWorldObj(mouseRotEnd.x, mouseRotEnd.y, mouseRotEnd.z,  model, CURRENTCAM);
+
+        var resetStart = resetAxes(mouseRotStart3d);
+        var resetEnd = resetAxes(mouseRotEnd3d);
+
+        var rotCamStart = mapToSphere(resetStart.x, resetStart.y, radius);
+        var rotCamEnd = mapToSphere(resetEnd.x, resetEnd.y, radius);
+
+        rotateQuarts = rotateQuaternion(rotateToCamera(rotCamStart, CURRENTCAM, true), rotateToCamera(rotCamEnd, CURRENTCAM, true) );
         rotateModelyByQuarternion(model, rotateQuarts);
-        //mouseRotStart = mouseRotEnd;
+}
+
+function resetAxes(mouseObj){
+    return rotateToCamera(mouseObj, CURRENTCAM, false);
 }
 
 function rotateModelyByQuarternion(model, rotate){
@@ -140,7 +155,29 @@ function rotateQuaternion(rotateStart, rotateEnd){
     return rotate;
 }
 
+function rotateToCamera(pointOnSphere, camera, to){
+    //camera's vector toward's centre
+
+    var startVec = new THREE.Vector3();
+    startVec.copy(camera.getWorldDirection());
+    startVec.negate();
+    var quat;
+    if(to){
+        quat = rotateQuaternion(new THREE.Vector3(0,0,1), startVec);
+    } else {
+        quat = rotateQuaternion(startVec, new THREE.Vector3(0,0,1));
+    }
+
+    var result = new THREE.Vector3();
+    result.copy(pointOnSphere);
+    result.applyQuaternion(quat);
+    return result;
+}
+
 function mapToSphere(x, y, radius){
+
+    //console.log(x , y);
+
     var pointOnSphere = new THREE.Vector3(x / radius, y / radius, 0);
     var length = pointOnSphere.length();
 
@@ -149,21 +186,16 @@ function mapToSphere(x, y, radius){
     } else {
         pointOnSphere.z = Math.sqrt(1.0 - (length * length));
     }
+
     return pointOnSphere;
 }
 
 
-function mouseToWorldObj (x, y, model, camera){
+function mouseToWorldObj (x, y, z, model, camera){
+    //vector of camera to 0,0,0
 
-    var vector = new THREE.Vector3(x, y, 0.5);
-
-    vector.unproject(camera);
-    var dir = vector.sub(camera.position).normalize();
-    var distance = - camera.position.z/dir.z;
-    var pos = camera.position.clone().add(dir.multiplyScalar(distance));
-
-    var finalPos =  new THREE.Vector3(pos.x - model.position.x, pos.y - model.position.y, pos.z - model.position.z);
-    console.log(pos);
+    //calculate quarternion that takes 0, 0, 1
+    var finalPos =  new THREE.Vector3(x - model.position.x, y - model.position.y, z - model.position.z);
     return finalPos;
 }
 
