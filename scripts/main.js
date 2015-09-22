@@ -27,10 +27,11 @@ $(function()
 
     //disables clicking on back button
     //UNLESS user holds back button down
-    history.pushState(null, null, location.href);
-    window.onpopstate = function(event) {
-        history.go(1);
-    };
+    //history.pushState(null, null, location.href);
+    //window.onpopstate = function(event) {
+    //    //history.go(1);
+    //    return "Back button has been disabled to prevent you losing experimental results.";
+    //};
 });
 
 function store(name, item){
