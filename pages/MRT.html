@@ -17,7 +17,7 @@
     <div class="page-content">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 col-lg-offset-2">
+                <div class="col-lg-10 col-lg-offset-1">
                         <h2> Mental Rotations Test (MRT) </h2>
                         <hr>
                     <div class="text-content">
@@ -118,13 +118,19 @@
                 var data = "<div class='mrt-questions'>";
 
                 data += '<h4>Question ' + i + '</h4>';
+                data += '<p>Which 2 drawings on the right match the one on the left?</p>';
 
                 data += '<img src="../images/MRT/' + i + '.png">';
+                data += '<div class=row>';
+                data += '<div class=col-sm-12>';
 
                 for(var j = 1; j <= 4; j++){
-                    data+= '<label><input id="q' + i + '-ans' + j + '" type="checkbox"> ' + j + '</label>';
-                    data+= "<br>";
+                    data+= '<label style="position: absolute; left:'+ (290 + (j-1)*145) +' "><input id="q' + i + '-ans' + j + '" type="checkbox"> ' + j + '</label>';
+//                    data+= "<br>";
                 }
+                data += '</div>';
+                data += '</div>';
+
 
                 data += "</div>";
                 $("#mrt-questions").append(data);
