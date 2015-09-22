@@ -67,23 +67,20 @@
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
+        interfaceCounter++;
 
         var instr = "";
-        if(interfaceCounter == 0){
-            interfaceCounter++;
+        if(interfaceCounter <= 3){
             alignScene();
             tasktype = "alignScene";
             instr = "Instructions: Align the letters with the plane";
         }
-        else if(interfaceCounter == 1){
-            interfaceCounter++;
+        else if(interfaceCounter <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
         }
         else{
-            interfaceCounter = 0;
-            roomScene();
             tasktype = "roomScene";
             instr = "Instructions: Put the table on the floor, and the vase on the table";
         }
@@ -440,18 +437,9 @@ function alignScene(){
         targets.push(floorplane);
 }
 
-function trainingScene(){
-    //timer
-
-    //instructions
-
-    //
-
-}
-
 function startTiming(){
     var display = document.querySelector('#time');
-    var timer = new CountDownTimer(1 * 3, display);
+    var timer = new CountDownTimer(60 * 3, display);
     timer.start();
 }
 

@@ -37,7 +37,7 @@
 
                                 <ul class="nav navbar-nav navbar-right">
                                   <li id="reset"><a data-toggle="tooltip" data-placement="bottom" title="Reset entire scene" onclick="reset()"><i class="fa fa-history"></i> Reset</a></li>
-                                  <li><a target="_blank" data-toggle="tooltip" data-placement="bottom" title="Help documentation" href="help.pdf"><i class="fa fa-question-circle"></i> Help</a></li>
+                                  <!--<li><a target="_blank" data-toggle="tooltip" data-placement="bottom" title="Help documentation" href="help.pdf"><i class="fa fa-question-circle"></i> Help</a></li>-->
                                 </ul>
                           </div>
                         </nav>
@@ -115,6 +115,7 @@
             topRenderTarget = setupRenderPlanes(new THREE.Vector3(0, planePosition, 0), -Math.PI/2, Math.PI, -Math.PI/2);
             leftRenderTarget = setupRenderPlanes(new THREE.Vector3(-planePosition, 0, 0), Math.PI, Math.PI/2, Math.PI);
             rightRenderTarget = setupRenderPlanes(new THREE.Vector3(planePosition, 0, 0), Math.PI, -Math.PI/2, Math.PI);
+
 
         }
 

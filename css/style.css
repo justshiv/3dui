@@ -22,6 +22,10 @@ h1, h2, .h2 {
     font-size: 34px;
 }
 
+canvas {
+    border: 1px solid #1d1d1d;
+}
+
 h4, .h4 {
     font-weight: 500;
     font-size: 20px;
@@ -56,7 +60,7 @@ p{
     background-color: #f5f5f5;
     border: 1px solid #dcdcdc;
     padding:10px;
-    width: 135px;
+    width: 145px;
 }
 
 .images{
