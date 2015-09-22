@@ -309,8 +309,20 @@
             else if(objstate === OBJSTATE.ROTATE){
                 if(SELECTED){
                     //rotate here
-                    mouseRotEnd.copy(mouse);
+                    mouseRotStart.copy(mouseRotEnd);
+
+                    raycaster.setFromCamera( mouse, CURRENTCAM );
+                    intersects = raycaster.intersectObject( movementPlane );
+                    if(intersects.length > 0){
+                        mouseRotEnd.copy( intersects[ 0 ].point.sub( offset ) );
+                    }
+
                     calculateRotation(SELECTED);
+
+//                    mouseRotStart.copy(mouse);
+//                    calculateRotation(SELECTED);
+//                    mouseRotEnd.copy(mouseRotStart);
+//                    console.log(mouseRotEnd);
                 }
             }
             else if ( objstate === OBJSTATE.NONE )

@@ -49,7 +49,7 @@
         var camera;
         var CURRENTVIEW;
 
-        var views;
+        var views, tasktype;
 
         var startTime;
 
@@ -69,22 +69,24 @@
 
 
         var instr = "";
-        if(interfaceCounter == 1){
+        if(interfaceCounter == 0){
             interfaceCounter++;
             alignScene();
+            tasktype = "alignScene";
             instr = "Instructions: Align the letters with the plane";
         }
-        else if(interfaceCounter == 0){
+        else if(interfaceCounter == 1){
             interfaceCounter++;
             dodecahedronScene();
+            tasktype = "dodecahedronScene";
             instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
         }
         else{
             interfaceCounter = 0;
             roomScene();
+            tasktype = "roomScene";
             instr = "Instructions: Put the table on the floor, and the vase on the table";
         }
-
 
         document.getElementById("instruction").innerHTML = instr;
 
@@ -229,14 +231,13 @@ function submit(){
 
     var submissionData = {
         taskNo: taskNo,
+        taskType: tasktype,
         timeTaken: timeTaken,
         objects: subObjectsArr,
         targets: subTargetsArr
     };
 
     taskDataArr.push(submissionData);
-
-    //console.log("accuracy: " + objects[0]);
     loadTask();
 }
 
@@ -269,14 +270,6 @@ function calculateAccuracy(){
     return difference;
 }
 
-function timeTaken(){
-    //start timer
-
-    //do everything
-
-    //end timer
-}
-
 function dodecahedronScene(){
 
     var geometry = new THREE.DodecahedronGeometry(250, 0);
@@ -293,8 +286,7 @@ function dodecahedronScene(){
     scene.add(wireframe);
 
     // add 3D text
-    var items = ["G", "J", "P", "Q", "R", "1", "2", "4", "5", "7"];
-
+    var items = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
 
     for(var i = 0; i < 3; i++){
 
@@ -339,7 +331,6 @@ function dodecahedronScene(){
         scene.add( target );
         targets.push(target);
     }
-
 
     targets[0].position.x = 174;
     targets[0].position.y = 100;
@@ -435,11 +426,16 @@ function alignScene(){
             objects.push( object );
         }
 
-        var geometry = new THREE.BoxGeometry( 300, 5, 300 );
+        var geometry = new THREE.BoxGeometry( 600, 5, 400 );
         geometry.center();
         var material = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.7, color: new THREE.Color("#000000")} );
         var floorplane = new THREE.Mesh( geometry, material );
-        floorplane.position.set(0, 0, 0);
+        floorplane.position.set(0, 200, 0);
+
+        floorplane.rotation.x = -Math.PI/2;
+        floorplane.rotation.y =  -1.018;
+        floorplane.rotation.z = -Math.PI/2;
+
         scene.add(floorplane);
         targets.push(floorplane);
 }
@@ -455,7 +451,7 @@ function trainingScene(){
 
 function startTiming(){
     var display = document.querySelector('#time');
-    var timer = new CountDownTimer(60 * 3, display);
+    var timer = new CountDownTimer(1 * 3, display);
     timer.start();
 }
 

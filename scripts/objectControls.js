@@ -4,7 +4,7 @@
 
 var mouseRotStart = new THREE.Vector2();
 var mouseRotEnd = new THREE.Vector2();
-var radius = 4;
+var radius = 50;
 var rotateQuarts;
 
 function onDocumentMouseDown( event ) {
@@ -25,7 +25,7 @@ function onDocumentMouseDown( event ) {
     if(objstate === OBJSTATE.ROTATE){
         if(INTERSECTED){
 
-            mouseRotStart.copy(mouse);
+            //mouseRotStart.copy(mouse);
 
             SELECTED = INTERSECTED;
             lockControls();
@@ -111,6 +111,10 @@ function onDocumentMouseUp( event ) {
     }
 
 function calculateRotation (model){
+        //mouseRotStart = mouseToWorldObj (x, y, camera)
+        //mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, model, CURRENTCAM);
+        //mouseRotEnd3d = mouseToWorldObj(mouseRotEnd.x, mouseRotEnd.y, model, CURRENTCAM);
+
         rotateQuarts = rotateQuaternion(mapToSphere(mouseRotStart.x, mouseRotStart.y, radius), mapToSphere(mouseRotEnd.x, mouseRotEnd.y, radius));
         rotateModelyByQuarternion(model, rotateQuarts);
         //mouseRotStart = mouseRotEnd;
@@ -147,3 +151,19 @@ function mapToSphere(x, y, radius){
     }
     return pointOnSphere;
 }
+
+
+function mouseToWorldObj (x, y, model, camera){
+
+    var vector = new THREE.Vector3(x, y, 0.5);
+
+    vector.unproject(camera);
+    var dir = vector.sub(camera.position).normalize();
+    var distance = - camera.position.z/dir.z;
+    var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+    var finalPos =  new THREE.Vector3(pos.x - model.position.x, pos.y - model.position.y, pos.z - model.position.z);
+    console.log(pos);
+    return finalPos;
+}
+
