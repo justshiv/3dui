@@ -70,21 +70,21 @@
         interfaceCounter++;
 
         var instr = "";
-        //if(interfaceCounter <= 3){
-        //    alignScene();
-        //    tasktype = "alignScene";
-        //    instr = "Instructions: Align the letters with the plane";
-        //}
-        //else if(interfaceCounter <= 6){
-        //    dodecahedronScene();
-        //    tasktype = "dodecahedronScene";
-        //    instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
-        //}
-        //else{
+        if(interfaceCounter <= 3){
+            alignScene();
+            tasktype = "alignScene";
+            instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
+        }
+        else if(interfaceCounter <= 6){
+            dodecahedronScene();
+            tasktype = "dodecahedronScene";
+            instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
+        }
+        else{
             roomScene();
             tasktype = "roomScene";
-            instr = "Instructions: Put the table on the floor, and the vase on the table";
-        //}
+            instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
+        }
 
         document.getElementById("instruction").innerHTML = instr;
 
@@ -352,15 +352,14 @@ function dodecahedronScene(){
 }
 
 function roomScene(){
-    //var group = new THREE.Object3D();//create an empty container
-    //group.position.set(0, 0, 0);
 
     var materials = [];
-    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("#8c564b")} ));
-    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("#ad7165")} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#8c564b")} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#ad7165")} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(230, 85, 13)"), side:THREE.DoubleSide} ));
 
     //TABLE
-    var geometry = new THREE.BoxGeometry( 200, 10, 100 );
+    var geometry = new THREE.BoxGeometry( 400, 10, 200 );
     var tabletop = new THREE.Mesh( geometry, materials[0] );
     tabletop.position.set(0, 50, 0);
     for(var i = 0; i < tabletop.geometry.faces.length; i++){
@@ -368,60 +367,122 @@ function roomScene(){
     }
 
     geometry = new THREE.CylinderGeometry( 10, 5, 90, 30, 1 );
-    var rightLeg = new THREE.Mesh( geometry, materials[1] );
-    rightLeg.position.set(50, 0, 0);
-    for(var i = 0; i < rightLeg.geometry.faces.length; i++){
-        rightLeg.geometry.faces[i].materialIndex = 1;
+    var rightLeg1 = new THREE.Mesh( geometry, materials[1] );
+    rightLeg1.position.set(150, 0, 50);
+    for(i = 0; i < rightLeg1.geometry.faces.length; i++){
+        rightLeg1.geometry.faces[i].materialIndex = 1;
     }
 
-    var leftLeg = new THREE.Mesh( geometry, materials[1] );
-    leftLeg.position.set(-50, 0, 0);
-    for(var i = 0; i < leftLeg.geometry.faces.length; i++){
-        leftLeg.geometry.faces[i].materialIndex = 1;
+    var leftLeg1 = new THREE.Mesh( geometry, materials[1] );
+    leftLeg1.position.set(-150, 0, 50);
+    for(i = 0; i < leftLeg1.geometry.faces.length; i++){
+        leftLeg1.geometry.faces[i].materialIndex = 1;
+    }
+
+    var leftLeg2 = new THREE.Mesh( geometry, materials[1] );
+    leftLeg2.position.set(-150, 0, -50);
+    for(i = 0; i < leftLeg2.geometry.faces.length; i++){
+        leftLeg2.geometry.faces[i].materialIndex = 1;
+    }
+
+    var rightLeg2 = new THREE.Mesh( geometry, materials[1] );
+    rightLeg2.position.set(150, 0, -50);
+    for(i = 0; i < rightLeg2.geometry.faces.length; i++){
+        rightLeg2.geometry.faces[i].materialIndex = 1;
+    }
+
+    //lamp target
+    geometry = new THREE.CircleGeometry( 40, 32 );
+    var target = new THREE.Mesh( geometry, materials[2] );
+    target.position.copy(tabletop.position);
+    target.position.y += 6;
+    target.rotation.x = 1/2 * Math.PI;
+    for(i = 0; i < target.geometry.faces.length; i++){
+        target.geometry.faces[i].materialIndex = 2;
     }
 
     var combinedGeom = new THREE.Geometry();
     tabletop.updateMatrix();
     combinedGeom.merge(tabletop.geometry, tabletop.matrix);
-    rightLeg.updateMatrix();
-    combinedGeom.merge(rightLeg.geometry, rightLeg.matrix);
-    leftLeg.updateMatrix();
-    combinedGeom.merge(leftLeg.geometry, leftLeg.matrix);
+    rightLeg1.updateMatrix();
+    combinedGeom.merge(rightLeg1.geometry, rightLeg1.matrix);
+    leftLeg1.updateMatrix();
+    combinedGeom.merge(leftLeg1.geometry, leftLeg1.matrix);
+    rightLeg2.updateMatrix();
+    combinedGeom.merge(rightLeg2.geometry, rightLeg2.matrix);
+    leftLeg2.updateMatrix();
+    combinedGeom.merge(leftLeg2.geometry, leftLeg2.matrix);
+    target.updateMatrix();
+    combinedGeom.merge(target.geometry, target.matrix);
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
     var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#663e36"));
+
+    placeRandomly(combined);
 
     scene.add( combined );
     scene.add( wireframe );
     objects.push(combined);
 
     ////FLOOR
-    geometry = new THREE.BoxGeometry( 300, 5, 300 );
-    geometry.center();
+    materials = [];
+
     var texture = THREE.ImageUtils.loadTexture( "../images/floor-tile.jpg" );
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    var material = new THREE.MeshBasicMaterial( {map:texture, side:THREE.DoubleSide} );
-    var floor = new THREE.Mesh( geometry, material );
+    var material = new THREE.MeshLambertMaterial( {map:texture, side:THREE.DoubleSide} );
+
+    materials.push(material);
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(230, 85, 13)"), side: THREE.DoubleSide} ));
+
+    geometry = new THREE.BoxGeometry( 600, 5, 600 );
+    geometry.center();
+    var floor = new THREE.Mesh( geometry, materials[0] );
     floor.position.set(0, 0, 0);
-    scene.add(floor);
-    objects.push(floor);
+    for(i = 0; i < floor.geometry.faces.length; i++){
+        floor.geometry.faces[i].materialIndex = 0;
+    }
+
+    //table target
+    geometry = new THREE.PlaneGeometry( 400, 200 );
+    target = new THREE.Mesh( geometry, materials[1] );
+    target.position.copy(floor.position);
+    target.position.y += 4;
+    target.rotation.x = 1/2 * Math.PI;
+    for(i = 0; i < target.geometry.faces.length; i++){
+        target.geometry.faces[i].materialIndex = 1;
+    }
+
+    combinedGeom = new THREE.Geometry();
+    tabletop.updateMatrix();
+    combinedGeom.merge(floor.geometry, floor.matrix);
+    target.updateMatrix();
+    combinedGeom.merge(target.geometry, target.matrix);
+
+    combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
+    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
+
+    placeRandomly(combined);
+
+    scene.add(combined);
+    scene.add(wireframe);
+    objects.push(combined);
 
     ////LAMP
     materials = [];
-    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(158, 154, 200)")} ));
-    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(218, 218, 235)")} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(158, 154, 200)"), side: THREE.DoubleSide} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(218, 218, 235)")} ));
 
     //lampshade
-    geometry = new THREE.CylinderGeometry( 15, 35, 40, 32, 1 );
+    geometry = new THREE.CylinderGeometry( 30, 70, 80, 32, 1, true );
     var shade = new THREE.Mesh( geometry, material[0] );
-    shade.position.set(0, 20, 0);
+    shade.position.set(0, 60, 0);
     for(var i = 0; i < shade.geometry.faces.length; i++){
         shade.geometry.faces[i].materialIndex = 0;
     }
 
-    geometry = new THREE.CylinderGeometry( 15, 10, 25, 32, 1 );
+    geometry = new THREE.CylinderGeometry( 30, 20, 60, 32, 1 );
     var base = new THREE.Mesh( geometry, material[1] );
     base.position.set(0, 0, 0);
     for(var i = 0; i < base.geometry.faces.length; i++){
@@ -438,9 +499,12 @@ function roomScene(){
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
     wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(117, 107, 177)"));
 
+    placeRandomly(combined);
+
     scene.add( combined );
     scene.add( wireframe );
     objects.push(combined);
+
 
 }
 
@@ -496,4 +560,13 @@ function proceed(){
     document.getElementById("timer-div").style.display = "none";
     document.getElementById("submit").style.display = "inline-block";
     submit();
+}
+
+function placeRandomly(combined){
+    combined.position.x = Math.random() * 800 - (boxSide/2);
+    combined.position.y = Math.random() * 800 - (boxSide/2);
+    combined.position.z = Math.random() * 800 - (boxSide/2);
+    combined.rotation.x = Math.random() * 2 * Math.PI;
+    combined.rotation.y = Math.random() * 2 * Math.PI;
+    combined.rotation.z = Math.random() * 2 * Math.PI;
 }
