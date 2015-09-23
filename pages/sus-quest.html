@@ -22,8 +22,10 @@
                         <hr>
                     <div class="text-content">
                         <p>
-                            After evaluationg the x interface, please answer the questions below.
+                            After evaluating the interface, please answer the questions below.
                         </p>
+
+
 
                         <table id="sus" class="table">
                             <tr>
@@ -36,6 +38,11 @@
                             </tr>
 
                         </table>
+
+                        Do you have any open-ended feedback regarding the interface you just evaluated?
+                        <textarea name="textarea" id="" rows="4" cols="50">
+                        </textarea>
+                        <br>
                     </div>
 
 
@@ -102,9 +109,11 @@
             }
 //            console.log(prevPage);
 
+            var text = $.trim($("textarea").val());
 
             var submissionData = {
-                sus: radios
+                sus: radios,
+                text: text
             };
 
             store(prevPage + "-questionnaire", submissionData);
