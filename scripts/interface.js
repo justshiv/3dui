@@ -355,18 +355,30 @@ function roomScene(){
     //var group = new THREE.Object3D();//create an empty container
     //group.position.set(0, 0, 0);
 
+    var materials = [];
+    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("#8c564b")} ));
+    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("#ad7165")} ));
+
     //TABLE
     var geometry = new THREE.BoxGeometry( 200, 10, 100 );
-    var material = new THREE.MeshBasicMaterial( {color: new THREE.Color("#CC9966")} );
-    var tabletop = new THREE.Mesh( geometry, material );
+    var tabletop = new THREE.Mesh( geometry, materials[0] );
     tabletop.position.set(0, 50, 0);
+    for(var i = 0; i < tabletop.geometry.faces.length; i++){
+        tabletop.geometry.faces[i].materialIndex = 0;
+    }
 
     geometry = new THREE.CylinderGeometry( 10, 5, 90, 30, 1 );
-    var rightLeg = new THREE.Mesh( geometry, material );
+    var rightLeg = new THREE.Mesh( geometry, materials[1] );
     rightLeg.position.set(50, 0, 0);
+    for(var i = 0; i < rightLeg.geometry.faces.length; i++){
+        rightLeg.geometry.faces[i].materialIndex = 1;
+    }
 
-    var leftLeg = new THREE.Mesh( geometry, material );
+    var leftLeg = new THREE.Mesh( geometry, materials[1] );
     leftLeg.position.set(-50, 0, 0);
+    for(var i = 0; i < leftLeg.geometry.faces.length; i++){
+        leftLeg.geometry.faces[i].materialIndex = 1;
+    }
 
     var combinedGeom = new THREE.Geometry();
     tabletop.updateMatrix();
@@ -377,36 +389,44 @@ function roomScene(){
     combinedGeom.merge(leftLeg.geometry, leftLeg.matrix);
     combinedGeom.center();
 
-    var combined = new THREE.Mesh(combinedGeom, material);
-    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#996633"));
+    var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
+    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#663e36"));
 
     scene.add( combined );
     scene.add( wireframe );
     objects.push(combined);
 
-    //FLOOR
+    ////FLOOR
     geometry = new THREE.BoxGeometry( 300, 5, 300 );
     geometry.center();
     var texture = THREE.ImageUtils.loadTexture( "../images/floor-tile.jpg" );
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    material = new THREE.MeshBasicMaterial( {map:texture, side:THREE.DoubleSide} );
+    var material = new THREE.MeshBasicMaterial( {map:texture, side:THREE.DoubleSide} );
     var floor = new THREE.Mesh( geometry, material );
     floor.position.set(0, 0, 0);
     scene.add(floor);
     objects.push(floor);
 
-    //LAMP
-    material = new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(158, 202, 225)")} );
+    ////LAMP
+    materials = [];
+    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(158, 154, 200)")} ));
+    materials.push(new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(218, 218, 235)")} ));
 
     //lampshade
     geometry = new THREE.CylinderGeometry( 15, 35, 40, 32, 1 );
-    var shade = new THREE.Mesh( geometry, material );
+    var shade = new THREE.Mesh( geometry, material[0] );
     shade.position.set(0, 20, 0);
+    for(var i = 0; i < shade.geometry.faces.length; i++){
+        shade.geometry.faces[i].materialIndex = 0;
+    }
 
     geometry = new THREE.CylinderGeometry( 15, 10, 25, 32, 1 );
-    var base = new THREE.Mesh( geometry, material );
+    var base = new THREE.Mesh( geometry, material[1] );
     base.position.set(0, 0, 0);
+    for(var i = 0; i < base.geometry.faces.length; i++){
+        base.geometry.faces[i].materialIndex = 1;
+    }
 
     combinedGeom = new THREE.Geometry();
     shade.updateMatrix();
@@ -415,8 +435,8 @@ function roomScene(){
     combinedGeom.merge(base.geometry, base.matrix);
     combinedGeom.center();
 
-    combined = new THREE.Mesh(combinedGeom, material);
-    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(49, 130, 189)"));
+    var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
+    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(117, 107, 177)"));
 
     scene.add( combined );
     scene.add( wireframe );
