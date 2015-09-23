@@ -220,21 +220,21 @@ function submit(){
     var subObjectsArr = [];
     var subTargetsArr = [];
 
-    for(var i = 0; i < targets.length; i++){
+    for(var i = 0; i < objects.length; i++){
         var subObject = {
             type: "object",
-            position: objects[0].position,
-            quarternion: objects[0].quarternion,
-            rotation: objects[0].rotation,
-            up: objects[0].up
+            position: objects[i].position,
+            quarternion: objects[i].quarternion,
+            rotation: objects[i].rotation,
+            up: objects[i].up
 
         };
         var subTarget = {
             type: "target",
-            position: objects[0].position,
-            quarternion: objects[0].quarternion,
-            rotation: objects[0].rotation,
-            up: objects[0].up
+            position: objects[i].position,
+            quarternion: objects[i].quarternion,
+            rotation: objects[i].rotation,
+            up: objects[i].up
 
         };
         subObjectsArr.push(subObject);
