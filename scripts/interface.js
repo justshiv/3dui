@@ -6,17 +6,16 @@
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
 
-            startTiming();
         });
 
         //stuff that never changes
         var interfaceType = "";
         var taskNo = 0;
-        var totalTasks = 7;
+        var totalTasks = 10;
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
-        interfaceCounter = 0;
+        interfaceCounter = -1;
 
         // standard global variables
 
@@ -76,6 +75,8 @@
 
 
         var instr = "";
+
+        interfaceCounter++;
         if(interfaceCounter == 0){
             trainingScene();
             instr = "Instructions: Play around ";
@@ -85,7 +86,7 @@
             tasktype = "alignScene";
             instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(interfaceCounter <= 5){
+        else if(interfaceCounter <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
@@ -96,7 +97,6 @@
             instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
         }
 
-        interfaceCounter++;
         document.getElementById("instruction").innerHTML = instr;
 
         //*** DISPLAY STRUCTURE ***//
@@ -596,6 +596,8 @@ function placeRandomly(combined){
 }
 
 function trainingScene(){
+    startTiming();
+
     dodecahedronScene();
     //alignScene();
     //roomScene();
