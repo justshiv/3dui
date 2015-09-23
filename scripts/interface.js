@@ -70,20 +70,21 @@
         interfaceCounter++;
 
         var instr = "";
-        if(interfaceCounter <= 3){
-            alignScene();
-            tasktype = "alignScene";
-            instr = "Instructions: Align the letters with the plane";
-        }
-        else if(interfaceCounter <= 6){
-            dodecahedronScene();
-            tasktype = "dodecahedronScene";
-            instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
-        }
-        else{
+        //if(interfaceCounter <= 3){
+        //    alignScene();
+        //    tasktype = "alignScene";
+        //    instr = "Instructions: Align the letters with the plane";
+        //}
+        //else if(interfaceCounter <= 6){
+        //    dodecahedronScene();
+        //    tasktype = "dodecahedronScene";
+        //    instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
+        //}
+        //else{
+            roomScene();
             tasktype = "roomScene";
             instr = "Instructions: Put the table on the floor, and the vase on the table";
-        }
+        //}
 
         document.getElementById("instruction").innerHTML = instr;
 
@@ -354,13 +355,13 @@ function roomScene(){
     //var group = new THREE.Object3D();//create an empty container
     //group.position.set(0, 0, 0);
 
+    //TABLE
     var geometry = new THREE.BoxGeometry( 200, 10, 100 );
     var material = new THREE.MeshBasicMaterial( {color: new THREE.Color("#CC9966")} );
     var tabletop = new THREE.Mesh( geometry, material );
     tabletop.position.set(0, 50, 0);
 
     geometry = new THREE.CylinderGeometry( 10, 5, 90, 30, 1 );
-    //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("#CC9966")} );
     var rightLeg = new THREE.Mesh( geometry, material );
     rightLeg.position.set(50, 0, 0);
 
@@ -383,6 +384,7 @@ function roomScene(){
     scene.add( wireframe );
     objects.push(combined);
 
+    //FLOOR
     geometry = new THREE.BoxGeometry( 300, 5, 300 );
     geometry.center();
     var texture = THREE.ImageUtils.loadTexture( "../images/floor-tile.jpg" );
@@ -393,6 +395,33 @@ function roomScene(){
     floor.position.set(0, 0, 0);
     scene.add(floor);
     objects.push(floor);
+
+    //LAMP
+    material = new THREE.MeshBasicMaterial( {color: new THREE.Color("rgb(158, 202, 225)")} );
+
+    //lampshade
+    geometry = new THREE.CylinderGeometry( 15, 35, 40, 32, 1 );
+    var shade = new THREE.Mesh( geometry, material );
+    shade.position.set(0, 20, 0);
+
+    geometry = new THREE.CylinderGeometry( 15, 10, 25, 32, 1 );
+    var base = new THREE.Mesh( geometry, material );
+    base.position.set(0, 0, 0);
+
+    combinedGeom = new THREE.Geometry();
+    shade.updateMatrix();
+    combinedGeom.merge(shade.geometry, shade.matrix);
+    base.updateMatrix();
+    combinedGeom.merge(base.geometry, base.matrix);
+    combinedGeom.center();
+
+    combined = new THREE.Mesh(combinedGeom, material);
+    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(49, 130, 189)"));
+
+    scene.add( combined );
+    scene.add( wireframe );
+    objects.push(combined);
+
 }
 
 function alignScene(){
