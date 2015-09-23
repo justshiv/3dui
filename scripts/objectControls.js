@@ -114,8 +114,6 @@ function onDocumentMouseUp( event ) {
     }
 
 function calculateRotation (model){
-        //mouseRotStart = mouseToWorldObj (x, y, camera)
-
         console.log(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z);
 
         mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z, model, CURRENTCAM);

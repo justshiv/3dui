@@ -16,13 +16,6 @@
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
-        var colors = [
-            new THREE.Color("rgb(107, 110, 207)"),
-            new THREE.Color("rgb(181, 207, 107)"),
-            new THREE.Color("rgb(231, 186, 82)"),
-            new THREE.Color("rgb(214, 97, 107)"),
-            new THREE.Color("rgb(206, 109, 189)")
-        ];
         interfaceCounter = 0;
 
         // standard global variables
@@ -37,6 +30,7 @@
         var objects, targets;
         var planes, movementPlane;
         var selectedEdge;
+        var colors = [], letters = [];
 
         var objstate = OBJSTATE.NONE;
         var translate = false;
@@ -62,6 +56,17 @@
         targets = [];
         objects = [];
         planes = [];
+        colors = [
+            new THREE.Color("rgb(107, 110, 207)"),
+            new THREE.Color("rgb(181, 207, 107)"),
+            new THREE.Color("rgb(231, 186, 82)"),
+            new THREE.Color("rgb(214, 97, 107)"),
+            new THREE.Color("rgb(206, 109, 189)")
+        ];
+        letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
+
+
+
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
         scene.add( new THREE.AmbientLight( 0x505050 ) );
@@ -69,22 +74,22 @@
 
         interfaceCounter++;
 
-        var instr = "";
-        if(interfaceCounter <= 3){
-            alignScene();
-            tasktype = "alignScene";
-            instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
-        }
-        else if(interfaceCounter <= 6){
+        //var instr = "";
+        //if(interfaceCounter <= 3){
+        //    alignScene();
+        //    tasktype = "alignScene";
+        //    instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
+        //}
+        //else if(interfaceCounter <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
-        }
-        else{
-            roomScene();
-            tasktype = "roomScene";
-            instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
-        }
+        //}
+        //else{
+        //    roomScene();
+        //    tasktype = "roomScene";
+        //    instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
+        //}
 
         document.getElementById("instruction").innerHTML = instr;
 
@@ -270,11 +275,13 @@ function calculateAccuracy(){
 
 function dodecahedronScene(){
 
+    shuffleArray(letters);
+    shuffleArray(colors);
+
     var geometry = new THREE.DodecahedronGeometry(250, 0);
-    //var material = new THREE.MeshPhongMaterial( {side: THREE.BackSide, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
-    var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.93, color: new THREE.Color("#78abd9"), shading: THREE.FlatShading} );
+    var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.9, color: colors.pop(), shading: THREE.FlatShading} );
     var dodeca = new THREE.Mesh(geometry, material);
-    var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("#708090"));
+    var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("rgb(150, 150, 150)"));
 
     geometry.mergeVertices();
     console.log(geometry.faces.length);
@@ -283,15 +290,12 @@ function dodecahedronScene(){
     scene.add(dodeca);
     scene.add(wireframe);
 
-    // add 3D text
-    var items = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
-
     for(var i = 0; i < 3; i++){
 
-        var random_item = items[Math.floor(Math.random() * items.length)];
+        var item = letters.pop();
 
-        var objMaterial = new THREE.MeshLambertMaterial( { color: colors[i] } );
-        var objGeom = new THREE.TextGeometry( random_item,
+        var objMaterial = new THREE.MeshLambertMaterial( { color: colors.pop() } );
+        var objGeom = new THREE.TextGeometry( item,
         {
             size: 150, height: 10, curveSegments: 20,
             font: "droid sans", weight: "normal", style: "normal",
@@ -301,19 +305,16 @@ function dodecahedronScene(){
         objGeom.center();
 
         var object = new THREE.Mesh(objGeom, objMaterial );
-        object.position.x = Math.random() * 1000 - 500;
-        object.position.y = Math.random() * 600 - 300;
-        object.position.z = Math.random() * 800 - (boxSide/2);
-        object.rotation.x = Math.random() * 2 * Math.PI;
-        object.rotation.y = Math.random() * 2 * Math.PI;
-        object.rotation.z = Math.random() * 2 * Math.PI;
+        placeRandomly(object);
+
+
         object.castShadow = true;
         object.receiveShadow = true;
         scene.add( object );
         objects.push( object );
 
-        var targetMaterial = new THREE.MeshPhongMaterial( {side: THREE.BackSide,  color: new THREE.Color("#999999") , shading: THREE.FlatShading } );
-        var targetGeom = new THREE.TextGeometry( random_item,
+        var targetMaterial = new THREE.MeshPhongMaterial( {side: THREE.BackSide,  color: new THREE.Color("rgb(150, 150, 150)") , shading: THREE.FlatShading } );
+        var targetGeom = new THREE.TextGeometry( item,
         {
             size: 150, height: 1, curveSegments: 20,
             font: "droid sans", weight: "normal", style: "normal",
@@ -323,10 +324,13 @@ function dodecahedronScene(){
         targetGeom.center();
 
         var target = new THREE.Mesh(targetGeom, targetMaterial );
+        //wireframe = new THREE.EdgesHelper( target, new THREE.Color("rgb(150, 150, 150)"));
+
 
         target.castShadow = true;
         target.receiveShadow = true;
         scene.add( target );
+        //scene.add(wireframe);
         targets.push(target);
     }
 
@@ -349,6 +353,21 @@ function dodecahedronScene(){
     targets[2].position.z = 100;
     targets[2].rotation.x =  1.018;
 
+}
+
+/**
+ * Randomize array element order in-place.
+ * Using Durstenfeld shuffle algorithm.
+ * credit:
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
 }
 
 function roomScene(){
@@ -510,11 +529,9 @@ function roomScene(){
 
 function alignScene(){
 
-        var letters = ["G", "J", "P", "Q", "R"];
-
         for(var i = 0; i < letters.length; i++){
             var materialFront = new THREE.MeshLambertMaterial( { color: colors[i]} );
-            var textGeom = new THREE.TextGeometry( letters[i],
+            var textGeom = new THREE.TextGeometry( letters.pop(),
             {
                 size: 150, height: 10, curveSegments: 20,
                 font: "droid sans", weight: "normal", style: "normal",
