@@ -12,7 +12,7 @@
         //stuff that never changes
         var interfaceType = "";
         var taskNo = 0;
-        var totalTasks = 16;
+        var totalTasks = 7;
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
@@ -83,9 +83,9 @@
         else if(interfaceCounter <= 3){
             alignScene();
             tasktype = "alignScene";
-            instr = "Instructions: Align the numbers/letters with the plane. Try to keep them in a straight line ";
+            instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(interfaceCounter <= 6){
+        else if(interfaceCounter <= 5){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
