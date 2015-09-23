@@ -290,7 +290,6 @@ function dodecahedronScene(){
     var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("rgb(150, 150, 150)"));
 
     geometry.mergeVertices();
-    console.log(geometry.faces.length);
 
     dodeca.position.set(0,0,0);
     scene.add(dodeca);

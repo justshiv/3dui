@@ -27,16 +27,6 @@ function onDocumentMouseDown( event ) {
 
             var castRotRay = new THREE.Raycaster();
 
-            if(interfaceType == "shadowbox" &&  CURRENTCAM != mainCamera){
-                //figure out which side we're on and adjust the mouse as such
-                castRotRay.setFromCamera( mouse, mainCamera );
-                intersects = castRotRay.intersectObjects(planes);
-
-                if(intersects.length > 0){
-                    mouse.copy(getInterfaceSpecificMouse(intersects[0].point));
-                }
-            }
-
             castRotRay.setFromCamera( mouse, CURRENTCAM );
             intersects = castRotRay.intersectObject( movementPlane );
             if(intersects.length > 0){
@@ -127,9 +117,6 @@ function onDocumentMouseUp( event ) {
     }
 
 function calculateRotation (model){
-        //console.log(CURRENTCAM);
-        //console.log("StartB: ", mouseRotStart.x, mouseRotStart.y, mouseRotStart.z);
-        //console.log("EndB: ",mouseRotEnd.x, mouseRotEnd.y, mouseRotEnd.z);
 
         mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z, model, CURRENTCAM);
         mouseRotEnd3d = mouseToWorldObj(mouseRotEnd.x, mouseRotEnd.y, mouseRotEnd.z,  model, CURRENTCAM);
@@ -141,7 +128,6 @@ function calculateRotation (model){
         var rotCamEnd = mapToSphere(resetEnd.x, resetEnd.y, radius);
 
         rotateQuarts = rotateQuaternion(rotateToCamera(rotCamStart, CURRENTCAM, true), rotateToCamera(rotCamEnd, CURRENTCAM, true) );
-        console.log("quart", rotateQuarts);
 
         if(interfaceType == "shadowbox" && CURRENTCAM.getWorldDirection().equals(new THREE.Vector3(0, 0, 1))){
             rotateQuarts.w = -rotateQuarts.w;
@@ -181,11 +167,9 @@ function rotateToCamera(pointOnSphere, camera, to){
     startVec.copy(camera.getWorldDirection());
     startVec.negate();
 
-    console.log(startVec);
 
     if(startVec.equals(new THREE.Vector3(-0, -0, -1)) ){
         startVec = new THREE.Vector3(-0, -0, 1);
-        //to = !to;
     }
 
     var quat;
@@ -202,8 +186,6 @@ function rotateToCamera(pointOnSphere, camera, to){
 }
 
 function mapToSphere(x, y, radius){
-
-    //console.log(x , y);
 
     var pointOnSphere = new THREE.Vector3(x / radius, y / radius, 0);
     var length = pointOnSphere.length();
