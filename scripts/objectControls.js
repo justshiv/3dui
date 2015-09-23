@@ -25,8 +25,24 @@ function onDocumentMouseDown( event ) {
     if(objstate === OBJSTATE.ROTATE){
         if(INTERSECTED){
 
-            //mouseRotStart.copy(mouse);
-            //mouseRotEnd.copy(mouse);
+            var castRotRay = new THREE.Raycaster();
+
+            if(interfaceType == "shadowbox" &&  CURRENTCAM != mainCamera){
+                //figure out which side we're on and adjust the mouse as such
+                castRotRay.setFromCamera( mouse, mainCamera );
+                intersects = castRotRay.intersectObjects(planes);
+
+                if(intersects.length > 0){
+                    mouse.copy(getInterfaceSpecificMouse(intersects[0].point));
+                }
+            }
+
+            castRotRay.setFromCamera( mouse, CURRENTCAM );
+            intersects = castRotRay.intersectObject( movementPlane );
+            if(intersects.length > 0){
+                mouseRotStart.copy( intersects[ 0 ].point.sub( offset ) );
+                mouseRotEnd.copy( intersects[ 0 ].point.sub( offset ) );
+            }
 
             SELECTED = INTERSECTED;
             lockControls();
@@ -35,8 +51,6 @@ function onDocumentMouseDown( event ) {
             drawRotHelpers(SELECTED);
 
         }
-
-
     }
     else if(objstate === OBJSTATE.MOVE){
         var raycaster = new THREE.Raycaster();
@@ -56,7 +70,6 @@ function onDocumentMouseDown( event ) {
         }
     }
 
-    //console.log(objstate);
 }
 
 function onDocumentMouseUp( event ) {
@@ -114,7 +127,9 @@ function onDocumentMouseUp( event ) {
     }
 
 function calculateRotation (model){
-        console.log(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z);
+        //console.log(CURRENTCAM);
+        //console.log("StartB: ", mouseRotStart.x, mouseRotStart.y, mouseRotStart.z);
+        //console.log("EndB: ",mouseRotEnd.x, mouseRotEnd.y, mouseRotEnd.z);
 
         mouseRotStart3d = mouseToWorldObj(mouseRotStart.x, mouseRotStart.y, mouseRotStart.z, model, CURRENTCAM);
         mouseRotEnd3d = mouseToWorldObj(mouseRotEnd.x, mouseRotEnd.y, mouseRotEnd.z,  model, CURRENTCAM);
@@ -126,6 +141,11 @@ function calculateRotation (model){
         var rotCamEnd = mapToSphere(resetEnd.x, resetEnd.y, radius);
 
         rotateQuarts = rotateQuaternion(rotateToCamera(rotCamStart, CURRENTCAM, true), rotateToCamera(rotCamEnd, CURRENTCAM, true) );
+        console.log("quart", rotateQuarts);
+
+        if(interfaceType == "shadowbox" && CURRENTCAM.getWorldDirection().equals(new THREE.Vector3(0, 0, 1))){
+            rotateQuarts.w = -rotateQuarts.w;
+        }
         rotateModelyByQuarternion(model, rotateQuarts);
 }
 
@@ -157,8 +177,17 @@ function rotateToCamera(pointOnSphere, camera, to){
     //camera's vector toward's centre
 
     var startVec = new THREE.Vector3();
+
     startVec.copy(camera.getWorldDirection());
     startVec.negate();
+
+    console.log(startVec);
+
+    if(startVec.equals(new THREE.Vector3(-0, -0, -1)) ){
+        startVec = new THREE.Vector3(-0, -0, 1);
+        //to = !to;
+    }
+
     var quat;
     if(to){
         quat = rotateQuaternion(new THREE.Vector3(0,0,1), startVec);

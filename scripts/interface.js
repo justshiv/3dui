@@ -31,6 +31,7 @@
         var planes, movementPlane;
         var selectedEdge;
         var colors = [], letters = [];
+        var objectColOrder = [];
 
         var objstate = OBJSTATE.NONE;
         var translate = false;
@@ -72,25 +73,30 @@
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-        interfaceCounter++;
 
-        //var instr = "";
-        //if(interfaceCounter <= 3){
-        //    alignScene();
-        //    tasktype = "alignScene";
-        //    instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
-        //}
-        //else if(interfaceCounter <= 6){
+
+        var instr = "";
+        if(interfaceCounter == 0){
+            trainingScene();
+            instr = "Instructions: Play around ";
+        }
+        else if(interfaceCounter <= 3){
+            alignScene();
+            tasktype = "alignScene";
+            instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
+        }
+        else if(interfaceCounter <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
-        //}
-        //else{
-        //    roomScene();
-        //    tasktype = "roomScene";
-        //    instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
-        //}
+        }
+        else{
+            roomScene();
+            tasktype = "roomScene";
+            instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
+        }
 
+        interfaceCounter++;
         document.getElementById("instruction").innerHTML = instr;
 
         //*** DISPLAY STRUCTURE ***//
@@ -372,6 +378,8 @@ function shuffleArray(array) {
 
 function roomScene(){
 
+    shuffleArray(colors);
+
     var materials = [];
     materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#8c564b")} ));
     materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#ad7165")} ));
@@ -490,8 +498,8 @@ function roomScene(){
 
     ////LAMP
     materials = [];
-    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(158, 154, 200)"), side: THREE.DoubleSide} ));
-    materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("rgb(218, 218, 235)")} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: colors.pop(), side: THREE.DoubleSide} ));
+    materials.push(new THREE.MeshLambertMaterial( {color: colors.pop()} ));
 
     //lampshade
     geometry = new THREE.CylinderGeometry( 30, 70, 80, 32, 1, true );
@@ -516,7 +524,7 @@ function roomScene(){
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(117, 107, 177)"));
+    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
 
     placeRandomly(combined);
 
@@ -530,7 +538,7 @@ function roomScene(){
 function alignScene(){
 
         for(var i = 0; i < letters.length; i++){
-            var materialFront = new THREE.MeshLambertMaterial( { color: colors[i]} );
+            var materialFront = new THREE.MeshLambertMaterial( { color: colors.pop()} );
             var textGeom = new THREE.TextGeometry( letters.pop(),
             {
                 size: 150, height: 10, curveSegments: 20,
@@ -586,4 +594,8 @@ function placeRandomly(combined){
     combined.rotation.x = Math.random() * 2 * Math.PI;
     combined.rotation.y = Math.random() * 2 * Math.PI;
     combined.rotation.z = Math.random() * 2 * Math.PI;
+}
+
+function trainingScene(){
+    dodecahedronScene();
 }

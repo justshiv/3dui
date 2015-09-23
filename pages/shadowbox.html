@@ -116,7 +116,9 @@
             leftRenderTarget = setupRenderPlanes(new THREE.Vector3(-planePosition, 0, 0), Math.PI, Math.PI/2, Math.PI);
             rightRenderTarget = setupRenderPlanes(new THREE.Vector3(planePosition, 0, 0), Math.PI, -Math.PI/2, Math.PI);
 
-
+            for(var i = 0; i < objects.length; i ++){
+                objectColOrder.push(objects[i].material.color);
+            }
         }
 
         function animate()
@@ -135,7 +137,7 @@
             gridYZ.visible = true;
 
             for(var i = 0; i < objects.length; i++){
-                objects[i].material.emissive = new THREE.Color(colors[i]).multiplyScalar(0.5);
+                objects[i].material.emissive = new THREE.Color(objectColOrder[i]).multiplyScalar(0.5);
                 objects[i].material.color =  new THREE.Color(0, 0, 0);
             }
 
@@ -149,7 +151,7 @@
 
 
             for(i = 0; i < objects.length; i++){
-                objects[i].material.color = new THREE.Color(colors[i]);
+                objects[i].material.color = new THREE.Color(objectColOrder[i]);
                 objects[i].material.emissive =  new THREE.Color(0, 0, 0);
             }
 
@@ -193,8 +195,6 @@
             else if(objstate === OBJSTATE.ROTATE){
                 if ( SELECTED ) {
 
-                    mouseRotStart.copy(mouseRotEnd);
-
                     //if our current camera is one of the box's sides
                     if(CURRENTCAM != mainCamera){
 
@@ -215,6 +215,8 @@
                     }
 
                     calculateRotation(SELECTED);
+
+                    mouseRotStart.copy(mouseRotEnd);
 
                 }
             }
