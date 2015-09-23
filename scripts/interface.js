@@ -11,7 +11,7 @@
         //stuff that never changes
         var interfaceType = "";
         var taskNo = 0;
-        var totalTasks = 10;
+        var totalTasks = 7;
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
@@ -79,22 +79,25 @@
         interfaceCounter++;
         if(interfaceCounter == 0){
             trainingScene();
-            instr = "Instructions: Play around ";
+            instr = "Instructions: Play around to get to know the environment ";
         }
-        else if(interfaceCounter <= 3){
+        else if(interfaceCounter <= 2){
             alignScene();
             tasktype = "alignScene";
             instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(interfaceCounter <= 6){
+        else if(interfaceCounter <= 4){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
         }
-        else{
+        else if(interfaceCounter <= 6){
             roomScene();
             tasktype = "roomScene";
             instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
+        }
+        else{
+            return;
         }
 
         document.getElementById("instruction").innerHTML = instr;
