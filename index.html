@@ -71,9 +71,10 @@
 
             var group = participantNo.slice(0, 1);
             var gender = participantNo.slice(1, 2);
-            var num = participantNo.slice(2, 3);
+            var num = participantNo.slice(2, participantNo.length);
+//            alert(num);
 
-            if(participantNo.length != 3){
+            if(participantNo.length < 3){
                 valid = false;
                 alert("A participant number has 3 alphanumeric digits. Your participant number is invalid. Please try again!");
             }
@@ -85,10 +86,10 @@
                 valid = false;
                 alert("Your participant number is invalid. Please try again!");
             }
-            else if(isInt(num)){
-                valid = false;
-                alert("Your participant number is invalid. Please try again!");
-            }
+//            else if(isInt(num) == false){
+//                valid = false;
+//                alert("Your participant number is invalid. Please try again!");
+//            }
 
             if(valid){
                 store("participantNo", participantNo);
@@ -97,7 +98,7 @@
             }
         }
 
-        var isInt = function(n) { return parseInt(n) === n };
+//        var isInt = function(n) { return parseInt(n) === n };
 
 
     </script>

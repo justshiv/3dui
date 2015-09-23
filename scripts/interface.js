@@ -83,12 +83,12 @@
         else if(interfaceCounter <= 3){
             alignScene();
             tasktype = "alignScene";
-            instr = "Instructions: Align the letters in alphabetical order with the plane. Try to keep them in a straight line ";
+            instr = "Instructions: Align the numbers/letters with the plane. Try to keep them in a straight line ";
         }
         else if(interfaceCounter <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
-            instr = "Instructions: Align the letters with the cutouts in the dodecahedron in the middle";
+            instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
         }
         else{
             roomScene();
@@ -536,7 +536,7 @@ function roomScene(){
 
 function alignScene(){
 
-        for(var i = 0; i < letters.length; i++){
+        for(var i = 0; i < 5; i++){
             var materialFront = new THREE.MeshLambertMaterial( { color: colors.pop()} );
             var textGeom = new THREE.TextGeometry( letters.pop(),
             {
@@ -597,4 +597,6 @@ function placeRandomly(combined){
 
 function trainingScene(){
     dodecahedronScene();
+    //alignScene();
+    //roomScene();
 }
