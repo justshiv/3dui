@@ -9,7 +9,7 @@
 
         //stuff that never changes
         var interfaceType = "";
-        var totalTasks = 7;
+        var totalTasks = 10;
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
@@ -77,13 +77,17 @@
         ];
         letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
 
+
+        shuffleArray(letters);
+        shuffleArray(colors);
+
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
         var instr;
-        var title = "Task " + taskNo;
+        var title = "Task " + taskNo + "/" + (totalTasks-1);
 
         //interfaceCounter++;
         if(taskNo == 0){
@@ -91,20 +95,23 @@
             instr = "Instructions: Play around to get to know the environment ";
             title = "Training Task";
         }
-        else if(taskNo <= 2){
+        else if(taskNo <= 3){
             alignScene();
             tasktype = "alignScene";
             instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(taskNo <= 4){
+        else if(taskNo <= 6){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
         }
-        else if(taskNo <= 6){
+        else if(taskNo <= 9){
             roomScene();
             tasktype = "roomScene";
             instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
+        }
+        else{
+            loadTask();
         }
 
         document.getElementById("taskNo").innerHTML = title;
@@ -264,7 +271,7 @@ function submit(){
 function loadTask(){
     setTaskNo(++taskNo);
 
-    if(taskNo == totalTasks){
+    if(taskNo >= totalTasks){
         store(interfaceType + "-tasks", taskDataArr);
         window.location = "sus-quest.html?" + interfaceType;
     }
@@ -291,9 +298,6 @@ function calculateAccuracy(){
 
 function dodecahedronScene(){
 
-    shuffleArray(letters);
-    shuffleArray(colors);
-
     var geometry = new THREE.DodecahedronGeometry(250, 0);
     var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.9, color: colors.pop(), shading: THREE.FlatShading} );
     var dodeca = new THREE.Mesh(geometry, material);
@@ -305,7 +309,7 @@ function dodecahedronScene(){
     scene.add(dodeca);
     scene.add(wireframe);
 
-    for(var i = 0; i < 3; i++){
+    for(var i = 0; i < 1; i++){
 
         var item = letters.pop();
 
@@ -313,7 +317,7 @@ function dodecahedronScene(){
         var objGeom = new THREE.TextGeometry( item,
         {
             size: 150, height: 10, curveSegments: 20,
-            font: "droid sans", weight: "normal", style: "normal",
+            font: "droid serif", weight: "normal", style: "normal",
             bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
             material: 0, extrudeMaterial: 1
         });
@@ -332,7 +336,7 @@ function dodecahedronScene(){
         var targetGeom = new THREE.TextGeometry( item,
         {
             size: 150, height: 1, curveSegments: 20,
-            font: "droid sans", weight: "normal", style: "normal",
+            font: "droid serif", weight: "normal", style: "normal",
             bevelThickness: 1, bevelSize: 5, bevelEnabled: true,
             material: 0, extrudeMaterial: 1
         });
@@ -341,7 +345,6 @@ function dodecahedronScene(){
         var target = new THREE.Mesh(targetGeom, targetMaterial );
         //wireframe = new THREE.EdgesHelper( target, new THREE.Color("rgb(150, 150, 150)"));
 
-
         target.castShadow = true;
         target.receiveShadow = true;
         scene.add( target );
@@ -349,24 +352,28 @@ function dodecahedronScene(){
         targets.push(target);
     }
 
-    targets[0].position.x = 174;
-    targets[0].position.y = 100;
-    targets[0].position.z = 0;
-    targets[0].rotation.x = -Math.PI/2;
-    targets[0].rotation.y =  1.018;
-    targets[0].rotation.z = Math.PI/2;
-
-    targets[1].position.x = -174;
-    targets[1].position.y = 100;
-    targets[1].position.z = 0;
-    targets[1].rotation.x = -Math.PI/2;
-    targets[1].rotation.y =  -1.018;
-    targets[1].rotation.z = -Math.PI/2;
-
-    targets[2].position.x = 0;
-    targets[2].position.y = -174;
-    targets[2].position.z = 100;
-    targets[2].rotation.x =  1.018;
+    if(taskNo == 3){
+        targets[0].position.x = 174;
+        targets[0].position.y = 100;
+        targets[0].position.z = 0;
+        targets[0].rotation.x = -Math.PI/2;
+        targets[0].rotation.y =  1.018;
+        targets[0].rotation.z = Math.PI/2;
+    }
+    else if(taskNo == 4){
+        targets[0].position.x = -174;
+        targets[0].position.y = 100;
+        targets[0].position.z = 0;
+        targets[0].rotation.x = -Math.PI/2;
+        targets[0].rotation.y =  -1.018;
+        targets[0].rotation.z = -Math.PI/2;
+    }
+    else {
+        targets[0].position.x = 0;
+        targets[0].position.y = -174;
+        targets[0].position.z = 100;
+        targets[0].rotation.x =  1.018;
+    }
 
 }
 
@@ -546,24 +553,21 @@ function roomScene(){
 
 function alignScene(){
 
-        for(var i = 0; i < 5; i++){
+        for(var i = 0; i < 3; i++){
             var materialFront = new THREE.MeshLambertMaterial( { color: colors.pop()} );
             var textGeom = new THREE.TextGeometry( letters.pop(),
             {
                 size: 150, height: 10, curveSegments: 20,
-                font: "droid sans", weight: "normal", style: "normal",
+                font: "droid serif", weight: "normal", style: "normal",
                 bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
                 material: 0, extrudeMaterial: 1
             });
             textGeom.center();
 
             var object = new THREE.Mesh(textGeom, materialFront );
-            object.position.x = Math.random() * 1000 - 500;
-            object.position.y = Math.random() * 600 - 300;
-            object.position.z = Math.random() * 800 - 400;
-            object.rotation.x = Math.random() * 2 * Math.PI;
-            object.rotation.y = Math.random() * 2 * Math.PI;
-            object.rotation.z = Math.random() * 2 * Math.PI;
+
+            placeRandomly(object);
+
             object.castShadow = true;
             object.receiveShadow = true;
             scene.add( object );
@@ -586,6 +590,8 @@ function alignScene(){
 
 function trainingScene(){
     startTiming();
+    document.getElementById("timer-div").style.display = "inline-block";
+    document.getElementById("submit").style.display = "none";
 
     dodecahedronScene();
 }
@@ -597,6 +603,7 @@ function startTiming(){
 }
 
 function proceed(){
+
     document.getElementById("timer-div").style.display = "none";
     document.getElementById("submit").style.display = "inline-block";
     submit();

@@ -53,6 +53,7 @@ p{
     height: 80px;
 }
 .tut-timer{
+    display: none;
     z-index: 100;
 
     text-align: left;
@@ -104,13 +105,13 @@ label, .control-label, .help-block, .checkbox, .radio {
     left: 0px;
 }
 
-#toolbar{
+#interface-toolbar{
     margin-bottom:0;
     /*margin-left: -15px;*/
     /*margin-right: -15px;*/
 }
 
-#toolbar > .container-fluid{
+#interface-toolbar > .container-fluid{
     padding:0;
 }
 
