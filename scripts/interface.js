@@ -15,10 +15,9 @@
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
         var OBJSTATE = { NONE: -1, ROTATE: 0, MOVE: 2 };
-        interfaceCounter = -1;
+        //interfaceCounter = -1;
 
         // standard global variables
-
         var scene, renderer, controls;
 
         // custom global variables
@@ -65,40 +64,36 @@
         ];
         letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
 
-
-
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-
-
         var instr = "";
 
-        interfaceCounter++;
-        if(interfaceCounter == 0){
+        //interfaceCounter++;
+        if(taskNo == 0){
             trainingScene();
             instr = "Instructions: Play around to get to know the environment ";
         }
-        else if(interfaceCounter <= 2){
+        else if(taskNo <= 2){
             alignScene();
             tasktype = "alignScene";
             instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(interfaceCounter <= 4){
+        else if(taskNo <= 4){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
         }
-        else if(interfaceCounter <= 6){
+        else if(taskNo <= 6){
             roomScene();
             tasktype = "roomScene";
             instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
         }
-        else{
-            return;
-        }
+        //else{
+        //    return;
+        //}
 
         document.getElementById("instruction").innerHTML = instr;
 
@@ -260,12 +255,14 @@ function loadTask(){
         store(interfaceType + "-tasks", taskDataArr);
         window.location = "sus-quest.html?" + interfaceType;
     }
+    else{
+        //resetting
+        init();
 
-    //resetting
-    init();
+        var title =  document.getElementById("taskNo");
+        title.innerHTML = "Task " + taskNo;
+    }
 
-    var title =  document.getElementById("taskNo");
-    title.innerHTML = "Task " + taskNo;
 }
 
 function calculateAccuracy(){

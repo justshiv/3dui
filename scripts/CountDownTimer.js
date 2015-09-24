@@ -37,7 +37,21 @@ CountDownTimer.prototype.start = function() {
 
     obj = CountDownTimer.format(that.duration, diff, that.display);
   }());
+}
+
+document.onkeypress = function(e) {
+    e = e || window.event;
+    var charCode = e.keyCode;
+    if (charCode == 115) {//"s" for "stop"
+        stopTimer();
+    }
 };
+
+function stopTimer(){
+    //alert("Your time is up! We will now proceed.");
+    autosubmit = true;
+    proceed();
+}
 
 CountDownTimer.prototype.expired = function() {
   return !this.running;
