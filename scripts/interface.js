@@ -5,12 +5,10 @@
 
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
-
         });
 
         //stuff that never changes
         var interfaceType = "";
-        var taskNo = 0;
         var totalTasks = 7;
         var container = document.getElementById( 'canvas-container' );
         var boxSide = 1000;
@@ -41,12 +39,27 @@
         //special for standard interface
         var camera;
         var CURRENTVIEW;
-
         var views, tasktype;
-
         var startTime;
+        var taskNo;
+
+
+    function setTaskNo(newNo){
+        localStorage.setItem(interfaceType + "-taskNo", JSON.stringify(newNo));
+    }
+
+    function getTaskNo(){
+        var current =  JSON.parse( localStorage.getItem( interfaceType + "-taskNo" ));
+
+        if(current == null){
+            current = 0;
+        }
+
+        return current;
+    }
 
     function setupInterface(){
+        taskNo = getTaskNo();
         startTime = new Date().getTime();
 
         mouse = new THREE.Vector2();
@@ -69,12 +82,14 @@
         scene.add( new THREE.AmbientLight( 0x505050 ) );
         scene.add(new THREEx.ThreePointsLighting());
 
-        var instr = "";
+        var instr;
+        var title = "Task " + taskNo;
 
         //interfaceCounter++;
         if(taskNo == 0){
             trainingScene();
             instr = "Instructions: Play around to get to know the environment ";
+            title = "Training Task";
         }
         else if(taskNo <= 2){
             alignScene();
@@ -91,10 +106,8 @@
             tasktype = "roomScene";
             instr = "Instructions: Place the table on the red rectangle on the floor, and the lamp on red circle on top of the table";
         }
-        //else{
-        //    return;
-        //}
 
+        document.getElementById("taskNo").innerHTML = title;
         document.getElementById("instruction").innerHTML = instr;
 
         //*** DISPLAY STRUCTURE ***//
@@ -249,7 +262,7 @@ function submit(){
 }
 
 function loadTask(){
-    taskNo++;
+    setTaskNo(++taskNo);
 
     if(taskNo == totalTasks){
         store(interfaceType + "-tasks", taskDataArr);
@@ -258,9 +271,6 @@ function loadTask(){
     else{
         //resetting
         init();
-
-        var title =  document.getElementById("taskNo");
-        title.innerHTML = "Task " + taskNo;
     }
 
 }
@@ -360,12 +370,12 @@ function dodecahedronScene(){
 
 }
 
-/**
+function shuffleArray(array) {
+    /**
  * Randomize array element order in-place.
  * Using Durstenfeld shuffle algorithm.
  * credit:
  */
-function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
@@ -574,6 +584,12 @@ function alignScene(){
         targets.push(floorplane);
 }
 
+function trainingScene(){
+    startTiming();
+
+    dodecahedronScene();
+}
+
 function startTiming(){
     var display = document.querySelector('#time');
     var timer = new CountDownTimer(60 * 3, display);
@@ -593,12 +609,4 @@ function placeRandomly(combined){
     combined.rotation.x = Math.random() * 2 * Math.PI;
     combined.rotation.y = Math.random() * 2 * Math.PI;
     combined.rotation.z = Math.random() * 2 * Math.PI;
-}
-
-function trainingScene(){
-    startTiming();
-
-    dodecahedronScene();
-    //alignScene();
-    //roomScene();
 }
