@@ -22,10 +22,9 @@
                         <hr>
                     <div class="text-content">
                         <p>
-                            After evaluating the interface, please answer the questions below.
+                            An interface is collection of visual elements that allow you to interact with a software system.
+                            After experiencing the previous interface, please answer the questions below.
                         </p>
-
-
 
                         <table id="sus" class="table">
                             <tr>
@@ -39,9 +38,17 @@
 
                         </table>
 
-                        Do you have any open-ended feedback regarding the interface you just evaluated?
-                        <textarea name="textarea" id="" rows="4" cols="50">
-                        </textarea>
+                        Did you feel as if you had control over the elements in this interface? Please elaborate.
+                        <textarea name="control" rows="4" cols="80"></textarea>
+
+
+                        <!--<div class="row">-->
+                            <!--<div class="col-lg-12">-->
+                            Do you have any open-ended feedback regarding the interface you just evaluated?
+                            <textarea name="open" rows="4" cols="80"></textarea>
+                            <!--</div>-->
+                        <!--</div>-->
+
                         <br>
                     </div>
 
@@ -72,22 +79,21 @@
         var prevPage;
 
             var sus_questions = [
-                "I think that I would like to use this system frequently",
-                "I found the system unnecessarily complex",
-                "I thought the system was easy to use",
-                "I think that I would need the support of a technical person to be able to use this system",
-                "I found the various functions in this system were well integrated",
-                "I thought there was too much inconsistency in this system",
-                "I would imagine that most people would learn to use this system very quickly",
-                "I found the system very cumbersome to use",
-                "I felt very confident using the system",
-                "I needed to learn a lot of things before I could get going with this system",
+                "I think that I would like to use this interface frequently",
+                "I found the interface unnecessarily complex",
+                "I thought the interface was easy to use",
+                "I think that I would need the support of a technical person to be able to use this interface",
+                "I found the various functions in this interface were well integrated",
+                "I thought there was too much inconsistency in this interface",
+                "I would imagine that most people would learn to use this interface very quickly",
+                "I found the interface very cumbersome to use",
+                "I felt very confident using the interface",
+                "I needed to learn a lot of things before I could get going with this interface"
             ];
 
 
         function proceed(){
             var radios = [];
-//            var processed = false;
 
             for(var i = 0; i < sus_questions.length; i++){
 
@@ -109,11 +115,13 @@
             }
 //            console.log(prevPage);
 
-            var text = $.trim($("textarea").val());
+            var controlText = $.trim($("control").val());
+            var openText  = $.trim($("open").val());
 
             var submissionData = {
                 sus: radios,
-                text: text
+                control: controlText,
+                open: openText
             };
 
             store(prevPage + "-questionnaire", submissionData);
