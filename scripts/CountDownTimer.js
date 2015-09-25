@@ -42,6 +42,7 @@ CountDownTimer.prototype.start = function() {
 document.onkeypress = function(e) {
     e = e || window.event;
     var charCode = e.keyCode;
+    //alert(charCode);
     if (charCode == 115) {//"s" for "stop"
         stopTimer();
     }

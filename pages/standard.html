@@ -40,8 +40,8 @@
                                   <li class="dropdown">
                                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-history"></i> Reset <span class="caret"></span></a>
                                       <ul class="dropdown-menu" role="menu">
-                                        <li><a onclick="reset()">Reset scene rotations</a></li>
-                                        <li><a onclick="resetObjects()">Reset objects</a></li>
+                                        <li><a onclick="reset()">Scene orientation</a></li>
+                                        <li><a onclick="resetObjects()">Object positions</a></li>
                                       </ul>
                                     </li>
 
@@ -195,7 +195,7 @@
 
         function reset(){
             setupViews();
-//            resetObjects();
+            viewResets ++;
         }
 
         function init() {
@@ -276,6 +276,9 @@
             planeLookAt.copy(getPlaneLookAt(mouse));
             mouse.copy(getInterfaceSpecificMouse(mouse));
 
+
+            if(CURRENTVIEW != 'undefined'){
+
             views[CURRENTVIEW].controls.enabled = true;
             CURRENTCAM = views[CURRENTVIEW].camera;
 
@@ -341,6 +344,7 @@
                     container.style.cursor = '-webkit-grab';
                     scene.remove(selectedEdge);
                 }
+            }
             }
 
         }

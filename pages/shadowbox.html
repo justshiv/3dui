@@ -41,8 +41,8 @@
                                   <li class="dropdown">
                                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-history"></i> Reset <span class="caret"></span></a>
                                       <ul class="dropdown-menu" role="menu">
-                                        <li><a onclick="reset()">Reset scene rotations</a></li>
-                                        <li><a onclick="resetObjects()">Reset objects</a></li>
+                                        <li><a onclick="reset()">Scene orientation</a></li>
+                                        <li><a onclick="resetObjects()">Object positions</a></li>
                                       </ul>
                                     </li>
 
@@ -387,7 +387,7 @@
 
         function reset(){
             mainCamera = setupMainCamera(container);
-//            resetObjects();
+            viewResets++;
         }
 
         //function to add shadowbox's side plane camera's to the scene

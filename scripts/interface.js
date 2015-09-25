@@ -67,6 +67,10 @@
         var startTime;
         var taskNo;
 
+        //forlogging
+        var viewResets;
+        var objectResets;
+
     function setTaskNo(newNo){
         localStorage.setItem(interfaceType + "-taskNo", JSON.stringify(newNo));
     }
@@ -83,6 +87,8 @@
 
     function setupInterface(){
         taskNo = getTaskNo();
+        viewResets = 0;
+        objectResets = 0;
         startTime = new Date().getTime();
 
         mouse = new THREE.Vector2();
@@ -107,18 +113,18 @@
         if(taskNo == 0){
             trainingScene();
             tasktype = "training";
-            instr = "Instructions: Play around to get to know the environment ";
+            instr = "Instructions: Play around to get to know the environment. Ensure you know how to rotate and translate objects. ";
             title = "Training Task";
         }
         else if(taskNo <= 4){
             alignScene();
             tasktype = "alignScene";
-            instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
+            instr = "Instructions: Put the number/letter onto the centre of the black rectangle. ";
         }
         else if(taskNo <= 7){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
-            instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
+            instr = "Instructions: Align the number/letter with the cutout in the dodecahedron in the middle";
         }
         else if(taskNo <= 9){
             roomScene();
@@ -207,7 +213,7 @@
         window.addEventListener( 'resize', onWindowResize, false );
     }
 function resetObjects(){
-    //objects = [];
+    objectResets++;
 
     for(var i = 0; i < objects_copy.length; i++){
         scene.remove(objects[i]);
@@ -277,6 +283,16 @@ function submit(){
 
         };
         subObjectsArr.push(subObject);
+    }
+    for(var i = 0; i < targets.length; i++){
+        var subTarget = {
+            type: "target",
+            position: targets[i].position,
+            quarternion: targets[i].quarternion,
+            rotation: targets[i].rotation,
+            up: targets[i].up
+
+        };
         subTargetsArr.push(subTarget);
     }
 
@@ -284,6 +300,8 @@ function submit(){
         taskNo: taskNo,
         taskType: tasktype,
         timeTaken: timeTaken,
+        objectResets: objectResets,
+        viewResets: viewResets,
         objects: subObjectsArr,
         targets: subTargetsArr
     };
@@ -433,9 +451,6 @@ function shuffleArray(array) {
 }
 
 function roomScene(){
-
-    shuffleArray(colors);
-
     var materials = [];
     materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#8c564b")} ));
     materials.push(new THREE.MeshLambertMaterial( {color: new THREE.Color("#ad7165")} ));
@@ -443,6 +458,7 @@ function roomScene(){
 
     //TABLE
     var geometry = new THREE.BoxGeometry( 400, 10, 200 );
+    geometry.center();
     var tabletop = new THREE.Mesh( geometry, materials[0] );
     tabletop.position.set(0, 50, 0);
     for(var i = 0; i < tabletop.geometry.faces.length; i++){
@@ -450,6 +466,7 @@ function roomScene(){
     }
 
     geometry = new THREE.CylinderGeometry( 10, 5, 90, 30, 1 );
+    geometry.center();
     var rightLeg1 = new THREE.Mesh( geometry, materials[1] );
     rightLeg1.position.set(150, 0, 50);
     for(i = 0; i < rightLeg1.geometry.faces.length; i++){
@@ -476,6 +493,7 @@ function roomScene(){
 
     //lamp target
     geometry = new THREE.CircleGeometry( 40, 32 );
+    geometry.center();
     var target = new THREE.Mesh( geometry, materials[2] );
     target.position.copy(tabletop.position);
     target.position.y += 6;
@@ -483,6 +501,7 @@ function roomScene(){
     for(i = 0; i < target.geometry.faces.length; i++){
         target.geometry.faces[i].materialIndex = 2;
     }
+    targets.push(target);
 
     var combinedGeom = new THREE.Geometry();
     tabletop.updateMatrix();
@@ -529,6 +548,7 @@ function roomScene(){
 
     //table target
     geometry = new THREE.PlaneGeometry( 400, 200 );
+    geometry.center();
     target = new THREE.Mesh( geometry, materials[1] );
     target.position.copy(floor.position);
     target.position.y += 4;
@@ -536,6 +556,7 @@ function roomScene(){
     for(i = 0; i < target.geometry.faces.length; i++){
         target.geometry.faces[i].materialIndex = 1;
     }
+    targets.push(target);
 
     combinedGeom = new THREE.Geometry();
     tabletop.updateMatrix();
@@ -559,6 +580,7 @@ function roomScene(){
 
     //lampshade
     geometry = new THREE.CylinderGeometry( 30, 70, 80, 32, 1, true );
+    geometry.center();
     var shade = new THREE.Mesh( geometry, material[0] );
     shade.position.set(0, 60, 0);
     for(var i = 0; i < shade.geometry.faces.length; i++){
@@ -566,6 +588,7 @@ function roomScene(){
     }
 
     geometry = new THREE.CylinderGeometry( 30, 20, 60, 32, 1 );
+    geometry.center();
     var base = new THREE.Mesh( geometry, material[1] );
     base.position.set(0, 0, 0);
     for(var i = 0; i < base.geometry.faces.length; i++){
@@ -587,8 +610,6 @@ function roomScene(){
     scene.add( combined );
     scene.add( wireframe );
     objects.push(combined);
-
-
 }
 
 function drawTextGeometry(color, letter){
