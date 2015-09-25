@@ -1,0 +1,108 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>3DUI Experiment - Siobhan O'Donovan</title>
+
+    <!--initial favicon-->
+    <link id="favicon" rel="icon" type="image/png" href="../images/cube.png" />
+
+    <!--styles-->
+    <link href="../libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                        <h2> Comparing and Contrasting </h2>
+                        <hr>
+                    <div class="text-content">
+                        <p>
+                            After experiencing the 2 types of interfaces shown to you today, please answer the questions below.
+                        </p>
+                        <br>
+
+                        Which interface did enjoy using most? Why?
+                        <textarea name="enjoy" id="enjoy" rows="4" cols="80"></textarea>
+
+                        <br>
+                        <br>
+                        Which interface did you feel most in control with? Why?
+                        <textarea name="control" id="control" rows="4" cols="80"></textarea>
+
+                        <br>
+                        <br>
+                        Which of these interfaces would you use more if you had to complete similar tasks in the future?
+                        <textarea name="choose" id="choose" rows="4" cols="80"></textarea>
+
+                        <br>
+                        <br>
+                        Would you choose one interface over the other in all cases, or did you find one was better than the other for certain tasks? Elaborate
+                        <textarea name="exclusive" id="exclusive" rows="4" cols="80"></textarea>
+
+                        <br>
+                        <br>
+                        Do you have any open-ended feedback regarding this experiment?
+                        <textarea name="open" id="open" rows="4" cols="80"></textarea>
+
+                        <br>
+                    </div>
+
+
+                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                        <div class="col-xs-offset-1 col-xs-10">
+                          <a type="submit" onclick="proceed()" class="btn btn-success no-load-prompt">Submit</a>
+                        </div>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+    <!--scripts-->
+    <script src="../libs/jquery-1.11.3.min.js"></script>
+    <script src="../libs/bootstrap/bootstrap.min.js"></script>
+    <script src="../scripts/main.js"></script>
+    <!--<script src="../scripts/CountDownTimer.js"></script>-->
+
+    <script>
+
+        function proceed(){
+
+            var enjoyText = document.getElementById("enjoy").value;
+            var controlText = document.getElementById("control").value;
+            var chooseText = document.getElementById("choose").value;
+            var exclusiveText = document.getElementById("exclusive").value;
+            var openText  = document.getElementById("open").value;
+
+            var submissionData = {
+                enjoy: enjoyText,
+                control: controlText,
+                choose: chooseText,
+                exclusive: exclusiveText,
+                open: openText
+
+            };
+
+            store("final-questionnaire", submissionData);
+
+            window.location = "end.html";
+
+        }
+
+        $(window).load(function(){
+        });
+
+    </script>
+
+
+</html>

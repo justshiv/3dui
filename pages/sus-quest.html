@@ -39,22 +39,18 @@
                         </table>
 
                         Did you feel as if you had control over the elements in this interface? Please elaborate.
-                        <textarea name="control" rows="4" cols="80"></textarea>
+                        <textarea name="control" id="control" rows="4" cols="80"></textarea>
 
-
-                        <!--<div class="row">-->
-                            <!--<div class="col-lg-12">-->
-                            Do you have any open-ended feedback regarding the interface you just evaluated?
-                            <textarea name="open" rows="4" cols="80"></textarea>
-                            <!--</div>-->
-                        <!--</div>-->
+<br><br>
+                        Do you have any open-ended feedback regarding the interface you just evaluated?
+                        <textarea name="open" id="open" rows="4" cols="80"></textarea>
 
                         <br>
                     </div>
 
 
                     </div>
-                    <form class="form-horizontal">
+                    <form id="submitform" class="form-horizontal">
                         <div class="form-group">
                         <div class="col-xs-offset-1 col-xs-10">
                           <a type="submit" onclick="proceed()" class="btn btn-success no-load-prompt">Submit</a>
@@ -72,10 +68,11 @@
     <script src="../libs/jquery-1.11.3.min.js"></script>
     <script src="../libs/bootstrap/bootstrap.min.js"></script>
     <script src="../scripts/main.js"></script>
-    <script src="../scripts/CountDownTimer.js"></script>
+    <!--<script src="../scripts/CountDownTimer.js"></script>-->
 
     <script>
 
+        autoproceed=false;
         var prevPage;
 
             var sus_questions = [
@@ -113,10 +110,9 @@
                     radios.push(option_value);
                 }
             }
-//            console.log(prevPage);
 
-            var controlText = $.trim($("control").val());
-            var openText  = $.trim($("open").val());
+            var controlText = document.getElementById("control").value;
+            var openText  = document.getElementById("open").value;
 
             var submissionData = {
                 sus: radios,
@@ -127,7 +123,7 @@
             store(prevPage + "-questionnaire", submissionData);
 
             if(retrieve()["shadowbox-tasks"] != null && retrieve()["standard-tasks"] != null){
-                window.location = "end.html";
+                window.location = "comparison.html";
             }
             else if(retrieve()["shadowbox-tasks"] != null){
                 window.location = "explaining-standard.html";
