@@ -37,8 +37,16 @@
                                 <a id="taskNo" class="navbar-brand" href="#"></a>
 
                                 <ul class="nav navbar-nav navbar-right">
-                                  <li id="reset"><a data-toggle="tooltip" data-placement="bottom" title="Reset entire scene" onclick="reset()"><i class="fa fa-history"></i> Reset</a></li>
-                                  <!--<li><a target="_blank" data-toggle="tooltip" data-placement="bottom" title="Help documentation" href="help.pdf"><i class="fa fa-question-circle"></i> Help</a></li>-->
+                                  <!--<li id="reset"><a data-toggle="tooltip" data-placement="bottom" title="Reset entire scene" onclick="reset()"><i class="fa fa-history"></i> Reset</a></li>-->
+                                  <li class="dropdown">
+                                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-history"></i> Reset <span class="caret"></span></a>
+                                      <ul class="dropdown-menu" role="menu">
+                                        <li><a onclick="reset()">Reset scene rotations</a></li>
+                                        <li><a onclick="resetObjects()">Reset objects</a></li>
+                                      </ul>
+                                    </li>
+
+                                    <!--<li><a target="_blank" data-toggle="tooltip" data-placement="bottom" title="Help documentation" href="help.pdf"><i class="fa fa-question-circle"></i> Help</a></li>-->
                                 </ul>
                           </div>
                         </nav>
@@ -379,6 +387,7 @@
 
         function reset(){
             mainCamera = setupMainCamera(container);
+//            resetObjects();
         }
 
         //function to add shadowbox's side plane camera's to the scene

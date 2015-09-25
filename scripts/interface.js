@@ -2,6 +2,17 @@
  * Created by siobhan on 15/08/30.
  */
 
+    //retrieved from stackoverflow
+    window.Object.defineProperty( Element.prototype, 'documentOffsetTop', {
+        get: function () {
+            return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop : 0 );
+        }
+    } );
+    window.Object.defineProperty( Element.prototype, 'documentOffsetLeft', {
+        get: function () {
+            return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
+        }
+    } );
 
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
@@ -23,10 +34,9 @@
         var screenScene, screenCamera, firstRenderTarget,topRenderTarget, bottomRenderTarget, frontRenderTarget, backRenderTarget, rightRenderTarget, leftRenderTarget;
         var gridXZ, gridYZ, gridXY;
         var mouse, offset, INTERSECTED, SELECTED, CURRENTCAM;
-        var objects, targets;
+        var objects, targets, objects_copy;
         var planes, movementPlane;
         var selectedEdge;
-        //var colors = [], letters = [];
 
         var colors = [
             new THREE.Color("#1f77b4"),
@@ -42,8 +52,6 @@
 
         shuffleArray(letters);
         shuffleArray(colors);
-
-
 
         var objstate = OBJSTATE.NONE;
         var translate = false;
@@ -82,6 +90,7 @@
 
         targets = [];
         objects = [];
+        objects_copy = [];
         planes = [];
 
         //*** SCENE & LIGHTS ***//
@@ -122,6 +131,11 @@
 
         if(tasktype != oldtasktype){
             newTaskType();
+        }
+
+        for(var i = 0; i < objects.length; i++){
+            var currentCopy = objects[i].clone();
+            objects_copy.push(currentCopy);
         }
 
         document.getElementById("taskNo").innerHTML = title;
@@ -192,8 +206,20 @@
         renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
         window.addEventListener( 'resize', onWindowResize, false );
     }
+function resetObjects(){
+    //objects = [];
 
-    function cursorPositionInCanvas(canvas, event) {
+    for(var i = 0; i < objects_copy.length; i++){
+        scene.remove(objects[i]);
+        //objects[i].remove();
+
+        var currentCopy = objects_copy[i].clone();
+        objects[i] = currentCopy;
+        scene.add(objects[i]);
+    }
+}
+
+function cursorPositionInCanvas(canvas, event) {
 
         var canoffsetLeft = canvas.documentOffsetLeft;
         var canoffsetTop = canvas.documentOffsetTop;
@@ -207,18 +233,6 @@
 
         return mousePos;
     }
-
-    //retrieved from stackoverflow
-    window.Object.defineProperty( Element.prototype, 'documentOffsetTop', {
-        get: function () {
-            return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop : 0 );
-        }
-    } );
-    window.Object.defineProperty( Element.prototype, 'documentOffsetLeft', {
-        get: function () {
-            return this.offsetLeft + ( this.offsetParent ? this.offsetParent.documentOffsetLeft : 0 );
-        }
-    } );
 
 function drawRotHelpers(currObject){
     rotx.visible = true;
@@ -649,11 +663,24 @@ function proceed(){
     submit();
 }
 
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ * credit: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+ */
+function getRandom(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function placeRandomly(combined){
-    combined.position.x = Math.random() * 800 - (boxSide/2);
-    combined.position.y = Math.random() * 800 - (boxSide/2);
-    combined.position.z = Math.random() * 800 - (boxSide/2);
-    combined.rotation.x = Math.random() * 2 * Math.PI;
-    combined.rotation.y = Math.random() * 2 * Math.PI;
-    combined.rotation.z = Math.random() * 2 * Math.PI;
+
+    var dimensions = boxSide/2 - 100; //padding to make sure things don't go out of bounds too far
+
+    combined.position.x = getRandom(-dimensions, dimensions);
+    combined.position.y = getRandom(-dimensions, dimensions);
+    combined.position.z = getRandom(-dimensions, dimensions);
+
+    combined.rotation.x = getRandom(0, 2 * Math.PI);
+    combined.rotation.y = getRandom(0, 2 * Math.PI);
+    combined.rotation.z = getRandom(0, 2 * Math.PI);
 }
