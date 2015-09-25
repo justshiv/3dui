@@ -26,8 +26,24 @@
         var objects, targets;
         var planes, movementPlane;
         var selectedEdge;
-        var colors = [], letters = [];
-        var objectColOrder = [];
+        //var colors = [], letters = [];
+
+        var colors = [
+            new THREE.Color("#1f77b4"),
+            new THREE.Color("#ff7f0e"),
+            new THREE.Color("#d62728"),
+            new THREE.Color("#9467bd"),
+            new THREE.Color("#8c564b"),
+            new THREE.Color("#e377c2"),
+            new THREE.Color("#bcbd22"),
+            new THREE.Color("#17becf")
+        ];
+        var letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
+
+        shuffleArray(letters);
+        shuffleArray(colors);
+
+
 
         var objstate = OBJSTATE.NONE;
         var translate = false;
@@ -42,7 +58,6 @@
         var views, tasktype;
         var startTime;
         var taskNo;
-
 
     function setTaskNo(newNo){
         localStorage.setItem(interfaceType + "-taskNo", JSON.stringify(newNo));
@@ -68,18 +83,6 @@
         targets = [];
         objects = [];
         planes = [];
-        colors = [
-            new THREE.Color("rgb(107, 110, 207)"),
-            new THREE.Color("rgb(181, 207, 107)"),
-            new THREE.Color("rgb(231, 186, 82)"),
-            new THREE.Color("rgb(214, 97, 107)"),
-            new THREE.Color("rgb(206, 109, 189)")
-        ];
-        letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
-
-
-        shuffleArray(letters);
-        shuffleArray(colors);
 
         //*** SCENE & LIGHTS ***//
         scene = new THREE.Scene();
@@ -88,19 +91,22 @@
 
         var instr;
         var title = "Task " + taskNo + "/" + (totalTasks-1);
+        var oldtasktype = tasktype;
 
         //interfaceCounter++;
+
         if(taskNo == 0){
             trainingScene();
+            tasktype = "training";
             instr = "Instructions: Play around to get to know the environment ";
             title = "Training Task";
         }
-        else if(taskNo <= 3){
+        else if(taskNo <= 4){
             alignScene();
             tasktype = "alignScene";
             instr = "Instructions: Put the numbers/letters onto the black rectangle. ";
         }
-        else if(taskNo <= 6){
+        else if(taskNo <= 7){
             dodecahedronScene();
             tasktype = "dodecahedronScene";
             instr = "Instructions: Align the numbers/letters with the cutouts in the dodecahedron in the middle";
@@ -112,6 +118,10 @@
         }
         else{
             loadTask();
+        }
+
+        if(tasktype != oldtasktype){
+            newTaskType();
         }
 
         document.getElementById("taskNo").innerHTML = title;
@@ -282,6 +292,23 @@ function loadTask(){
 
 }
 
+function newTaskType(){
+    colors = [
+        new THREE.Color("#1f77b4"),
+        new THREE.Color("#ff7f0e"),
+        new THREE.Color("#d62728"),
+        new THREE.Color("#9467bd"),
+        new THREE.Color("#8c564b"),
+        new THREE.Color("#e377c2"),
+        new THREE.Color("#bcbd22"),
+        new THREE.Color("#17becf")
+    ];
+     letters = [ "F", "G", "J", "L", "P", "Q", "R", "1", "2", "3", "4", "5", "7", "9"];
+
+    shuffleArray(letters);
+    shuffleArray(colors);
+}
+
 function calculateAccuracy(){
 
     var difference = 0;
@@ -301,19 +328,19 @@ function dodecahedronScene(){
     var geometry = new THREE.DodecahedronGeometry(250, 0);
     var material = new THREE.MeshPhongMaterial( { transparent: true, opacity: 0.9, color: colors.pop(), shading: THREE.FlatShading} );
     var dodeca = new THREE.Mesh(geometry, material);
-    var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("rgb(150, 150, 150)"));
+    var wireframe = new THREE.EdgesHelper( dodeca, new THREE.Color("#000000"));
 
-    geometry.mergeVertices();
+    //geometry.mergeVertices();
 
     dodeca.position.set(0,0,0);
     scene.add(dodeca);
     scene.add(wireframe);
 
-    for(var i = 0; i < 1; i++){
+    //for(var i = 0; i < 1; i++){
 
         var item = letters.pop();
 
-        var objMaterial = new THREE.MeshLambertMaterial( { color: colors.pop() } );
+        var objMaterial = new THREE.MeshPhongMaterial( { color: colors.pop() } );
         var objGeom = new THREE.TextGeometry( item,
         {
             size: 150, height: 10, curveSegments: 20,
@@ -325,7 +352,6 @@ function dodecahedronScene(){
 
         var object = new THREE.Mesh(objGeom, objMaterial );
         placeRandomly(object);
-
 
         object.castShadow = true;
         object.receiveShadow = true;
@@ -350,9 +376,9 @@ function dodecahedronScene(){
         scene.add( target );
         //scene.add(wireframe);
         targets.push(target);
-    }
+    //}
 
-    if(taskNo == 3){
+    if(taskNo == 5){
         targets[0].position.x = 174;
         targets[0].position.y = 100;
         targets[0].position.z = 0;
@@ -360,7 +386,7 @@ function dodecahedronScene(){
         targets[0].rotation.y =  1.018;
         targets[0].rotation.z = Math.PI/2;
     }
-    else if(taskNo == 4){
+    else if(taskNo == 6){
         targets[0].position.x = -174;
         targets[0].position.y = 100;
         targets[0].position.z = 0;
@@ -460,7 +486,7 @@ function roomScene(){
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("#663e36"));
+    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
 
     placeRandomly(combined);
 
@@ -504,7 +530,7 @@ function roomScene(){
     combinedGeom.merge(target.geometry, target.matrix);
 
     combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
+    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
 
     placeRandomly(combined);
 
@@ -551,38 +577,52 @@ function roomScene(){
 
 }
 
+function drawTextGeometry(color, letter){
+
+    var material = new THREE.MeshPhongMaterial( { color: color } );
+
+    var geometry = new THREE.TextGeometry( letter,
+    {
+        size: 150, height: 10, curveSegments: 20,
+        font: "droid serif", weight: "normal", style: "normal",
+        bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
+        material: 0, extrudeMaterial: 1
+    });
+    geometry.center();
+
+    return new THREE.Mesh(geometry, material );
+}
+
 function alignScene(){
+        var object = drawTextGeometry(colors.pop(), letters.pop());
 
-        for(var i = 0; i < 3; i++){
-            var materialFront = new THREE.MeshLambertMaterial( { color: colors.pop()} );
-            var textGeom = new THREE.TextGeometry( letters.pop(),
-            {
-                size: 150, height: 10, curveSegments: 20,
-                font: "droid serif", weight: "normal", style: "normal",
-                bevelThickness: 5, bevelSize: 5, bevelEnabled: true,
-                material: 0, extrudeMaterial: 1
-            });
-            textGeom.center();
+        placeRandomly(object);
 
-            var object = new THREE.Mesh(textGeom, materialFront );
+        object.castShadow = true;
+        object.receiveShadow = true;
+        scene.add( object );
+        objects.push( object );
 
-            placeRandomly(object);
-
-            object.castShadow = true;
-            object.receiveShadow = true;
-            scene.add( object );
-            objects.push( object );
-        }
-
-        var geometry = new THREE.BoxGeometry( 600, 5, 400 );
+        var geometry = new THREE.BoxGeometry( 400, 5, 400 );
         geometry.center();
         var material = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.7, color: new THREE.Color("#000000")} );
         var floorplane = new THREE.Mesh( geometry, material );
-        floorplane.position.set(0, 200, 0);
+        floorplane.position.set(0, 0, 0);
 
-        floorplane.rotation.x = -Math.PI/2;
-        floorplane.rotation.y =  -1.018;
-        floorplane.rotation.z = -Math.PI/2;
+        if(taskNo == 1){
+            floorplane.rotation.x = Math.PI/4;
+            floorplane.rotation.y = Math.PI/4;
+        }
+        else if(taskNo == 2){
+            floorplane.rotation.z =  Math.PI/4;
+        }
+        else if(taskNo == 3){
+            floorplane.rotation.x =  -Math.PI/4;
+            floorplane.rotation.y = Math.PI/4;
+        }
+        else{
+            floorplane.rotation.z =  -Math.PI/4;
+        }
 
         scene.add(floorplane);
         targets.push(floorplane);

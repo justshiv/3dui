@@ -38,7 +38,7 @@ function onDocumentMouseDown( event ) {
             lockControls();
             container.style.cursor = 'alias';
 
-            drawRotHelpers(SELECTED);
+            //drawRotHelpers(SELECTED);
 
         }
     }
@@ -109,7 +109,7 @@ function onDocumentMouseUp( event ) {
         else{
             $('#rotate').removeClass('active');
 
-            hideRotHelpers();
+            //hideRotHelpers();
             $('#translate').addClass('active');
             rotate = false;
             translate = true;
