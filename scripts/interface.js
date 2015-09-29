@@ -306,7 +306,9 @@ function submit(){
         targets: subTargetsArr
     };
 
-    taskDataArr.push(submissionData);
+    //taskDataArr.push(submissionData);
+
+    store(interfaceType + "-tasks-" + taskNo, submissionData);
     loadTask();
 }
 
@@ -314,7 +316,7 @@ function loadTask(){
     setTaskNo(++taskNo);
 
     if(taskNo >= totalTasks){
-        store(interfaceType + "-tasks", taskDataArr);
+        //store(interfaceType + "-tasks-" + taskNo, taskDataArr);
         window.location = "sus-quest.html?" + interfaceType;
     }
     else{
@@ -519,12 +521,12 @@ function roomScene(){
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
+    //var wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
 
     placeRandomly(combined);
 
     scene.add( combined );
-    scene.add( wireframe );
+    //scene.add( wireframe );
     objects.push(combined);
 
     ////FLOOR
@@ -565,12 +567,12 @@ function roomScene(){
     combinedGeom.merge(target.geometry, target.matrix);
 
     combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
+    //wireframe = new THREE.EdgesHelper( combined, new THREE.Color("000000"));
 
     placeRandomly(combined);
 
     scene.add(combined);
-    scene.add(wireframe);
+    //scene.add(wireframe);
     objects.push(combined);
 
     ////LAMP
@@ -579,7 +581,7 @@ function roomScene(){
     materials.push(new THREE.MeshLambertMaterial( {color: colors.pop()} ));
 
     //lampshade
-    geometry = new THREE.CylinderGeometry( 30, 70, 80, 32, 1, true );
+    geometry = new THREE.CylinderGeometry( 30, 70, 80, 32, 1, false );
     geometry.center();
     var shade = new THREE.Mesh( geometry, material[0] );
     shade.position.set(0, 60, 0);
@@ -603,12 +605,12 @@ function roomScene(){
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
+    //wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
 
     placeRandomly(combined);
 
     scene.add( combined );
-    scene.add( wireframe );
+    //scene.add( wireframe );
     objects.push(combined);
 }
 
