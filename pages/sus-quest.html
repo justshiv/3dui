@@ -75,6 +75,8 @@
         autoproceed=false;
         var prevPage;
 
+
+
             var sus_questions = [
                 "I think that I would like to use this interface frequently",
                 "I found the interface unnecessarily complex",
@@ -122,15 +124,25 @@
 
             store(prevPage + "-questionnaire", submissionData);
 
-            if(retrieve()["shadowbox-tasks"] != null && retrieve()["standard-tasks"] != null){
+            if(getSingle("shadowbox-taskNo") >=9 && getSingle("standard-taskNo") >=9){
                 window.location = "comparison.html";
             }
-            else if(retrieve()["shadowbox-tasks"] != null){
+            else if(getSingle("shadowbox-taskNo") >=9){
                 window.location = "explaining-standard.html";
             }
             else{
                 window.location = "explaining-shadowbox.html";
             }
+
+//            if(retrieve()["shadowbox-tasks-9"] != null && retrieve()["standard-tasks-9"] != null){
+//                window.location = "comparison.html";
+//            }
+//            else if(retrieve()["shadowbox-tasks-9"] != null){
+//                window.location = "explaining-standard.html";
+//            }
+//            else{
+//                window.location = "explaining-shadowbox.html";
+//            }
         }
 
         $(window).load(function(){

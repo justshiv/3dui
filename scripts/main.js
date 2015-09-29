@@ -50,6 +50,14 @@ function retrieve(){
     return current;
 }
 
+function getSingle(key){
+    var current =  JSON.parse( localStorage.getItem( key ));
+    //if(current == null){
+    //    current = {};
+    //}
+    return current;
+}
+
 function getGroup(){
     var name = retrieve()["participantNo"];
     return name.slice(0, 1);
