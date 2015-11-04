@@ -14,6 +14,8 @@
         }
     } );
 
+    var bbox;
+
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
         });
@@ -631,14 +633,19 @@ function drawTextGeometry(color, letter){
 }
 
 function alignScene(){
-        var object = drawTextGeometry(colors.pop(), letters.pop());
 
+
+        var object = drawTextGeometry(colors.pop(), letters.pop());
         placeRandomly(object);
 
         object.castShadow = true;
         object.receiveShadow = true;
         scene.add( object );
         objects.push( object );
+        bbox = new THREE.BoundingBoxHelper( object, new THREE.Color("purple") );
+        bbox.update();
+        var objedges = new THREE.FaceNormalsHelper( object, 200, new THREE.Color("purple"), 1 );
+
 
         var geometry = new THREE.BoxGeometry( 400, 5, 400 );
         geometry.center();
@@ -661,8 +668,23 @@ function alignScene(){
             floorplane.rotation.z =  -Math.PI/4;
         }
 
+        var dir = new THREE.Vector3( 0, 1, 0 );
+        var origin = new THREE.Vector3( 0, 0, 0 );
+        var length = 400;
+        var hex = 0xffff00;
+
+        var arrowHelper = new THREE.ArrowHelper( object.rotation, object.position, length, hex );
+        //scene.add( arrowHelper );
+
+        var edges = new THREE.FaceNormalsHelper( floorplane, 200, new THREE.Color("orange"), 1 );
+
+        //scene.add( object );
+
         scene.add(floorplane);
         targets.push(floorplane);
+        //scene.add( bbox );
+        //scene.add( objedges );
+        scene.add( edges );
 }
 
 function trainingScene(){

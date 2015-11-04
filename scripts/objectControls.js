@@ -64,6 +64,7 @@ function onDocumentMouseDown( event ) {
 
 function onDocumentMouseUp( event ) {
     event.preventDefault();
+    //bbox.update();
 
     if(objstate === OBJSTATE.MOVE){
 
