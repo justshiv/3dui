@@ -37,22 +37,16 @@ CountDownTimer.prototype.start = function() {
 
     obj = CountDownTimer.format(that.duration, diff, that.display);
   }());
-}
-
-document.onkeypress = function(e) {
-    e = e || window.event;
-    var charCode = e.keyCode;
-    //alert(charCode);
-    if (charCode == 115) {//"s" for "stop"
-        stopTimer();
-    }
 };
 
-function stopTimer(){
-    //alert("Your time is up! We will now proceed.");
-    autosubmit = true;
-    proceed();
-}
+//document.onkeypress = function(e) {
+//    e = e || window.event;
+//    var charCode = e.keyCode;
+//    //alert(charCode);
+//    if (charCode == 115) {//"s" for "stop"
+//        stopTimer();
+//    }
+//};
 
 CountDownTimer.prototype.expired = function() {
   return !this.running;

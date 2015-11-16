@@ -3,7 +3,8 @@
  */
 
 var participantKey = "CurrentParticipant";
-
+var timer;
+var autosubmit = false;
 
 $(function()
 {
@@ -22,7 +23,9 @@ $(function()
 
     //output to dissuade people to close/refresh current page
     window.onbeforeunload = function(){
-        return "Leaving this page may result in losing experimental results.";
+        if(autosubmit != true){
+            return "Leaving this page may result in losing experimental results.";
+        }
     };
 
     //disables clicking on back button
@@ -78,6 +81,31 @@ function deleteAll(){
     //delete key
       localStorage.removeItem(key)
   }
+}
+
+
+document.onkeypress = function(e) {
+    e = e || window.event;
+    var charCode = e.keyCode;
+    //alert(charCode);
+    if (charCode == 115) {//"s" for "stop"
+        //stopTimer(timer);
+
+        if(timer !== undefined){
+            timer.running = false;
+        }
+        autosubmit = true;
+        proceed();
+    }
+};
+
+function stopTimer(timer){
+    //alert("Your time is up! We will now proceed.");
+    if(timer !== undefined){
+        timer.running = false;
+    }
+    autosubmit = true;
+    proceed();
 }
 
 //

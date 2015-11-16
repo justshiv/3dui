@@ -104,7 +104,7 @@
                     }
                 }
 
-                if(option_value == -1){
+                if(option_value == -1 && autosubmit != true){
                     alert("Please ensure you answer each question!");
                     return;
                 }
@@ -134,15 +134,6 @@
                 window.location = "explaining-shadowbox.html";
             }
 
-//            if(retrieve()["shadowbox-tasks-9"] != null && retrieve()["standard-tasks-9"] != null){
-//                window.location = "comparison.html";
-//            }
-//            else if(retrieve()["shadowbox-tasks-9"] != null){
-//                window.location = "explaining-standard.html";
-//            }
-//            else{
-//                window.location = "explaining-shadowbox.html";
-//            }
         }
 
         $(window).load(function(){

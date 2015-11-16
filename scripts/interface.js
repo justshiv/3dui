@@ -14,6 +14,8 @@
         }
     } );
 
+var timer;
+
     var bbox;
 
         $(function () {
@@ -607,12 +609,9 @@ function roomScene(){
     combinedGeom.center();
 
     var combined = new THREE.Mesh(combinedGeom,new THREE.MeshFaceMaterial(materials));
-    //wireframe = new THREE.EdgesHelper( combined, new THREE.Color("rgb(99, 99, 99)"));
 
     placeRandomly(combined);
-
     scene.add( combined );
-    //scene.add( wireframe );
     objects.push(combined);
 }
 
@@ -642,9 +641,9 @@ function alignScene(){
         object.receiveShadow = true;
         scene.add( object );
         objects.push( object );
-        bbox = new THREE.BoundingBoxHelper( object, new THREE.Color("purple") );
-        bbox.update();
-        var objedges = new THREE.FaceNormalsHelper( object, 200, new THREE.Color("purple"), 1 );
+        //bbox = new THREE.BoundingBoxHelper( object, new THREE.Color("purple") );
+        //bbox.update();
+        //var objedges = new THREE.FaceNormalsHelper( object, 200, new THREE.Color("purple"), 1 );
 
 
         var geometry = new THREE.BoxGeometry( 400, 5, 400 );
@@ -676,7 +675,7 @@ function alignScene(){
         var arrowHelper = new THREE.ArrowHelper( object.rotation, object.position, length, hex );
         //scene.add( arrowHelper );
 
-        var edges = new THREE.FaceNormalsHelper( floorplane, 200, new THREE.Color("orange"), 1 );
+        //var edges = new THREE.FaceNormalsHelper( floorplane, 200, new THREE.Color("orange"), 1 );
 
         //scene.add( object );
 
@@ -684,7 +683,7 @@ function alignScene(){
         targets.push(floorplane);
         //scene.add( bbox );
         //scene.add( objedges );
-        scene.add( edges );
+        //scene.add( edges );
 }
 
 function trainingScene(){
@@ -697,9 +696,18 @@ function trainingScene(){
 
 function startTiming(){
     var display = document.querySelector('#time');
-    var timer = new CountDownTimer(60 * 3, display);
+    timer = new CountDownTimer(60 * 3, display);
     timer.start();
 }
+
+document.onkeypress = function(e) {
+    e = e || window.event;
+    var charCode = e.keyCode;
+    //alert(charCode);
+    if ((charCode == 115)) {//"s" for "stop"
+        stopTimer(timer);
+    }
+};
 
 function proceed(){
 
